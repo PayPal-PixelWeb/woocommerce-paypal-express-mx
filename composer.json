@@ -1,0 +1,40 @@
+{
+    "name": "woocommerce-paypal-express-mx",
+    "description": "PayPal Express Checkout MX-Latam",
+    "keywords": ["paypal", "payments", "woocommerce"],
+    "type": "plugin",
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/PayPal-PixelWeb/PayPal-Woo",
+    "authors": [
+        {
+            "name": "PayPal",
+            "homepage": "https://github.com/paypal/merchant-sdk-php/graphs/contributors"
+        },
+        {
+            "name": "Leivant",
+            "homepage": "http://lievant.com/"
+        },
+        {
+            "name": "PixelWeb",
+            "homepage": "http://www.pixelweb.com.mx/"
+        },
+        {
+            "name": "Kijam Lopez",
+            "homepage": "http://www.kijam.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "psr/log": "^1.0.0",
+        "paypal/merchant-sdk-php":"3.8.*"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-0": {
+            "PayPal": "lib/"
+        }
+    }
+}
