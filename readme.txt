@@ -1,4 +1,4 @@
-=== PayPal Express Latam Checkout for WooCommerce ===
+# PayPal Express Latam Checkout for WooCommerce
 Contributors: PayPal, Leivant, PixelWeb, Kijam
 Tags: woocommerce, paypal, payment
 Requires at least: 3.9
@@ -8,16 +8,15 @@ License: Apache-2.0
 
 Adds PayPal Express Latam Checkout for WooCommerce WooCommerce plugin
 
-== Description ==
+## Description
 
-### Add PayPal Express Latam Checkout for WooCommerce ###
+   Add PayPal Express Latam Checkout for WooCommerce ###
+   This plugin adds PayPal Express Latam Checkout gateway to WooCommerce.
 
-This plugin adds PayPal Express Latam Checkout gateway to WooCommerce.
+## Contribute
 
-= Contribute =
+   You can contribute to the source code in our [Github Repository](https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx) page.
 
-You can contribute to the source code in our [Github Repository](https://github.com/PayPal-PixelWeb/PayPal-Woo) page.
+## License
 
-== License ==
-
-Apache-2.0
+   Apache-2.0
