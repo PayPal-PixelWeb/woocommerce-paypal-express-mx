@@ -52,7 +52,7 @@ class WC_PayPal_Interface_Latam {
 	 * Get Paypal Payer ID.
 	 */
 	static public function get_payer_id() {
-		if ( false !== self::get_static_credentials() ) {
+		if ( false !== self::get_static_interface_service() ) {
 			return self::obj()->acc_id;
 		}
 		return false;
@@ -61,8 +61,17 @@ class WC_PayPal_Interface_Latam {
 	 * Get Paypal Locale.
 	 */
 	static public function get_locale() {
-		if ( false !== self::get_static_credentials() ) {
+		if ( false !== self::get_static_interface_service() ) {
 			return self::obj()->acc_locale;
+		}
+		return false;
+	}
+	/**
+	 * Get Paypal Locale.
+	 */
+	static public function get_env() {
+		if ( false !== self::get_static_interface_service() ) {
+			return self::obj()->get_option( 'environment' );
 		}
 		return false;
 	}
@@ -70,7 +79,7 @@ class WC_PayPal_Interface_Latam {
 	 * Get Balance of Account.
 	 */
 	static public function get_balance() {
-		if ( false !== self::get_static_credentials() ) {
+		if ( false !== self::get_static_interface_service() ) {
 			return array( self::obj()->acc_balance, self::obj()->acc_currency );
 		}
 		return false;
@@ -104,7 +113,6 @@ class WC_PayPal_Interface_Latam {
 		$cache_id = $this->get_cache_key();
 		$cache_acc_id = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_id_' . $cache_id );
 		$cache_acc_balance = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_balance_' . $cache_id );
-		$this->service = false;
 		$env             = $this->get_option( 'environment' );
 		$username        = $this->get_option( 'api_username' );
 		$password        = $this->get_option( 'api_password' );
@@ -165,7 +173,7 @@ class WC_PayPal_Interface_Latam {
 					WC_Admin_Settings::add_error( __( 'Error: You must enter "API Signature" or "API Certificate" field.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;
-			}
+			}// End if().
 			try {
 				if ( $force === true || ! is_array( $cache_acc_balance ) || $cache_acc_balance['time'] + 3600 < time() ) {
 					$get_balance = new GetBalanceRequestType();
@@ -182,15 +190,16 @@ class WC_PayPal_Interface_Latam {
 					}
 					$this->acc_balance = $pp_balance->Balance->value;
 					$this->acc_currency = $pp_balance->Balance->currencyID;
-					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_balance_' . $cache_id, array ( 'balance' => $this->acc_balance, 'currency' => $this->acc_currency, 'time' => time() ) );
+					WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
+					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_balance_' . $cache_id, array(
+						'balance' => $this->acc_balance,
+						'currency' => $this->acc_currency,
+						'time' => time(),
+					) );
 				} else {
 					$this->acc_balance = (float) $cache_acc_balance['balance'];
 					$this->acc_currency = $cache_acc_balance['currency'];
 				}
-				if ( $show_message ) {
-					WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_balance . ' ' . $this->acc_currency );
-				}
-				WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
 				if ( $force === true || ! is_array( $cache_acc_id ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
 					$pal_details_req = new GetPalDetailsReq();
 					$pal_details_req->GetPalDetailsRequest = new GetPalDetailsRequestType();
@@ -204,14 +213,19 @@ class WC_PayPal_Interface_Latam {
 					}
 					$this->acc_id = $pal_details->Pal;
 					$this->acc_locale = $pal_details->Locale;
-					if ( $show_message ) {
-						WC_Admin_Settings::add_message( __( 'You Payer ID is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_id );
-					}
 					WC_Paypal_Logger::obj()->debug( 'Received PP_Details OK: ' . print_r( $pal_details, true ) );
-					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_id_' . $cache_id, array ( 'acc_id' => $this->acc_id, 'acc_locale' => $this->acc_locale, 'time' => time() ) );
+					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_id_' . $cache_id, array(
+						'acc_id' => $this->acc_id,
+						'acc_locale' => $this->acc_locale,
+						'time' => time(),
+					) );
 				} else {
-					$this->acc_id = (float) $cache_acc_balance['acc_id'];
-					$this->acc_locale = $cache_acc_balance['acc_locale'];
+					$this->acc_id = $cache_acc_id['acc_id'];
+					$this->acc_locale = $cache_acc_id['acc_locale'];
+				}
+				if ( $show_message ) {
+					WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_balance . ' ' . $this->acc_currency );
+					WC_Admin_Settings::add_message( __( 'You Payer ID is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_id );
 				}
 			} catch ( Exception $ex ) {
 				WC_Paypal_Logger::obj()->warning( 'Error on credentials: ' . print_r( $ex, true ) );
@@ -219,18 +233,18 @@ class WC_PayPal_Interface_Latam {
 					WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;
-			}
+			}// End try().
 			$this->service = $pp_service;
 			return $this->service;
-		}
+		}// End if().
 	}
 	/**
 	 * Get credentials.
 	 */
-	public function get_credentials() {
+	public function get_interface_service() {
 		return $this->validate_active_credentials( false, false );
 	}
-	public static function get_static_credentials() {
-		return self::obj()->get_credentials();
+	public static function get_static_interface_service() {
+		return self::obj()->get_interface_service();
 	}
 }

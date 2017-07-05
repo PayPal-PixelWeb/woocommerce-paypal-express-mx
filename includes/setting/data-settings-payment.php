@@ -1,6 +1,7 @@
-<?php 
+<?php
 return array(
-	/* 'manual_field' => array(
+	/*
+	 'manual_field' => array(
 		'title' => __( 'Configuration Manual', 'woocommerce-paypal-express-mx' ),
 		'type' => 'html',
 		'description' => ''
@@ -9,13 +10,13 @@ return array(
 		'title' => __( 'Enable/Disable', 'woocommerce-paypal-express-mx' ),
 		'type' => 'checkbox',
 		'label' => __( 'Enable Paypal Express Checkout', 'woocommerce-paypal-express-mx' ),
-		'default' => 'yes'
+		'default' => 'yes',
 	),
 	'title' => array(
 		'title'       => __( 'Title', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
 		'description' => __( 'This controls the title which the user sees during checkout.', 'woocommerce-paypal-express-mx' ),
-		'default'     => __( 'PayPal Express Checkout', 'woocommerce-paypal-express-mx' ),
+		'default'     => __( 'PayPal', 'woocommerce-paypal-express-mx' ),
 		'desc_tip'    => true,
 	),
 	'description' => array(
@@ -105,6 +106,14 @@ return array(
 		'desc_tip'    => true,
 		'description' => __( 'Enable Express checkout on Product view.', 'woocommerce-paypal-express-mx' ),
 	),
+	'payment_checkout_enabled' => array(
+		'title'       => __( 'Checkout on List Payments Gateways', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Checkout on List Payments Gateways', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'no',
+		'desc_tip'    => true,
+		'description' => __( 'Enable Paypal on List Payments Gateways', 'woocommerce-paypal-express-mx' ),
+	),
 	'invoice_prefix' => array(
 		'title'       => __( 'Invoice Prefix', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
@@ -119,7 +128,17 @@ return array(
 		'default'     => 'no',
 		'description' => __( 'Require buyer to enter their confirmed address during checkout', 'woocommerce-paypal-express-mx' ),
 	),
-	/* 'require_billing_address' => array(
+	'credit_enabled' => array(
+		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Currently PayPal Credit only available for U.S. merchants.', 'woocommerce-paypal-express-mx' ),
+		'disabled'    => ! $this->is_credit_supported(),
+		'default'     => 'no',
+		'desc_tip'    => true,
+		'description' => __( 'This enables PayPal Credit, which displays a PayPal Credit button next to the Express Checkout button. PayPal Express Checkout lets you give customers access to financing through PayPal Credit® - at no additional cost to you. You get paid up front, even though customers have more time to pay. A pre-integrated payment button shows up next to the PayPal Button, and lets customers pay quickly with PayPal Credit®.', 'woocommerce-paypal-express-mx' ),
+	),
+	/*
+	 'require_billing_address' => array(
 		'title'       => __( 'Billing Addresses', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Require Billing Address', 'woocommerce-paypal-express-mx' ),
@@ -149,6 +168,71 @@ return array(
 		'title'       => __( 'Style on Checkout', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'title',
 	),
+	'brand_name' => array(
+		'title'       => __( 'Brand Name', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'text',
+		'description' => __( 'A label that overrides the business name in the PayPal account on the PayPal hosted checkout pages.', 'woocommerce-paypal-express-mx' ),
+		'default'     => get_bloginfo( 'name', 'display' ),
+		'desc_tip'    => true,
+	),
+	'paypal_logo_footer' => array(
+		'title'       => __( 'Show Paypal Logo on Footer Page', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Show Paypal Logo on Footer Page', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'yes',
+		'description' => __( 'Show Paypal Logo on Footer Page', 'woocommerce-paypal-express-mx' ),
+	),
+	'button_size_cart' => array(
+		'title'       => __( 'Button Size on Cart', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your cart page.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'large',
+		'desc_tip'    => true,
+		'options'     => array(
+			'small'  => __( 'Small', 'woocommerce-paypal-express-mx' ),
+			'medium' => __( 'Medium', 'woocommerce-paypal-express-mx' ),
+			'large'  => __( 'Large', 'woocommerce-paypal-express-mx' ),
+		),
+	),
+	'button_size_product' => array(
+		'title'       => __( 'Button Size on Product', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your product page.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'large',
+		'desc_tip'    => true,
+		'options'     => array(
+			'small'  => __( 'Small', 'woocommerce-paypal-express-mx' ),
+			'medium' => __( 'Medium', 'woocommerce-paypal-express-mx' ),
+			'large'  => __( 'Large', 'woocommerce-paypal-express-mx' ),
+		),
+	),
+	'button_type' => array(
+		'title'       => __( 'Button Type', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'Choose whether is square or oval.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'oval',
+		'desc_tip'    => true,
+		'options'     => array(
+			'squere'  => __( 'Squere', 'woocommerce-paypal-express-mx' ),
+			'oval'    => __( 'Oval', 'woocommerce-paypal-express-mx' ),
+		),
+	),
+	'button_color' => array(
+		'title'       => __( 'Button Color', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'Choose whether is blue, gold or gray.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'blue',
+		'desc_tip'    => true,
+		'options'     => array(
+			'blue'    => __( 'Blue', 'woocommerce-paypal-express-mx' ),
+			'gold'    => __( 'Gold', 'woocommerce-paypal-express-mx' ),
+			'silver'  => __( 'Silver', 'woocommerce-paypal-express-mx' ),
+		),
+	),
 	'landing_page' => array(
 		'title'       => __( 'Landing Page', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
@@ -165,7 +249,9 @@ return array(
 		'title'       => __( 'Logo Image (190×60)', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'media',
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your logo, enter the URL of your logo image here.<br/>The image must be no larger than 190x60, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
-		'preview'     => '' !== $this->get_option('logo_image_url') ? wp_get_attachment_image( $this->get_option('logo_image_url'), 'pplogo', false, array( 'id' => 'logo_image_url-image' ) ) : '',
+		'preview'     => '' !== $this->get_option( 'logo_image_url' ) ? wp_get_attachment_image( $this->get_option( 'logo_image_url' ), array( 190, 60 ), false, array(
+			'id' => 'logo_image_url-image',
+		) ) : '',
 		'max-width'   => '190',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
@@ -174,7 +260,7 @@ return array(
 		'title'       => __( 'Header Image (750×90)', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'media',
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your header, enter the URL of your header image here.<br/>The image must be no larger than 750x90, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
-		'preview'     => '' !== $this->get_option('header_image_url') ? wp_get_attachment_image( $this->get_option('header_image_url'), 'ppheader', false, array( 'id' => 'header_image_url-image' ) ) : '',
+		'preview'     => '' !== $this->get_option( 'header_image_url' ) ? wp_get_attachment_image( $this->get_option( 'header_image_url' ), array( 750, 90 ), false, array( 'id' => 'header_image_url-image' ) ) : '',
 		'max-width'   => '750',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),

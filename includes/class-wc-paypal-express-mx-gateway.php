@@ -4,6 +4,7 @@
  */
 include_once( dirname( __FILE__ ) . '/override/class-wc-override-payment-gateway.php' );
 include_once( dirname( __FILE__ ) . '/class-wc-paypal-interface-latam.php' );
+include_once( dirname( __FILE__ ) . '/class-wc-paypal-logos.php' );
 if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 	/**
 	 * WC_Paypal_Express_MX_Gateway Class.
@@ -22,13 +23,20 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 */
 		public function __construct() {
 			$this->id              = 'ppexpress_latam';
-			$this->icon            = apply_filters( 'woocommerce_ppexpress_latam_icon', plugins_url( 'images/logo.png', plugin_dir_path( __FILE__ ) ) );
+			$this->icon            = apply_filters( 'woocommerce_ppexpress_latam_icon', WC_PayPal_Logos::get_logo() );
 			$this->has_fields      = false;
+			$this->title           = $this->get_option( 'title' );
+			$this->description     = $this->get_option( 'description' );
 			$this->method_title    = __( 'PayPal Express Checkout MX-Latam', 'woocommerce-paypal-express-mx' );
+
+			add_action( 'admin_enqueue_scripts', array( $this, 'pplatam_script_enqueue' ) );
+			add_action( 'after_setup_theme', array( $this, 'ppexpress_latam_image_sizes' ) );
+			add_filter( 'image_size_names_choose', array( $this, 'ppexpress_latam_sizes' ) );
+
 			$this->check_nonce();
 			$this->init_form_fields();
 			$this->init_settings();
-			// die(print_r($this->settings, true)); //...
+			self::$instance = $this;
 			$this->debug = $this->get_option( 'debug' );
 			if ( 'yes' !== $this->debug ) {
 				WC_Paypal_Logger::set_level( WC_Paypal_Logger::SILENT );
@@ -45,14 +53,47 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->notify_url      = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'ppexpress_latam', home_url( '/' ) ) );
 			add_action( 'woocommerce_api_ppexpress_latam', array( $this, 'check_ipn_response' ) );
 			 */
-
-			$this->notify_url      = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'ppexpress_latam', home_url( '/' ) ) );
-			self::$instance = $this;
 			if ( is_user_logged_in() && is_admin() && isset( $_GET['section'] ) && $_GET['section'] === $this->id ) {
 				if ( empty( $_POST ) ) { // @codingStandardsIgnoreLine
-					WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, true );
+					WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, false );
 				}
 			}
+			$this->logos = WC_PayPal_Logos::obj();
+		}
+		function pplatam_script_enqueue( $hook ) {
+			if ( 'woocommerce_page_wc-settings' !== $hook ) {
+				return;
+			}
+			wp_enqueue_media();
+			wp_enqueue_script( 'pplatam_script', plugins_url( '../js/admin.js' , __FILE__ ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION );
+		}
+		function ppexpress_latam_image_sizes() {
+			add_theme_support( 'post-thumbnails' );
+			add_image_size( 'pplogo', 190, 60, true );
+			add_image_size( 'ppheader', 750, 90, true );
+		}
+		function ppexpress_latam_sizes( $sizes ) {
+			$my_sizes = array(
+				'pplogo' => __( 'Image Size for Logo on Paypal', 'woocommerce-paypal-express-mx' ),
+				'ppheader' => __( 'Image Size for Header on Paypal', 'woocommerce-paypal-express-mx' ),
+			);
+			return array_merge( $sizes, $my_sizes );
+		}
+		/**
+		 * Check if is available.
+		 *
+		 * @return bool
+		 */
+		public function is_available() {
+			return true == $this->is_configured() && 'yes' === $this->get_option( 'payment_checkout_enabled' );
+		}
+		/**
+		 * Check if all is ok.
+		 *
+		 * @return bool
+		 */
+		public function is_configured() {
+			return 'yes' == $this->settings['enabled'] && false !== WC_PayPal_Interface_Latam::get_static_interface_service();
 		}
 		/**
 		 * Check nonce's
@@ -79,10 +120,10 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Get instance of this class.
 		 */
 		static public function get_instance() {
-			if ( null === self::$logger ) {
-				self::$logger = new self;
+			if ( null === self::$instance ) {
+				self::$instance = new self;
 			}
-			return self::$logger;
+			return self::$instance;
 		}
 		/**
 		 * Short alias for get_instance.
@@ -164,6 +205,24 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			}
 			$currency_org = get_woocommerce_currency();
 			$this->form_fields = include( dirname( __FILE__ ) . '/setting/data-settings-payment.php' );
+		}
+		/**
+		 * Whether PayPal credit is supported.
+		 *
+		 * @return bool Returns true if PayPal credit is supported
+		 */
+		public function is_credit_supported() {
+			$base = wc_get_base_location();
+
+			return 'US' === $base['country'];
+		}
+		/**
+		 * Whether PayPal credit is available.
+		 *
+		 * @return bool Returns true if PayPal credit is available
+		 */
+		public function is_credit_available() {
+			return true === $this->is_credit_available() && 'yes' === $this->get_option( 'credit_enabled' );
 		}
 		/**
 		 * Set Metadata of Order.

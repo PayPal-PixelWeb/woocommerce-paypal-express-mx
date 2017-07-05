@@ -49,7 +49,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		private function __construct() {
 			self::$instance = $this;
 			include_once( dirname( __FILE__ ) . '/includes/class-wc-paypal-logger.php' );
-			WC_Paypal_Logger::set_level(WC_Paypal_Logger::NORMAL); // Normal Log.
+			WC_Paypal_Logger::set_level( WC_Paypal_Logger::NORMAL ); // Normal Log.
 			/* WC_Paypal_Logger::set_level( WC_Paypal_Logger::PARANOID ); */ // Paranoid Log.
 			WC_Paypal_Logger::set_dir( dirname( __FILE__ ) . '/logs' );
 
@@ -59,10 +59,18 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			// Checks with WooCommerce is installed.
 			if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				include_once 'includes/class-wc-paypal-express-mx-gateway.php';
+				add_action( 'woocommerce_init', array( $this, 'woocommerce_loaded' ) );
 				add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
 			} else {
 				add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
 			}
+		}
+		/**
+		 * Take care of anything that needs woocommerce to be loaded.
+		 * For instance, if you need access to the $woocommerce global
+		 */
+		public function woocommerce_loaded() {
+			$this->gateway = WC_Paypal_Express_MX_Gateway::obj();
 		}
 		/**
 		 * Return an instance of this class.
@@ -84,8 +92,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @return  array          Payment methods with Paypal.
 		 */
 		public function add_gateway( $methods ) {
-			$methods[] = 'WC_Paypal_Express_MX_Gateway';
-
+			if ( version_compare( self::woocommerce_instance()->version, '2.3.0', '>=' ) ) {
+				$methods[] = WC_Paypal_Express_MX_Gateway::obj();
+			} else {
+				$methods[] = 'WC_Paypal_Express_MX_Gateway';
+			}
 			return $methods;
 		}
 
@@ -174,25 +185,4 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	register_uninstall_hook( __FILE__, 'ppexpress_mx_uninstall' );
 	add_action( 'plugins_loaded', array( 'WC_Paypal_Express_MX', 'get_instance' ), 0 );
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'ppexpress_mx_add_action_links' );
-	function pplatam_script_enqueue($hook) {
-		if( 'woocommerce_page_wc-settings' !== $hook )
-			return;
-		wp_enqueue_media();
-		wp_enqueue_script( 'pplatam_script', plugins_url( '/js/admin.js' , __FILE__ ), array('jquery'), '0.1' );
-	}
-	add_action( 'admin_enqueue_scripts', 'pplatam_script_enqueue' );
-	function ppexpress_latam_image_sizes() {
-		add_theme_support('post-thumbnails');
-		add_image_size('pplogo', 190, 60, true);
-		add_image_size('ppheader', 750, 90, true);
-	}
-	add_action('after_setup_theme', 'ppexpress_latam_image_sizes');
-	function ppexpress_latam__sizes( $sizes ) {
-		$my_sizes = array(
-			'pplogo' => __('Image Size for Logo on Paypal', 'woocommerce-paypal-express-mx' ),
-			'ppheader' => __('Image Size for Header on Paypal', 'woocommerce-paypal-express-mx')
-		);
-		return array_merge( $sizes, $my_sizes );
-	}
-	add_filter( 'image_size_names_choose', 'add_custom_sizes' );
 endif;
