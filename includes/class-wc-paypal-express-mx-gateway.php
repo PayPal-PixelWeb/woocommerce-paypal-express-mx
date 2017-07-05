@@ -25,10 +25,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->icon            = apply_filters( 'woocommerce_ppexpress_latam_icon', plugins_url( 'images/logo.png', plugin_dir_path( __FILE__ ) ) );
 			$this->has_fields      = false;
 			$this->method_title    = __( 'PayPal Express Checkout MX-Latam', 'woocommerce-paypal-express-mx' );
-
-					$this->check_nonce();
-
-					$this->init_form_fields();
+			$this->check_nonce();
+			$this->init_form_fields();
 			$this->init_settings();
 			// die(print_r($this->settings, true)); //...
 			$this->debug = $this->get_option( 'debug' );
@@ -48,10 +46,12 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			add_action( 'woocommerce_api_ppexpress_latam', array( $this, 'check_ipn_response' ) );
 			 */
 
-					$this->admn_url      = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'ppexpress_latam', home_url( '/' ) ) );
+			$this->notify_url      = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'ppexpress_latam', home_url( '/' ) ) );
 			self::$instance = $this;
-			if ( is_user_logged_in() && is_admin() && isset( $_GET['section'] ) && $_GET['section'] === $this->id && empty( $_POST ) ) { // @codingStandardsIgnoreLine
-				WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, true );
+			if ( is_user_logged_in() && is_admin() && isset( $_GET['section'] ) && $_GET['section'] === $this->id ) {
+				if ( empty( $_POST ) ) { // @codingStandardsIgnoreLine
+					WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, true );
+				}
 			}
 		}
 		/**
@@ -177,15 +177,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		static public function set_metadata( $order_id, $key, $value ) {
 			global $wpdb;
 			$table_name = $wpdb->prefix . 'woo_ppexpress_mx';
+			self::check_database();
 			$exists = $wpdb->get_var($wpdb->prepare(  // @codingStandardsIgnoreLine
 				"SELECT `id` FROM 
-                `%s`
+                `{$table_name}`
             WHERE
                     `order_id` = %d
                 AND 
                     `key` = '%s'
             LIMIT 1",
-				$table_name,
 				(int) $order_id,
 				$key
 			));
@@ -208,7 +208,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					'data' => wp_json_encode( $value ),
 				), array( '%d', '%s', '%s' ) );
 			}
-			wp_cache_set( 'ppmetadata-' . $order_id, $value, 'ppmetadata' );
+			wp_cache_set( 'ppmetadata-' . $order_id . '-' . $key, $value, 'ppmetadata' );
 			WC_Paypal_Logger::obj()->debug( "set_metadata [order:{$order_id}]: [{$key}]=>" . print_r( $value, true ) . ' Result: ' . print_r( $result, true ) );
 			return $result;
 		}
@@ -222,24 +222,24 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 */
 		static public function get_metadata( $order_id, $key ) {
 			global $wpdb;
-			$data = wp_cache_get( 'ppmetadata-' . $order_id, 'ppmetadata' );
+			$data = wp_cache_get( 'ppmetadata-' . $order_id . '-' . $key, 'ppmetadata' );
 			if ( false === $data || empty( $data ) ) {
+				self::check_database();
 				$table_name = $wpdb->prefix . 'woo_ppexpress_mx';
 				$data = $wpdb->get_var($wpdb->prepare(
 					"SELECT `data` FROM 
-						`%s`
+						`{$table_name}`
 					WHERE
 							`order_id` = %d
 						AND 
 							`key` = '%s'
 					LIMIT 1",
-					$table_name,
 					(int) $order_id,
 					$key
 				));
-				wp_cache_set( 'ppmetadata-' . $order_id, $data, 'ppmetadata' );
+				wp_cache_set( 'ppmetadata-' . $order_id . '-' . $key, $data, 'ppmetadata' );
 				WC_Paypal_Logger::obj()->debug( "get_metadata [order:{$order_id}]: [{$key}] | Result: " . print_r( $data, true ) );
-				return $data ? json_decode( $data ) : false;
+				return $data ? json_decode( $data, true ) : false;
 			} else {
 				return $data;
 			}

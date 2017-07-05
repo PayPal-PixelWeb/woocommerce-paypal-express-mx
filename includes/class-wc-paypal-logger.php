@@ -109,9 +109,9 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 				return;
 			}
 			if ( self::NORMAL === self::$log_level ) {
-				if ( in_array( $psr_level, array( \Psr\Log\LogLevel::NOTICE, \Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::DEBUG ), true ) ) {
-					return;
-				}
+				//if ( in_array( $level, array( \Psr\Log\LogLevel::NOTICE, \Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::DEBUG ), true ) ) {
+				//	return;
+				//}
 			}
 			// @codingStandardsIgnoreStart
 			if ( null === $dir ) {

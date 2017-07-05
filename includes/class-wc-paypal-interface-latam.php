@@ -2,6 +2,8 @@
 
 use PayPal\PayPalAPI\GetBalanceReq;
 use PayPal\PayPalAPI\GetBalanceRequestType;
+use PayPal\PayPalAPI\GetPalDetailsReq;
+use PayPal\PayPalAPI\GetPalDetailsRequestType;
 use PayPal\Service\PayPalAPIInterfaceServiceService;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,8 +19,12 @@ class WC_PayPal_Interface_Latam {
 	 *
 	 * @var object
 	 */
-	protected static $instance = null;
+	private static $instance = null;
 	private $settings = null;
+	private $acc_id = false;
+	private $acc_locale = false;
+	private $acc_balance = false;
+	private $acc_currency = false;
 	private $service = false;
 	/**
 	 * Initialize the plugin.
@@ -28,7 +34,7 @@ class WC_PayPal_Interface_Latam {
 	}
 
 	/**
-	 * Get Unique Instance
+	 * Get Unique Instance.
 	 */
 	static public function get_instance() {
 		if ( null === self::$instance ) {
@@ -36,19 +42,47 @@ class WC_PayPal_Interface_Latam {
 		}
 		return self::$instance;
 	}
+	/**
+	 * Short alias for get_instance.
+	 */
 	static public function obj() {
-		// Short alias for get_instance
 		return self::get_instance();
 	}
-
 	/**
-	 * Get options
+	 * Get Paypal Payer ID.
+	 */
+	static public function get_payer_id() {
+		if ( false !== self::get_static_credentials() ) {
+			return self::obj()->acc_id;
+		}
+		return false;
+	}
+	/**
+	 * Get Paypal Locale.
+	 */
+	static public function get_locale() {
+		if ( false !== self::get_static_credentials() ) {
+			return self::obj()->acc_locale;
+		}
+		return false;
+	}
+	/**
+	 * Get Balance of Account.
+	 */
+	static public function get_balance() {
+		if ( false !== self::get_static_credentials() ) {
+			return array( self::obj()->acc_balance, self::obj()->acc_currency );
+		}
+		return false;
+	}
+	/**
+	 * Get options.
 	 */
 	private function get_option( $key ) {
 		return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : false ;
 	}
 	/**
-	 * Get cache key
+	 * Get cache key.
 	 */
 	private function get_cache_key() {
 		$env             = $this->get_option( 'environment' );
@@ -68,6 +102,8 @@ class WC_PayPal_Interface_Latam {
 			return $this->service;
 		}
 		$cache_id = $this->get_cache_key();
+		$cache_acc_id = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_id_' . $cache_id );
+		$cache_acc_balance = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_balance_' . $cache_id );
 		$this->service = false;
 		$env             = $this->get_option( 'environment' );
 		$username        = $this->get_option( 'api_username' );
@@ -84,30 +120,13 @@ class WC_PayPal_Interface_Latam {
 				return false;
 			}
 			if ( empty( $api_certificate ) && ! empty( $api_signature ) ) {
-				try {
-					$get_balance = new GetBalanceRequestType();
-					$get_balance->ReturnAllCurrencies = 1;
-					$get_balance_req = new GetBalanceReq();
-					$get_balance_req->GetBalanceRequest = $get_balance;
-					$pp_service = new PayPalAPIInterfaceServiceService( array(
-						'mode' => $env,
-						'acct1.UserName'  => $username,
-						'acct1.Password'  => $password,
-						'acct1.Signature' => $api_signature,
-						'acct1.Subject'   => $api_subject,
-					) );
-					$pp_balance = $pp_service->GetBalance( $get_balance_req );
-					if ( $show_message ) {
-						WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $pp_balance->Balance->value . ' ' . $pp_balance->Balance->currencyID );
-					}
-					WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
-				} catch ( Exception $ex ) {
-					WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ' . print_r( $ex, true ) );
-					if ( $show_message ) {
-						WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
-					}
-					return false;
-				}
+				$pp_service = new PayPalAPIInterfaceServiceService( array(
+					'mode' => $env,
+					'acct1.UserName'  => $username,
+					'acct1.Password'  => $password,
+					'acct1.Signature' => $api_signature,
+					'acct1.Subject'   => $api_subject,
+				) );
 			} elseif ( ! empty( $api_certificate ) && empty( $api_signature ) ) {
 				if ( ! file_exists( dirname( __FILE__ ) . '/cert/key_data.pem' ) ) {
                     $cert = @openssl_x509_read( base64_decode( $api_certificate ) ); // @codingStandardsIgnoreLine
@@ -133,58 +152,77 @@ class WC_PayPal_Interface_Latam {
 					}
 					file_put_contents( dirname( __FILE__ ) . '/cert/key_data.pem', base64_decode( $api_certificate ) );
 				}
-				try {
-					$get_balance = new GetBalanceRequestType();
-					$get_balance->ReturnAllCurrencies = 1;
-					$get_balance_req = new GetBalanceReq();
-					$get_balance_req->GetBalanceRequest = $get_balance;
-					$pp_service = new PayPalAPIInterfaceServiceService( array(
-						'mode' => $env,
-						'acct1.UserName'  => $username,
-						'acct1.Password'  => $password,
-						'acct1.Signature' => $api_signature,
-						'acct1.CertPath'  => dirname( __FILE__ ) . '/cert/key_data.pem',
-						'acct1.Subject'   => $api_subject,
-					) );
-					$pp_balance = $pp_service->GetBalance( $get_balance_req );
-					if ( $show_message ) {
-						WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $pp_balance->Balance->value . ' ' . $pp_balance->Balance->currencyID );
-					}
-					WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
-				} catch ( Exception $ex ) {
-					WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ' . print_r( $ex, true ) );
-					if ( $show_message ) {
-						WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
-					}
-					return false;
-				}
+				$pp_service = new PayPalAPIInterfaceServiceService( array(
+					'mode' => $env,
+					'acct1.UserName'  => $username,
+					'acct1.Password'  => $password,
+					'acct1.Signature' => $api_signature,
+					'acct1.CertPath'  => dirname( __FILE__ ) . '/cert/key_data.pem',
+					'acct1.Subject'   => $api_subject,
+				) );
 			} else {
 				if ( $show_message ) {
 					WC_Admin_Settings::add_error( __( 'Error: You must enter "API Signature" or "API Certificate" field.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;
-			}// End if().
+			}
+			try {
+				if ( $force === true || ! is_array( $cache_acc_balance ) || $cache_acc_balance['time'] + 3600 < time() ) {
+					$get_balance = new GetBalanceRequestType();
+					$get_balance->ReturnAllCurrencies = 1;
+					$get_balance_req = new GetBalanceReq();
+					$get_balance_req->GetBalanceRequest = $get_balance;
+					$pp_balance = $pp_service->GetBalance( $get_balance_req );
+					if ( ! in_array( $pp_balance->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+						WC_Paypal_Logger::obj()->warning( 'Error on credentials: ' . print_r( $pp_balance, true ) );
+						if ( $show_message ) {
+							WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
+						}
+						return false;
+					}
+					$this->acc_balance = $pp_balance->Balance->value;
+					$this->acc_currency = $pp_balance->Balance->currencyID;
+					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_balance_' . $cache_id, array ( 'balance' => $this->acc_balance, 'currency' => $this->acc_currency, 'time' => time() ) );
+				} else {
+					$this->acc_balance = (float) $cache_acc_balance['balance'];
+					$this->acc_currency = $cache_acc_balance['currency'];
+				}
+				if ( $show_message ) {
+					WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_balance . ' ' . $this->acc_currency );
+				}
+				WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
+				if ( $force === true || ! is_array( $cache_acc_id ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
+					$pal_details_req = new GetPalDetailsReq();
+					$pal_details_req->GetPalDetailsRequest = new GetPalDetailsRequestType();
+					$pal_details = $pp_service->GetPalDetails( $pal_details_req );
+					if ( ! in_array( $pal_details->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+						WC_Paypal_Logger::obj()->warning( 'Error on get paypal details: ' . print_r( $pal_details, true ) );
+						if ( $show_message ) {
+							WC_Admin_Settings::add_error( __( 'Error: The API credentials present problems to get details.', 'woocommerce-paypal-express-mx' ) );
+						}
+						return false;
+					}
+					$this->acc_id = $pal_details->Pal;
+					$this->acc_locale = $pal_details->Locale;
+					if ( $show_message ) {
+						WC_Admin_Settings::add_message( __( 'You Payer ID is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_id );
+					}
+					WC_Paypal_Logger::obj()->debug( 'Received PP_Details OK: ' . print_r( $pal_details, true ) );
+					WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_id_' . $cache_id, array ( 'acc_id' => $this->acc_id, 'acc_locale' => $this->acc_locale, 'time' => time() ) );
+				} else {
+					$this->acc_id = (float) $cache_acc_balance['acc_id'];
+					$this->acc_locale = $cache_acc_balance['acc_locale'];
+				}
+			} catch ( Exception $ex ) {
+				WC_Paypal_Logger::obj()->warning( 'Error on credentials: ' . print_r( $ex, true ) );
+				if ( $show_message ) {
+					WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
+				}
+				return false;
+			}
 			$this->service = $pp_service;
-			/*
-			 $settings_array = (array) get_option( 'woocommerce_ppec_paypal_settings', array() );
-
-            if ( 'yes' === $settings_array['require_billing'] ) {
-                $is_account_enabled_for_billing_address = false;
-
-                try {
-                    $is_account_enabled_for_billing_address = wc_gateway_ppec()->client->test_for_billing_address_enabled( $creds, $settings->get_environment() );
-                } catch ( PayPal_API_Exception $ex ) {
-                    $is_account_enabled_for_billing_address = false;
-                }
-
-                if ( ! $is_account_enabled_for_billing_address ) {
-                    $settings_array['require_billing'] = 'no';
-                    update_option( 'woocommerce_ppec_paypal_settings', $settings_array );
-                    WC_Admin_Settings::add_error( __( 'The "require billing address" option is not enabled by your account and has been disabled.', 'woocommerce-paypal-express-mx' ) );
-                }
-            } */
 			return $this->service;
-		}// End if().
+		}
 	}
 	/**
 	 * Get credentials.
