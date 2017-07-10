@@ -66,6 +66,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			}
 			wp_enqueue_media();
 			wp_enqueue_script( 'pplatam_script', plugins_url( '../js/admin.js' , __FILE__ ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION );
+			wp_add_inline_script( 'pplatam_script', '
+				var ppexpress_lang_remove = "'.__( 'Remove Image', 'woocommerce-paypal-express-mx' ).'";
+			' );
 		}
 		function ppexpress_latam_image_sizes() {
 			add_theme_support( 'post-thumbnails' );
@@ -98,19 +101,30 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		/**
 		 * Check nonce's
 		 */
+		private static function check_key_nonce( $key ) {
+			return isset( $_GET[$key] ) // Input var okay.
+				&& wp_verify_nonce( sanitize_key( $_GET[$key] ), $key );
+		}
 		public function check_nonce() {
 			if ( isset( $_GET['wc_ppexpress_latam_ips_admin_nonce'] ) ) { // Input var okay.
 				include_once( dirname( __FILE__ ) . '/class-wc-paypal-connect-ips.php' );
 				$ips = new WC_PayPal_Connect_IPS();
 				$ips->maybe_received_credentials();
 			}
-			if ( isset( $_GET['wc_ppexpress_latam_remove_cert_admin_nonce'] ) // Input var okay.
-				&& wp_verify_nonce( sanitize_key( $_GET['wc_ppexpress_latam_remove_cert_admin_nonce'] ), 'wc_ppexpress_latam_remove_cert' ) // Input var okay.
-			) {
-				@unlink( dirname( __FILE__ ) . '/cert/key_data.pem' ); // @codingStandardsIgnoreLine
+			if ( true === self::check_key_nonce('wc_ppexpress_latam_remove_cert') ) {
+				@unlink( dirname( __FILE__ ) . '/cert/live_key_data.pem' ); // @codingStandardsIgnoreLine
 				$settings_array = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
 				$settings_array['api_certificate'] = '';
 				$settings_array['api_signature']   = '';
+				update_option( 'woocommerce_ppexpress_latam_settings', $settings_array );
+				wp_safe_redirect( WC_Paypal_Express_MX::get_admin_link() );
+				exit;
+			}
+			if ( true === self::check_key_nonce('wc_ppexpress_latam_remove_sandbox_cert') ) {
+				@unlink( dirname( __FILE__ ) . '/cert/sandbox_key_data.pem' ); // @codingStandardsIgnoreLine
+				$settings_array = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+				$settings_array['sandbox_api_certificate'] = '';
+				$settings_array['sandbox_api_signature']   = '';
 				update_option( 'woocommerce_ppexpress_latam_settings', $settings_array );
 				wp_safe_redirect( WC_Paypal_Express_MX::get_admin_link() );
 				exit;
@@ -148,12 +162,24 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			} else {
 				$_POST['woocommerce_ppexpress_latam_api_certificate'] = $this->get_option( 'api_certificate' );
 			}
+			// If a sandbox certificate has been uploaded, read the contents and save that string instead.
+			if ( array_key_exists( 'woocommerce_ppexpress_latam_sandbox_api_certificate', $_FILES )
+			&& array_key_exists( 'tmp_name', $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate'] )
+			&& array_key_exists( 'size', $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate'] )
+			&& $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate']['size'] ) {
+				@unlink( dirname( __FILE__ ) . '/cert/key_data.pem' );
+				$_POST['woocommerce_ppexpress_latam_sandbox_api_certificate'] = base64_encode( file_get_contents( $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate']['tmp_name'] ) );
+				unlink( $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate']['tmp_name'] );
+				unset( $_FILES['woocommerce_ppexpress_latam_sandbox_api_certificate'] );
+			} else {
+				$_POST['woocommerce_ppexpress_latam_sandbox_api_certificate'] = $this->get_option( 'sandbox_api_certificate' );
+			}
 			// @codingStandardsIgnoreEnd
 
 			parent::process_admin_options();
-
+			$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
 			// Validate credentials.
-			WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, true );
+			WC_PayPal_Interface_Latam::obj()->validate_active_credentials( true, true, $this->get_option( 'environment' ) );
 		}
 		/**
 		 * Initialise Gateway Settings Form Fields.
@@ -163,22 +189,16 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		public function init_form_fields() {
 			include_once( dirname( __FILE__ ) . '/class-wc-paypal-connect-ips.php' );
 			$ips = new WC_PayPal_Connect_IPS();
-			$api_creds_text = __( 'Your country store not is supported by PayPal, please change this...', 'woocommerce-paypal-express-mx' );
+			$sandbox_api_creds_text = $api_creds_text = __( 'Your country store not is supported by PayPal, please change this...', 'woocommerce-paypal-express-mx' );
 			if ( $ips->is_supported() ) {
 				$live_url = $ips->get_signup_url( 'live' );
 				$sandbox_url = $ips->get_signup_url( 'sandbox' );
-				$api_creds_text = sprintf(
-					/* translators: %1$s: is URL of auto-get Live API Credential. %2$s: is URL of manual-get Live API Credential.  */
-					__( '- To get NVP/SOAP API integration credential <a href="%1$s">click here</a> or get this fields manualy <a href="%2$s" target="_blank">here</a><br />', 'woocommerce-paypal-express-mx' ),
-					$live_url,
-					'https://www.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				);
-				$api_creds_text .= sprintf(
-					/* translators: %1$s: is URL of auto-get Sandbox API Credential. %2$s: is URL of manual-get Sandbox API Credential.  */
-					__( '- To get Sandbox NVP/SOAP API integration credential <a href="%1$s">click here</a> or get this fields manualy <a href="%2$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					$sandbox_url,
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				);
+				
+				$api_creds_text         = '<a href="' . esc_url( $live_url ) . '" class="button button-primary">' . __( 'Setup or link an existing PayPal account', 'woocommerce-paypal-express-mx' ) . '</a>';
+				$sandbox_api_creds_text = '<a href="' . esc_url( $sandbox_url ) . '" class="button button-primary">' . __( 'Setup or link an existing PayPal Sandbox account', 'woocommerce-paypal-express-mx' ) . '</a>';
+				
+				$api_creds_text .= ' <span id="ppexpress_display">' . __( 'or <a href="#woocommerce_ppexpress_latam_api_username" class="ppexpress_latam-toggle-settings">click here to toggle manual API credential input</a>.', 'woocommerce-paypal-express-mx' ) . '</span>';
+				$sandbox_api_creds_text .= ' <span id="ppexpress_display_sandbox">' . __( 'or <a href="#woocommerce_ppexpress_latam_sandbox_api_username" class="ppexpress_latam-toggle-sandbox-settings">click here to toggle manual API credential input</a>.', 'woocommerce-paypal-express-mx' ) . '</span>';
 			}
 			$api_certificate = $this->get_option( 'api_certificate' );
 			$api_certificate_msg = '';
@@ -193,7 +213,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 						date( 'Y-m-d', $valid_until ),
 						add_query_arg(
 							array(
-							'wc_ppexpress_latam_remove_cert_admin_nonce' => wp_create_nonce( 'wc_ppexpress_latam_remove_cert' ),
+							'wc_ppexpress_latam_remove_cert' => wp_create_nonce( 'wc_ppexpress_latam_remove_cert' ),
 							),
 							WC_Paypal_Express_MX::get_admin_link()
 						)
@@ -203,7 +223,38 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					$api_certificate_msg = __( 'API certificate is <b>INVALID</b>.', 'woocommerce-paypal-express-mx' );
 				}
 			}
+			$sandbox_api_certificate = $this->get_option( 'sandbox_api_certificate' );
+			$sandbox_api_certificate_msg = '';
+			if ( ! empty( $sandbox_api_certificate ) ) {
+				$cert = @openssl_x509_read( base64_decode( $sandbox_api_certificate ) ); // @codingStandardsIgnoreLine
+				if ( false !== $cert ) {
+					$cert_info   = openssl_x509_parse( $cert );
+					$valid_until = $cert_info['validTo_time_t'];
+					$sandbox_api_certificate_msg = sprintf(
+						/* translators: %1$s: is date of expire. %2$s: is URL for delete certificate.  */
+						__( 'API certificate is <b>VALID</b> and exire on: <b>%1$s</b>, <a href="%2$s">click here</a> for remove', 'woocommerce-paypal-express-mx' ),
+						date( 'Y-m-d', $valid_until ),
+						add_query_arg(
+							array(
+							'wc_ppexpress_latam_remove_sandbox_cert' => wp_create_nonce( 'wc_ppexpress_latam_remove_sandbox_cert' ),
+							),
+							WC_Paypal_Express_MX::get_admin_link()
+						)
+					);
+
+				} else {
+					$sandbox_api_certificate_msg = __( 'API certificate is <b>INVALID</b>.', 'woocommerce-paypal-express-mx' );
+				}
+			}
 			$currency_org = get_woocommerce_currency();
+			$header_image_url = $this->get_option('header_image_url');
+			if ( isset ( $_POST['woocommerce_ppexpress_latam_header_image_url'] ) ) {
+				$header_image_url = $_POST['woocommerce_ppexpress_latam_header_image_url'];
+			}
+			$logo_image_url = $this->get_option('logo_image_url');
+			if ( isset ( $_POST['woocommerce_ppexpress_latam_logo_image_url'] ) ) {
+				$logo_image_url = $_POST['woocommerce_ppexpress_latam_logo_image_url'];
+			}
 			$this->form_fields = include( dirname( __FILE__ ) . '/setting/data-settings-payment.php' );
 		}
 		/**

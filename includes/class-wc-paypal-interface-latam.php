@@ -93,8 +93,7 @@ class WC_PayPal_Interface_Latam {
 	/**
 	 * Get cache key.
 	 */
-	private function get_cache_key() {
-		$env             = $this->get_option( 'environment' );
+	private function get_cache_key( $env = 'live' ) {
 		$username        = $this->get_option( 'api_username' );
 		$password        = $this->get_option( 'api_password' );
 		$api_subject     = $this->get_option( 'api_subject' );
@@ -105,21 +104,37 @@ class WC_PayPal_Interface_Latam {
 	/**
 	 * Validate the provided credentials.
 	 */
-	public function validate_active_credentials( $show_message = false, $force = false ) {
+	public function validate_active_credentials( $show_message = false, $force = false, $env = null ) {
 		static $cache_id = null;
-		if ( false === $force && $cache_id == $this->get_cache_key() ) {
+		if ( is_null( $env ) || ( 'live' != $env && 'sandbox' != $env ) ) {
+			$env = $this->get_option( 'environment' );
+		}
+		if ( false === $force && $cache_id == $this->get_cache_key( $env ) ) {
 			return $this->service;
 		}
-		$cache_id = $this->get_cache_key();
+		$cache_id = $this->get_cache_key( $env );
+		if ( true === $force ) {
+			$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+			WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_id_' . $cache_id, array() );
+			WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_balance_' . $cache_id, array() );
+		}
 		$cache_acc_id = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_id_' . $cache_id );
 		$cache_acc_balance = WC_Paypal_Express_MX_Gateway::get_metadata( 0, 'acc_balance_' . $cache_id );
-		$env             = $this->get_option( 'environment' );
-		$username        = $this->get_option( 'api_username' );
-		$password        = $this->get_option( 'api_password' );
-		$api_subject     = $this->get_option( 'api_subject' );
-		$api_signature   = $this->get_option( 'api_signature' );
-		$api_certificate = $this->get_option( 'api_certificate' );
+		if ( 'live' == $env ) {
+			$username        = $this->get_option( 'api_username' );
+			$password        = $this->get_option( 'api_password' );
+			$api_subject     = $this->get_option( 'api_subject' );
+			$api_signature   = $this->get_option( 'api_signature' );
+			$api_certificate = $this->get_option( 'api_certificate' );
+		} else {
+			$username        = $this->get_option( 'sandbox_api_username' );
+			$password        = $this->get_option( 'sandbox_api_password' );
+			$api_subject     = $this->get_option( 'sandbox_api_subject' );
+			$api_signature   = $this->get_option( 'sandbox_api_signature' );
+			$api_certificate = $this->get_option( 'sandbox_api_certificate' );
+		}
 		$pp_service = false;
+		$this->service = false;
 		if ( ! empty( $username ) ) {
 			if ( empty( $password ) ) {
 				if ( $show_message ) {
@@ -136,7 +151,7 @@ class WC_PayPal_Interface_Latam {
 					'acct1.Subject'   => $api_subject,
 				) );
 			} elseif ( ! empty( $api_certificate ) && empty( $api_signature ) ) {
-				if ( ! file_exists( dirname( __FILE__ ) . '/cert/key_data.pem' ) ) {
+				if ( ! file_exists( dirname( __FILE__ ) . '/cert/' . $env . '_key_data.pem' ) ) {
                     $cert = @openssl_x509_read( base64_decode( $api_certificate ) ); // @codingStandardsIgnoreLine
                     if ( false === $cert ) {
 						if ( $show_message ) {
@@ -158,14 +173,14 @@ class WC_PayPal_Interface_Latam {
 						}
 						return false;
 					}
-					file_put_contents( dirname( __FILE__ ) . '/cert/key_data.pem', base64_decode( $api_certificate ) );
+					file_put_contents( dirname( __FILE__ ) . '/cert/' . $env . '_key_data.pem', base64_decode( $api_certificate ) );
 				}
 				$pp_service = new PayPalAPIInterfaceServiceService( array(
 					'mode' => $env,
 					'acct1.UserName'  => $username,
 					'acct1.Password'  => $password,
 					'acct1.Signature' => $api_signature,
-					'acct1.CertPath'  => dirname( __FILE__ ) . '/cert/key_data.pem',
+					'acct1.CertPath'  => dirname( __FILE__ ) . '/cert/' . $env . '_key_data.pem',
 					'acct1.Subject'   => $api_subject,
 				) );
 			} else {
@@ -175,7 +190,7 @@ class WC_PayPal_Interface_Latam {
 				return false;
 			}// End if().
 			try {
-				if ( $force === true || ! is_array( $cache_acc_balance ) || $cache_acc_balance['time'] + 3600 < time() ) {
+				if ( $force === true || ! is_array( $cache_acc_balance ) || ! isset( $cache_acc_balance['time'] ) || $cache_acc_balance['time'] + 3600 < time() ) {
 					$get_balance = new GetBalanceRequestType();
 					$get_balance->ReturnAllCurrencies = 1;
 					$get_balance_req = new GetBalanceReq();
@@ -200,7 +215,7 @@ class WC_PayPal_Interface_Latam {
 					$this->acc_balance = (float) $cache_acc_balance['balance'];
 					$this->acc_currency = $cache_acc_balance['currency'];
 				}
-				if ( $force === true || ! is_array( $cache_acc_id ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
+				if ( $force === true || ! is_array( $cache_acc_id ) || ! isset( $cache_acc_id['time'] ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
 					$pal_details_req = new GetPalDetailsReq();
 					$pal_details_req->GetPalDetailsRequest = new GetPalDetailsRequestType();
 					$pal_details = $pp_service->GetPalDetails( $pal_details_req );

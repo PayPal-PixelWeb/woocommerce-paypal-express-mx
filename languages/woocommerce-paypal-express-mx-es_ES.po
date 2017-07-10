@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PayPal Express Latam Checkout for WooCommerce\n"
-"POT-Creation-Date: 2017-06-29 23:14-0400\n"
-"PO-Revision-Date: 2017-06-29 23:15-0400\n"
+"POT-Creation-Date: 2017-07-10 18:12-0400\n"
+"PO-Revision-Date: 2017-07-10 18:12-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -20,169 +20,264 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: includes/class-wc-paypal-connect-ips.php:144
+#: includes/class-wc-paypal-connect-ips.php:148
 msgid "Invalid connection request"
 msgstr ""
 
-#: includes/class-wc-paypal-connect-ips.php:154
-#: includes/class-wc-paypal-connect-ips.php:162
+#: includes/class-wc-paypal-connect-ips.php:158
+#: includes/class-wc-paypal-connect-ips.php:166
 msgid "Sorry, Easy Setup encountered an error.  Please try again."
 msgstr ""
 
-#: includes/class-wc-paypal-connect-ips.php:183
+#: includes/class-wc-paypal-connect-ips.php:187
 msgid ""
 "Easy Setup was able to obtain your API credentials, but an error occurred "
 "while trying to verify that they work correctly.  Please try Easy Setup "
 "again."
 msgstr ""
 
-#: includes/class-wc-paypal-connect-ips.php:188
+#: includes/class-wc-paypal-connect-ips.php:192
 msgid "Success!  Your PayPal account has been set up successfully."
 msgstr ""
 
-#: includes/class-wc-paypal-interface-latam.php:81
+#. Plugin Name of the plugin/theme
+#. Description of the plugin/theme
+#: includes/class-wc-paypal-express-mx-gateway.php:30
+msgid "PayPal Express Checkout MX-Latam"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:70
+#: includes/setting/data-settings-payment.php:321
+#: includes/setting/data-settings-payment.php:330
+msgid "Remove Image"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:80
+msgid "Image Size for Logo on Paypal"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:81
+msgid "Image Size for Header on Paypal"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:192
+msgid "Your country store not is supported by PayPal, please change this..."
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:197
+msgid "Setup or link an existing PayPal account"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:198
+msgid "Setup or link an existing PayPal Sandbox account"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:200
+msgid ""
+"or <a href=\"#woocommerce_ppexpress_latam_api_username\" class="
+"\"ppexpress_latam-toggle-settings\">click here to toggle manual API "
+"credential input</a>."
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:201
+msgid ""
+"or <a href=\"#woocommerce_ppexpress_latam_sandbox_api_username\" class="
+"\"ppexpress_latam-toggle-sandbox-settings\">click here to toggle manual API "
+"credential input</a>."
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:212
+#: includes/class-wc-paypal-express-mx-gateway.php:235
+#, php-format
+msgid ""
+"API certificate is <b>VALID</b> and exire on: <b>%1$s</b>, <a href=\"%2$s"
+"\">click here</a> for remove"
+msgstr ""
+
+#: includes/class-wc-paypal-express-mx-gateway.php:223
+#: includes/class-wc-paypal-express-mx-gateway.php:246
+msgid "API certificate is <b>INVALID</b>."
+msgstr ""
+
+#: includes/class-wc-paypal-interface-latam.php:141
 msgid "Error: You must enter API password."
 msgstr ""
 
-#: includes/class-wc-paypal-interface-latam.php:100
-#: includes/class-wc-paypal-interface-latam.php:150
-msgid "You credentials is OK, your actual balance is: "
-msgstr ""
-
-#: includes/class-wc-paypal-interface-latam.php:106
-#: includes/class-wc-paypal-interface-latam.php:156
-msgid ""
-"Error: The API credentials you provided are not valid.  Please double-check "
-"that you entered them correctly and try again."
-msgstr ""
-
-#: includes/class-wc-paypal-interface-latam.php:115
+#: includes/class-wc-paypal-interface-latam.php:158
 msgid "Error: The API certificate is not valid."
 msgstr ""
 
-#: includes/class-wc-paypal-interface-latam.php:123
+#: includes/class-wc-paypal-interface-latam.php:166
 msgid "Error: The API certificate has expired."
 msgstr ""
 
-#: includes/class-wc-paypal-interface-latam.php:129
+#: includes/class-wc-paypal-interface-latam.php:172
 msgid ""
 "Error: The API username does not match the name in the API certificate.  "
 "Make sure that you have the correct API certificate."
 msgstr ""
 
-#: includes/class-wc-paypal-interface-latam.php:162
+#: includes/class-wc-paypal-interface-latam.php:188
 msgid "Error: You must enter \"API Signature\" or \"API Certificate\" field."
 msgstr ""
 
-#. Plugin Name of the plugin/theme
-#. Description of the plugin/theme
-#: includes/class-wc-paypal-mx-gateway.php:26
-msgid "PayPal Express Checkout MX-Latam"
-msgstr ""
-
-#: includes/class-wc-paypal-mx-gateway.php:111
-msgid "Your country store not is supported by PayPal, please change this..."
-msgstr ""
-
-#: includes/class-wc-paypal-mx-gateway.php:115
-#, php-format
+#: includes/class-wc-paypal-interface-latam.php:202
+#: includes/class-wc-paypal-interface-latam.php:248
 msgid ""
-"- To get NVP/SOAP API integration credential <a href=\"%s\">click here</a> "
-"or get this fields manualy <a href=\"%s\" target=\"_blank\">here</a><br />"
+"Error: The API credentials you provided are not valid.  Please double-check "
+"that you entered them correctly and try again."
 msgstr ""
 
-#: includes/class-wc-paypal-mx-gateway.php:116
-#, php-format
-msgid ""
-"- To get Sandbox NVP/SOAP API integration credential <a href=\"%s\">click "
-"here</a> or get this fields manualy <a href=\"%s\" target=\"_blank\">here</a>"
+#: includes/class-wc-paypal-interface-latam.php:225
+msgid "Error: The API credentials present problems to get details."
 msgstr ""
 
-#: includes/class-wc-paypal-mx-gateway.php:125
-#, php-format
-msgid ""
-"API certificate is <b>VALID</b> and exire on: <b>%s</b>, <a href=\"%s"
-"\">click here</a> for remove"
+#: includes/class-wc-paypal-interface-latam.php:242
+msgid "You credentials is OK, your actual balance is: "
 msgstr ""
 
-#: includes/class-wc-paypal-mx-gateway.php:133
-msgid "API certificate is <b>INVALID</b>."
+#: includes/class-wc-paypal-interface-latam.php:243
+msgid "You Payer ID is: "
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:10
+#: includes/class-wc-paypal-logos.php:101
+msgid "&mdash; or &mdash;"
+msgstr ""
+
+#: includes/class-wc-paypal-logos.php:170
+#: includes/setting/data-settings-payment.php:260
+#: includes/setting/data-settings-payment.php:273
+msgid "Small"
+msgstr ""
+
+#: includes/class-wc-paypal-logos.php:171
+#: includes/setting/data-settings-payment.php:261
+#: includes/setting/data-settings-payment.php:274
+msgid "Medium"
+msgstr ""
+
+#: includes/class-wc-paypal-logos.php:172
+#: includes/setting/data-settings-payment.php:262
+#: includes/setting/data-settings-payment.php:275
+msgid "Large"
+msgstr ""
+
+#: includes/class-wc-paypal-logos.php:177
+msgid "White"
+msgstr ""
+
+#: includes/class-wc-paypal-logos.php:178
+msgid "Transparent"
+msgstr ""
+
+#: includes/override/class-wc-override-payment-gateway.php:75
+msgid "Select a image"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:11
 msgid "Enable/Disable"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:12
+#: includes/setting/data-settings-payment.php:13
 msgid "Enable Paypal Express Checkout"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:16
-msgid "Debug"
+#: includes/setting/data-settings-payment.php:17
+msgid "Title"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:18
-msgid "Enable log"
+#: includes/setting/data-settings-payment.php:19
+msgid "This controls the title which the user sees during checkout."
 msgstr ""
 
 #: includes/setting/data-settings-payment.php:20
-#, php-format
-msgid "To review the log of Paypal, see the directory: %s"
+msgid "PayPal"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:23
-msgid "API Credentials"
+#: includes/setting/data-settings-payment.php:24
+msgid "Description"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:27
+msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
 #: includes/setting/data-settings-payment.php:28
-msgid "Environment"
+msgid ""
+"Pay via PayPal; you can pay with your credit card if you don't have a PayPal "
+"account."
 msgstr ""
 
 #: includes/setting/data-settings-payment.php:31
+msgid "Environment"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:34
 msgid ""
 "This setting specifies whether you will process live transactions, or "
 "whether you will process simulated transactions using the PayPal Sandbox."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:35
+#: includes/setting/data-settings-payment.php:38
 msgid "Live"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:36
+#: includes/setting/data-settings-payment.php:39
 msgid "Sandbox"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:40
+#: includes/setting/data-settings-payment.php:43
+msgid "API Credentials"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:48
 msgid "API Username"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:42
-#: includes/setting/data-settings-payment.php:49
-#: includes/setting/data-settings-payment.php:56
+#: includes/setting/data-settings-payment.php:50
+#: includes/setting/data-settings-payment.php:61
+#: includes/setting/data-settings-payment.php:72
+#: includes/setting/data-settings-payment.php:103
+#: includes/setting/data-settings-payment.php:114
+#: includes/setting/data-settings-payment.php:125
 msgid "Get your API credentials from PayPal."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:47
-msgid "API Password"
-msgstr ""
-
-#: includes/setting/data-settings-payment.php:54
-msgid "API Signature"
+#: includes/setting/data-settings-payment.php:52
+#: includes/setting/data-settings-payment.php:63
+#: includes/setting/data-settings-payment.php:74
+#: includes/setting/data-settings-payment.php:105
+#: includes/setting/data-settings-payment.php:116
+#: includes/setting/data-settings-payment.php:127
+#, php-format
+msgid ""
+"To get Sandbox NVP/SOAP manualy click <a href=\"%1$s\" target=\"_blank"
+"\">here</a>"
 msgstr ""
 
 #: includes/setting/data-settings-payment.php:59
-msgid "Optional if you provide a certificate below"
-msgstr ""
-
-#: includes/setting/data-settings-payment.php:62
-msgid "API Certificate"
-msgstr ""
-
-#: includes/setting/data-settings-payment.php:68
-msgid "API Subject"
+msgid "API Password"
 msgstr ""
 
 #: includes/setting/data-settings-payment.php:70
+msgid "API Signature"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:79
+#: includes/setting/data-settings-payment.php:132
+msgid "Optional if you provide a certificate below"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:82
+msgid "API Certificate"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:88
+msgid "API Subject"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:90
+#: includes/setting/data-settings-payment.php:143
 msgid ""
 "If you're processing transactions on behalf of someone else's PayPal "
 "account, enter their email address or Secure Merchant Account ID (also known "
@@ -191,28 +286,324 @@ msgid ""
 "transactions for them."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:73
+#: includes/setting/data-settings-payment.php:93
+#: includes/setting/data-settings-payment.php:146
+#: includes/setting/data-settings-payment.php:324
+#: includes/setting/data-settings-payment.php:333
+#: includes/setting/data-settings-payment.php:341
+#: includes/setting/data-settings-payment.php:349
+#: includes/setting/data-settings-payment.php:357
 msgid "Optional"
 msgstr ""
 
-#: woocommerce-paypal-express-mx.php:93
-#, php-format
-msgid "PayPal Express Checkout depends on the last version of %s to work!"
+#: includes/setting/data-settings-payment.php:96
+msgid "Sandbox API Credentials"
 msgstr ""
 
-#: woocommerce-paypal-express-mx.php:93
-msgid "WooCommerce"
+#: includes/setting/data-settings-payment.php:101
+msgid "Sandbox API Username"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:112
+msgid "Sandbox API Password"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:123
+msgid "Sandbox API Signature"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:135
+msgid "Sandbox API Certificate"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:141
+msgid "Sandbox API Subject"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:149
+msgid "Features enabled"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:153
+msgid "Checkout on cart page"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:155
+msgid "Enable PayPal checkout on the cart page"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:156
+msgid "This shows or hides the PayPal checkout button on the cart page."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:161
+#: includes/setting/data-settings-payment.php:163
+msgid "Checkout on Product"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:166
+msgid "Enable Express checkout on Product view."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:169
+#: includes/setting/data-settings-payment.php:171
+msgid "Checkout on List Payments Gateways"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:174
+msgid "Enable Paypal on List Payments Gateways"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:177
+msgid "Invoice Prefix"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:179
+msgid ""
+"Please enter a prefix for your invoice numbers. If you use your PayPal "
+"account for multiple stores ensure this prefix is unique as PayPal will not "
+"allow orders with the same invoice number."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:184
+#: includes/setting/data-settings-payment.php:186
+msgid "Require confirmed address by Paypal"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:188
+msgid "Require buyer to enter their confirmed address during checkout"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:191
+msgid "Enable PayPal Credit"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:193
+msgid "Currently PayPal Credit only available for U.S. merchants."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:197
+msgid ""
+"This enables PayPal Credit, which displays a PayPal Credit button next to "
+"the Express Checkout button. PayPal Express Checkout lets you give customers "
+"access to financing through PayPal Credit® - at no additional cost to you. "
+"You get paid up front, even though customers have more time to pay. A pre-"
+"integrated payment button shows up next to the PayPal Button, and lets "
+"customers pay quickly with PayPal Credit®."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:208
+msgid "Payment Action"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:211
+msgid ""
+"Choose whether you wish to capture funds immediately or authorize payment "
+"only."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:215
+msgid "Sale"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:216
+msgid "Authorize"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:220
+#: includes/setting/data-settings-payment.php:222
+msgid "Allow Note on checkout"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:224
+msgid ""
+"Customer may enter a note to the merchant on the PayPal page during checkout"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:227
+msgid "Debug"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:229
+msgid "Enable log"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:231
+#, php-format
+msgid "To review the log of Paypal, see the directory: %s"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:234
+msgid "Style on Checkout"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:238
+msgid "Brand Name"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:240
+msgid ""
+"A label that overrides the business name in the PayPal account on the PayPal "
+"hosted checkout pages."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:245
+#: includes/setting/data-settings-payment.php:247
+#: includes/setting/data-settings-payment.php:249
+msgid "Show Paypal Logo on Footer Page"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:253
+msgid "Button Size on Cart"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:256
+msgid ""
+"PayPal offers different sizes of the \"PayPal Checkout\" buttons, allowing "
+"you to select a size that best fits your site's theme. This setting will "
+"allow you to choose which size button(s) appear on your cart page."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:266
+msgid "Button Size on Product"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:269
+msgid ""
+"PayPal offers different sizes of the \"PayPal Checkout\" buttons, allowing "
+"you to select a size that best fits your site's theme. This setting will "
+"allow you to choose which size button(s) appear on your product page."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:279
+msgid "Button Type"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:282
+msgid "Choose whether is square or oval."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:286
+msgid "Squere"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:287
+msgid "Oval"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:291
+msgid "Button Color"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:294
+msgid "Choose whether is blue, gold or gray."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:298
+msgid "Blue"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:299
+msgid "Gold"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:300
+msgid "Silver"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:304
+msgid "Landing Page"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:307
+msgid "Type of PayPal page to display."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:311
+msgctxt "Type of PayPal page"
+msgid "Billing (Non-PayPal account)"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:312
+msgctxt "Type of PayPal page"
+msgid "Login (PayPal account login)"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:316
+msgid "Logo Image (190×60)"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:318
+msgid ""
+"If you want PayPal to co-brand the checkout page with your logo, enter the "
+"URL of your logo image here.<br/>The image must be no larger than 190x60, "
+"GIF, PNG, or JPG format, and should be served over HTTPS."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:327
+msgid "Header Image (750×90)"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:329
+msgid ""
+"If you want PayPal to co-brand the checkout page with your header, enter the "
+"URL of your header image here.<br/>The image must be no larger than 750x90, "
+"GIF, PNG, or JPG format, and should be served over HTTPS."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:336
+#: includes/setting/data-settings-payment.php:338
+#: includes/setting/data-settings-payment.php:354
+msgid "Background color for the header of the payment"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:344
+#: includes/setting/data-settings-payment.php:346
+msgid "Border color for the header of the payment"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:352
+msgid "Background color for the payment page"
 msgstr ""
 
 #: woocommerce-paypal-express-mx.php:132
+#, php-format
+msgid ""
+"WooCommerce MercadoPago and MercadnoEnvios Gateway depends on the last "
+"version of %s to work!"
+msgstr ""
+
+#: woocommerce-paypal-express-mx.php:132
+msgid "WooCommerce"
+msgstr ""
+
+#: woocommerce-paypal-express-mx.php:141
+msgid ""
+"WooCommerce Gateway PayPal Express Checkout MX-Latam requires WooCommerce "
+"version 2.5 or greater"
+msgstr ""
+
+#: woocommerce-paypal-express-mx.php:151
+msgid ""
+"WooCommerce Gateway PayPal Express Checkout requires cURL to be installed on "
+"your server"
+msgstr ""
+
+#: woocommerce-paypal-express-mx.php:163
+msgid ""
+"WooCommerce Gateway PayPal Express Checkout requires OpenSSL >= 1.0.1 to be "
+"installed on your server"
+msgstr ""
+
+#: woocommerce-paypal-express-mx.php:202
 msgid "Settings"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
 #. Author URI of the plugin/theme
-msgid "https://github.com/PayPal-PixelWeb/PayPal-Woo"
+msgid "https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx"
 msgstr ""
 
 #. Author of the plugin/theme
-msgid "PayPal, Leivant, PixelWeb & Kijam"
+msgid "PayPal, Leivant, PixelWeb, Kijam"
 msgstr ""

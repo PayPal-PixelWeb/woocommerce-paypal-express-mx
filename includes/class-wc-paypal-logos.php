@@ -89,18 +89,18 @@ class WC_PayPal_Logos {
 	}
 	function widget_paypal_button() {
 		echo '<a href="https://paypal.com/" target="_blank">';
-		echo apply_filters( 'ppexpress_widget_paypal_button', '<img style="margin: 0 auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), 'small' ) . '" />' );
+		echo apply_filters( 'ppexpress_widget_paypal_button', '<img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), 'small' ) . '" />' );
 		echo '</a>';
 	}
 	function display_paypal_button_product() {
 		echo '<a href="https://paypal.com/" target="_blank">';
-		echo apply_filters( 'ppexpress_display_paypal_button_product', '<img style="margin: 0 auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_product' ) ) . '" />' );
+		echo apply_filters( 'ppexpress_display_paypal_button_product', '<img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_product' ) ) . '" />' );
 		echo '</a>';
 	}
 	function display_paypal_button_checkout() {
 		echo apply_filters( 'ppexpress_display_paypal_button_checkout_separator', '<div style="text-align:center;width:100%;color: #b6b6b6;">' . __( '&mdash; or &mdash;', 'woocommerce-paypal-express-mx' ) . '</div>' );
 		echo '<a href="https://paypal.com/" target="_blank">';
-		echo apply_filters( 'ppexpress_display_paypal_button_checkout', '<img style="margin: 0 auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_cart' ) ) . '" />' );
+		echo apply_filters( 'ppexpress_display_paypal_button_checkout', '<img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_cart' ) ) . '" />' );
 		echo '</a>';
 	}
 	function before_cart_totals() {

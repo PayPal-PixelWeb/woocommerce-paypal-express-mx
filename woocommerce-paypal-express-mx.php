@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: PayPal Express Checkout MX-Latam
- * Plugin URI: https://github.com/PayPal-PixelWeb/PayPal-Woo
+ * Plugin URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
  * Description: PayPal Express Checkout MX-Latam
  * Author: PayPal, Leivant, PixelWeb, Kijam
- * Author URI: https://github.com/PayPal-PixelWeb/PayPal-Woo
+ * Author URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
  * Version: 1.0.0
  * License: Apache-2.0
  * Text Domain: woocommerce-paypal-express-mx
@@ -58,9 +58,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 
 			// Checks with WooCommerce is installed.
 			if ( class_exists( 'WC_Payment_Gateway' ) ) {
-				include_once 'includes/class-wc-paypal-express-mx-gateway.php';
-				add_action( 'woocommerce_init', array( $this, 'woocommerce_loaded' ) );
-				add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+				if ( version_compare( self::woocommerce_instance()->version, '2.5', '<' ) ) {
+					add_action( 'admin_notices', array( $this, 'woocommerce_missing_version_notice' ) );
+				} else if ( false === self::woocommerce_missing_openssl() && false === self::woocommerce_missing_curl() ) {
+					include_once 'includes/class-wc-paypal-express-mx-gateway.php';
+					add_action( 'woocommerce_init', array( $this, 'woocommerce_loaded' ) );
+					add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+					add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_action_links' ) );
+					add_filter( 'allowed_redirect_hosts' , array( $this, 'whitelist_paypal_domains_for_redirect' ) );
+				}
 			} else {
 				add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
 			}
@@ -101,15 +107,101 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		}
 
 		/**
+		 * Allow PayPal domains for redirect.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $domains Whitelisted domains for `wp_safe_redirect`
+		 *
+		 * @return array $domains Whitelisted domains for `wp_safe_redirect`
+		 */
+		public function whitelist_paypal_domains_for_redirect( $domains ) {
+			$domains[] = 'www.paypal.com';
+			$domains[] = 'paypal.com';
+			$domains[] = 'www.sandbox.paypal.com';
+			$domains[] = 'sandbox.paypal.com';
+			return $domains;
+		}
+
+		/**
 		 * WooCommerce fallback notice.
+		 *
+		 * @return  string
+		 */
+		public function woocommerce_missing_notice() {
+			echo '<div class="error"><p>' . sprintf( __( 'WooCommerce MercadoPago and MercadnoEnvios Gateway depends on the last version of %s to work!', 'woocommerce-mercadoenvios' ), '<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', 'woocommerce-mercadoenvios' ) . '</a>' ) . '</p></div>';
+		}
+
+		/**
+		 * WooCommerce version fallback notice.
+		 *
+		 * @return  string
+		 */
+		public function woocommerce_missing_version_notice() {
+			echo '<div class="error"><p>' . __( 'WooCommerce Gateway PayPal Express Checkout MX-Latam requires WooCommerce version 2.5 or greater', 'woocommerce-mercadoenvios' ) . '</p></div>';
+		}
+
+		/**
+		 * Check Curl is Installed
 		 *
 		 * @return  void
 		 */
-		public function woocommerce_missing_notice() {
-			$txt = '<div class="error"><p>';
-			$txt .= sprintf(
-				/* translators: %s: is url of woocommerce plugin. */
-			__( 'PayPal Express Checkout depends on the last version of %s to work!', 'woocommerce-paypal-express-mx' ), '<a href="http://wordpress.org/extend/plugins/woocommerce/">WooCommerce</a>' ) . '</p></div>';
+		private static function woocommerce_missing_curl() {
+			if ( ! function_exists( 'curl_init' ) ) {
+				WC_Admin_Settings::add_error( __( 'WooCommerce Gateway PayPal Express Checkout requires cURL to be installed on your server', 'woocommerce-gateway-paypal-express-checkout' ) );
+				return true;
+			}
+			return false;
+		}
+
+		/**
+		 * Check OpenSSL is Installed
+		 *
+		 * @return  void
+		 */
+		private static function woocommerce_missing_openssl() {
+			$openssl_warning = __( 'WooCommerce Gateway PayPal Express Checkout requires OpenSSL >= 1.0.1 to be installed on your server', 'woocommerce-gateway-paypal-express-checkout' );
+			if ( ! defined( 'OPENSSL_VERSION_TEXT' ) ) {
+				WC_Admin_Settings::add_error( $openssl_warning );
+				return true;
+			}
+			preg_match( '/^OpenSSL ([\d.]+)/', OPENSSL_VERSION_TEXT, $matches );
+			if ( empty( $matches[1] ) ) {
+				WC_Admin_Settings::add_error( $openssl_warning );
+				return true;
+			}
+			if ( ! version_compare( $matches[1], '1.0.1', '>=' ) ) {
+				WC_Admin_Settings::add_error( $openssl_warning );
+				return true;
+			}
+			return false;
+		}
+		/**
+		* Whether currency has decimal restriction for PPCE to functions?
+		*
+		* @return bool True if it has restriction otherwise false
+		*/
+		public static function currency_has_decimal_restriction() {
+			return (
+				'yes' === WC_Paypal_Express_MX_Gateway::obj()->enabled
+				&&
+				in_array( get_woocommerce_currency(), array( 'HUF', 'TWD', 'JPY' ) )
+				&&
+				0 !== absint( get_option( 'woocommerce_price_num_decimals', 2 ) )
+			);
+		}
+		/**
+		 * Add admin links.
+		 *
+		 * @param array $links List of links from Wordpress.
+		 *
+		 * @return array
+		 */
+		function add_action_links( $links ) {
+			 $new_links = array(
+				'<a style="font-weight: bold;color: #3b7bbf" href="' . self::get_admin_link() . '">' . __( 'Settings', 'woocommerce-paypal-express-mx' ) . '</a>',
+			);
+			return array_merge( $links, $new_links );
 		}
 		/**
 		 * Backwards compatibility with version prior to 2.1.
@@ -148,19 +240,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			load_plugin_textdomain( 'woocommerce-paypal-express-mx', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		}
 	}
-	/**
-	 * Add admin links.
-	 *
-	 * @param array $links List of links from Wordpress.
-	 *
-	 * @return array
-	 */
-	function ppexpress_mx_add_action_links( $links ) {
-		 $new_links = array(
-		'<a style="font-weight: bold;color: #3b7bbf" href="' . WC_Paypal_Express_MX::get_admin_link() . '">' . __( 'Settings', 'woocommerce-paypal-express-mx' ) . '</a>',
-			 );
-			return array_merge( $links, $new_links );
-	}
+	
 	/**
 	 * Install actions.
 	 *
@@ -184,5 +264,4 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	register_activation_hook( __FILE__, 'ppexpress_mx_activate' );
 	register_uninstall_hook( __FILE__, 'ppexpress_mx_uninstall' );
 	add_action( 'plugins_loaded', array( 'WC_Paypal_Express_MX', 'get_instance' ), 0 );
-	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'ppexpress_mx_add_action_links' );
 endif;

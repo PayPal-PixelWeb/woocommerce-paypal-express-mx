@@ -201,14 +201,19 @@ class WC_PayPal_Connect_IPS {
 
 			if ( 'live' === $env ) {
 				$settings_array['environment']     = 'live';
+				$settings_array['api_username']    = $_GET['api_username'];
+				$settings_array['api_password']    = $_GET['api_password'];
+				$settings_array['api_signature']   = $_GET['signature'];
+				$settings_array['api_certificate'] = '';
+				$settings_array['api_subject']     = '';
 			} else {
 				$settings_array['environment']     = 'sandbox';
+				$settings_array['sandbox_api_username']    = $_GET['api_username'];
+				$settings_array['sandbox_api_password']    = $_GET['api_password'];
+				$settings_array['sandbox_api_signature']   = $_GET['signature'];
+				$settings_array['sandbox_api_certificate'] = '';
+				$settings_array['sandbox_api_subject']     = '';
 			}
-			$settings_array['api_username']    = $_GET['api_username'];
-			$settings_array['api_password']    = $_GET['api_password'];
-			$settings_array['api_signature']   = $_GET['signature'];
-			$settings_array['api_certificate'] = '';
-			$settings_array['api_subject']     = '';
 
 			update_option( 'woocommerce_ppexpress_latam_settings', $settings_array );
 		}
