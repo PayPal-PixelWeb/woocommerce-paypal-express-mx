@@ -4,7 +4,7 @@
 
 ## Description
 
-   This plugin adds ayPal Express Checkout MX-Latam for WooCommerce.
+   This plugin adds PayPal Express Checkout MX-Latam for WooCommerce.
 
 ## Contribute
 
