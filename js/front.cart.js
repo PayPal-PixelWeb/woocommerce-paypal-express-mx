@@ -6,12 +6,12 @@
 		init: function() {
 			window.paypalCheckoutReady = function() {
 				paypal.checkout.setup(
-					wc_ppexpress_product_context.payer_id,
+					wc_ppexpress_cart_context.payer_id,
 					{
-						environment: wc_ppexpress_product_context.environment,
-						button: ['btn_ppexpress_latam_product', 'btn_ppexpress_latam_widget'],
-						locale: wc_ppexpress_product_context.locale,
-						container: ['btn_ppexpress_latam_product', 'btn_ppexpress_latam_widget']
+						environment: wc_ppexpress_cart_context.environment,
+						button: ['btn_ppexpress_latam_cart', 'btn_ppexpress_latam_widget'],
+						locale: wc_ppexpress_cart_context.locale,
+						container: ['btn_ppexpress_latam_cart', 'btn_ppexpress_latam_widget']
 					}
 				);
 			}
@@ -43,27 +43,25 @@
 	};
 
 	var costs_updated = false;
-	$( '#btn_ppexpress_latam_product' ).click( function( event ) {
+	$( '#btn_ppexpress_latam_cart' ).click( function( event ) {
 		if ( costs_updated ) {
 			costs_updated = false;
 			return;
 		}
 		event.stopPropagation();
 		var data = {
-			'nonce':      wc_ppexpress_product_context.token_product,
-			'qty':        $( '.quantity .qty' ).val(),
-			'attributes': $( '.variations_form' ).length ? get_attributes().data : []
+			'nonce':      wc_ppexpress_cart_context.token_cart
 		};
 		$.ajax( {
 			type:    'POST',
 			data:    data,
-			url:     wc_ppexpress_product_context.ppexpress_generate_cart_url,
+			url:     wc_ppexpress_cart_context.ppexpress_update_cart_url,
 			success: function( response ) {
 				costs_updated = true;
-				if ( wc_ppexpress_product_context.show_modal * 1 ) {
-					$( '#btn_ppexpress_latam_product' ).click();
+				if ( wc_ppexpress_cart_context.show_modal * 1 ) {
+					$( '#btn_ppexpress_latam_cart' ).click();
 				} else {
-					document.location.href = $( '#btn_ppexpress_latam_product' ).attr('href');
+					document.location.href = $( '#btn_ppexpress_latam_cart' ).attr('href');
 				}
 			}
 		} );
@@ -78,16 +76,16 @@
 		event.stopPropagation();
 
 		var data = {
-			'nonce':      wc_ppexpress_product_context.token_cart,
+			'nonce':      wc_ppexpress_cart_context.token_cart,
 		};
 
 		$.ajax( {
 			type:    'POST',
 			data:    data,
-			url:     wc_ppexpress_product_context.ppexpress_update_cart_url,
+			url:     wc_ppexpress_cart_context.ppexpress_update_cart_url,
 			success: function( response ) {
 				costs_updated = true;
-				if ( wc_ppexpress_product_context.show_modal * 1 ) {
+				if ( wc_ppexpress_cart_context.show_modal * 1 ) {
 					$( '#btn_ppexpress_latam_widget' ).click();
 				} else {
 					document.location.href = $( '#btn_ppexpress_latam_widget' ).attr('href');
@@ -95,7 +93,7 @@
 			}
 		} );
 	} );
-	if ( wc_ppexpress_product_context.show_modal * 1 ) {
+	if ( wc_ppexpress_cart_context.show_modal * 1 ) {
 		$wc_ppexpress_latam.init();
 	}
 })( jQuery, window, document );
