@@ -16,6 +16,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @var object
 		 */
 		static private $instance;
+		private static $cart_handler = null;
 		/**
 		 * Constructor for the gateway.
 		 *

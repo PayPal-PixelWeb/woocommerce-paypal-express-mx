@@ -212,8 +212,8 @@ return array(
 		'default'     => 'sale',
 		'desc_tip'    => true,
 		'options'     => array(
-			'sale'          => __( 'Sale', 'woocommerce-paypal-express-mx' ),
-			'authorization' => __( 'Authorize', 'woocommerce-paypal-express-mx' ),
+			'Sale'          => __( 'Sale', 'woocommerce-paypal-express-mx' ),
+			'Authorization' => __( 'Authorize', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'allow_note_enabled' => array(

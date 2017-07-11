@@ -61,6 +61,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 				if ( version_compare( self::woocommerce_instance()->version, '2.5', '<' ) ) {
 					add_action( 'admin_notices', array( $this, 'woocommerce_missing_version_notice' ) );
 				} else if ( false === self::woocommerce_missing_openssl() && false === self::woocommerce_missing_curl() ) {
+					if ( self::currency_has_decimal_restriction() ) {
+						update_option( 'woocommerce_price_num_decimals', 0 );
+						update_option( 'wc_gateway_ppce_display_decimal_msg', true );
+						__( 'NOTE: PayPal does not accept decimal places for the currency in which you are transacting.  The "Number of Decimals" option in WooCommerce has automatically been set to 0 for you.', 'woocommerce-paypal-express-mx');
+					}
 					include_once 'includes/class-wc-paypal-express-mx-gateway.php';
 					add_action( 'woocommerce_init', array( $this, 'woocommerce_loaded' ) );
 					add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
@@ -129,7 +134,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @return  string
 		 */
 		public function woocommerce_missing_notice() {
-			echo '<div class="error"><p>' . sprintf( __( 'WooCommerce MercadoPago and MercadnoEnvios Gateway depends on the last version of %s to work!', 'woocommerce-mercadoenvios' ), '<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', 'woocommerce-mercadoenvios' ) . '</a>' ) . '</p></div>';
+			echo '<div class="error"><p>' . sprintf( __( 'PayPal Gateway depends of WooCommerce on the last version of %s to work!', 'woocommerce-paypal-express-mx' ), '<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', 'woocommerce-paypal-express-mx' ) . '</a>' ) . '</p></div>';
 		}
 
 		/**
@@ -138,7 +143,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @return  string
 		 */
 		public function woocommerce_missing_version_notice() {
-			echo '<div class="error"><p>' . __( 'WooCommerce Gateway PayPal Express Checkout MX-Latam requires WooCommerce version 2.5 or greater', 'woocommerce-mercadoenvios' ) . '</p></div>';
+			echo '<div class="error"><p>' . __( 'WooCommerce Gateway PayPal Express Checkout MX-Latam requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) . '</p></div>';
 		}
 
 		/**
@@ -148,7 +153,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 */
 		private static function woocommerce_missing_curl() {
 			if ( ! function_exists( 'curl_init' ) ) {
-				WC_Admin_Settings::add_error( __( 'WooCommerce Gateway PayPal Express Checkout requires cURL to be installed on your server', 'woocommerce-gateway-paypal-express-checkout' ) );
+				WC_Admin_Settings::add_error( __( 'WooCommerce Gateway PayPal Express Checkout requires cURL to be installed on your server', 'woocommerce-paypal-express-mx' ) );
 				return true;
 			}
 			return false;
@@ -160,7 +165,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @return  void
 		 */
 		private static function woocommerce_missing_openssl() {
-			$openssl_warning = __( 'WooCommerce Gateway PayPal Express Checkout requires OpenSSL >= 1.0.1 to be installed on your server', 'woocommerce-gateway-paypal-express-checkout' );
+			$openssl_warning = __( 'WooCommerce Gateway PayPal Express Checkout requires OpenSSL >= 1.0.1 to be installed on your server', 'woocommerce-paypal-express-mx' );
 			if ( ! defined( 'OPENSSL_VERSION_TEXT' ) ) {
 				WC_Admin_Settings::add_error( $openssl_warning );
 				return true;
@@ -182,13 +187,35 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		* @return bool True if it has restriction otherwise false
 		*/
 		public static function currency_has_decimal_restriction() {
+			//include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-express-mx-gateway.php';
 			return (
-				'yes' === WC_Paypal_Express_MX_Gateway::obj()->enabled
-				&&
+				//'yes' === WC_Paypal_Express_MX_Gateway::obj()->enabled
+				//&&
 				in_array( get_woocommerce_currency(), array( 'HUF', 'TWD', 'JPY' ) )
 				&&
 				0 !== absint( get_option( 'woocommerce_price_num_decimals', 2 ) )
 			);
+		}
+		/**
+		 * Checks if currency in setting supports 0 decimal places.
+		 *
+		 * @since 1.2.0
+		 *
+		 * @return bool Returns true if currency supports 0 decimal places
+		 */
+		public static function is_currency_supports_zero_decimal() {
+			return in_array( get_woocommerce_currency(), array( 'HUF', 'JPY', 'TWD' ) );
+		}
+
+		/**
+		 * Get number of digits after the decimal point.
+		 *
+		 * @since 1.2.0
+		 *
+		 * @return int Number of digits after the decimal point. Either 2 or 0
+		 */
+		public static function get_number_of_decimal_digits() {
+			return self::is_currency_supports_zero_decimal() ? 0 : 2;
 		}
 		/**
 		 * Add admin links.
@@ -247,7 +274,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	 * @return void
 	 */
 	function ppexpress_mx_activate() {
-		include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-mx-gateway.php';
+		include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-express-mx-gateway.php';
 		WC_Paypal_Express_MX::get_instance();
 		WC_Paypal_Express_MX_Gateway::check_database();
 	}
@@ -257,7 +284,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	 * @return void
 	 */
 	function ppexpress_mx_uninstall() {
-		// include_once dirname(__FILE__) . '/includes/class-wc-paypal-mx-gateway.php'; //...
+		// include_once dirname(__FILE__) . '/includes/class-wc-paypal-express-mx-gateway.php'; //...
 		// WC_Paypal_Express_MX::get_instance(); //...
 		// WC_Paypal_Express_MX_Gateway::uninstall_database(); //...
 	}
