@@ -29,11 +29,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->title           = $this->get_option( 'title' );
 			$this->description     = $this->get_option( 'description' );
 			$this->method_title    = __( 'PayPal Express Checkout MX-Latam', 'woocommerce-paypal-express-mx' );
-
+			$this->checkout_mode          = $this->get_option( 'checkout_mode', 'redirect' );
 			add_action( 'admin_enqueue_scripts', array( $this, 'pplatam_script_enqueue' ) );
 			add_action( 'after_setup_theme', array( $this, 'ppexpress_latam_image_sizes' ) );
 			add_filter( 'image_size_names_choose', array( $this, 'ppexpress_latam_sizes' ) );
-
+			add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_page' ) );
+			add_action( 'woocommerce_checkout_order_processed', array( $this, 'order_processed' ) );
+			add_action( 'template_redirect', array( $this, 'verify_checkout' ) );
+			add_action( 'template_redirect', array( $this, 'maybe_return_from_paypal' ) );
+			add_action( 'woocommerce_api_wc_gateway_ipn_paypal_latam', array( $this, 'check_ipn_response' ) );
 			$this->check_nonce();
 			$this->init_form_fields();
 			$this->init_settings();
@@ -43,16 +47,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				WC_Paypal_Logger::set_level( WC_Paypal_Logger::SILENT );
 			}
 			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-
 			/*
 			// Pending...
 			add_action( 'woocommerce_paypalexpress_metabox', array( $this, 'woocommerce_paypalexpress_metabox' ) );
 			add_action( 'wp_head', array( $this, 'hook_js' ) );
 			add_action( 'wp_head', array( $this, 'hook_css' ) );
-
-			// IPN Handler...
-			$this->notify_url      = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'ppexpress_latam', home_url( '/' ) ) );
-			add_action( 'woocommerce_api_ppexpress_latam', array( $this, 'check_ipn_response' ) );
 			 */
 			if ( is_user_logged_in() && is_admin() && isset( $_GET['section'] ) && $_GET['section'] === $this->id ) {
 				if ( empty( $_POST ) ) { // @codingStandardsIgnoreLine
@@ -68,7 +67,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			wp_enqueue_media();
 			wp_enqueue_script( 'pplatam_script', plugins_url( '../js/admin.js' , __FILE__ ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION );
 			wp_add_inline_script( 'pplatam_script', '
-				var ppexpress_lang_remove = "'.__( 'Remove Image', 'woocommerce-paypal-express-mx' ).'";
+				var ppexpress_lang_remove = "' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '";
 			' );
 		}
 		function ppexpress_latam_image_sizes() {
@@ -103,8 +102,126 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check nonce's
 		 */
 		private static function check_key_nonce( $key ) {
-			return isset( $_GET[$key] ) // Input var okay.
-				&& wp_verify_nonce( sanitize_key( $_GET[$key] ), $key );
+			return isset( $_GET[ $key ] ) // Input var okay.
+				&& wp_verify_nonce( sanitize_key( $_GET[ $key ] ), $key );
+		}
+		/**
+		 * Checks data is correctly set when returning from PayPal Express Checkout
+		 */
+		public function maybe_return_from_paypal() {
+			if ( isset( $_GET['wc-gateway-ppexpress-latam-clear-session'] ) ) {
+				WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
+				wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+				exit;
+			}
+			if ( empty( $_GET['ppexpress-latam-return'] ) || empty( $_GET['token'] ) || empty( $_GET['PayerID'] ) ) {
+				return;
+			}
+			$token                    = $_GET['token'];
+			$payer_id                 = $_GET['PayerID'];
+			$create_billing_agreement = ! empty( $_GET['create-billing-agreement'] );
+			$session                  = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+
+			if ( empty( $session ) || ! isset( $session['expire_in'] ) || $session['expire_in'] < time() ) {
+				wc_add_notice( __( 'Your PayPal checkout session has expired. Please check out again.', 'woocommerce-paypal-express-mx' ), 'error' );
+				return;
+			}
+
+			// Store values in session.
+			$session['checkout_completed'] = true;
+			$session['get_express_token']  = $token;
+			$session['payer_id']           = $payer_id;
+			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', $session );
+			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
+				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
+			}
+			try {
+				// If commit was true, take payment right now
+				if ( 'checkout' === $session['start_from'] ) {
+					$get_checkout = WC_PayPal_Cart_Handler_Latam::obj()->get_checkout( $token );
+					if ( false !== $get_checkout ) {
+						$order_data = json_decode( $get_checkout->GetExpressCheckoutDetailsResponseDetails->Custom, true );
+						if ( $order_data['order_id'] != $session['order_id'] ) {
+							wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
+							wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+							exit;
+						}
+
+						$pp_payer = $get_checkout->GetExpressCheckoutDetailsResponseDetails->PayerInfo;
+						set_metadata( $order_data['order_id'], 'payer_email', $pp_payer->Payer );
+						set_metadata( $order_data['order_id'], 'payer_status', $pp_payer->PayerStatus );
+						set_metadata( $order_data['order_id'], 'payer_country', $pp_payer->PayerCountry );
+						set_metadata( $order_data['order_id'], 'payer_business', $pp_payer->PayerBusiness );
+						set_metadata( $order_data['order_id'], 'payer_name', implode( ' ', array( $pp_payer->PayerName->FirstName, $pp_payer->PayerName->MiddleName, $pp_payer->PayerName->LastName ) ) );
+						set_metadata( $order_data['order_id'], 'get_express_token', $token );
+						set_metadata( $order_data['order_id'], 'set_express_token', $session['set_express_token'] );
+						set_metadata( $order_data['order_id'], 'environment', WC_PayPal_Interface_Latam::get_env() );
+						set_metadata( $order_data['order_id'], 'payer_id', $payer_id );
+
+						// Maybe create billing agreement.
+						//if ( $create_billing_agreement ) {
+						//	$this->create_billing_agreement( $order, $checkout_details );
+						//}
+
+						// Complete the payment now.
+						$do_checkout = WC_PayPal_Cart_Handler_Latam::obj()->do_checkout( $order_data['order_id'], $payer_id, $token );
+						if ( false !== $do_checkout && isset( $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo ) ) {
+							set_metadata( $order_data['order_id'], 'transaction_id', $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
+							// Clear Cart
+							WC_Paypal_Express_MX::woocommerce_instance()->cart->empty_cart();
+							// Redirect
+							$order = wc_get_order( $order_data['order_id'] );
+							wp_redirect( $order->get_checkout_order_received_url() );
+							exit;
+						} else {
+							wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
+							wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+							exit;
+						}
+					} else {
+						wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
+						wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+						exit;
+					}// End if().
+				} else {
+					$get_checkout = WC_PayPal_Cart_Handler_Latam::obj()->get_checkout( $token );
+					if ( false !== $get_checkout ) {
+						//echo "<pre>".print_r($get_checkout, true)."</pre>";exit;
+						/*
+						$cart_details = WC_PayPal_Cart_Handler_Latam::obj()->get_details_from_cart();
+						$pp_payer = $get_checkout->GetExpressCheckoutDetailsResponseDetails->PayerInfo;
+						$pp_order = $get_checkout->GetExpressCheckoutDetailsResponseDetails->PaymentDetails[0];
+						if ( $order_data['order_id'] != $session['order_id'] ) {
+
+						}
+						*/
+					} else {
+						wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
+						wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+						exit;
+					}
+				}// End if().
+			} catch ( Exception $e ) {
+				wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
+				wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+				exit;
+			}// End try().
+		}
+		public function check_ipn_response() {
+		}
+		public function verify_checkout() {
+			// If there then call start_checkout() else do nothing so page loads as normal.
+			if ( ! empty( $_GET['ppexpress_latam'] ) && 'true' === $_GET['ppexpress_latam'] ) {
+				if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
+					include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
+				}
+				// Trying to prevent auto running checkout when back button is pressed from PayPal page.
+				$_GET['ppexpress_latam'] = 'false';
+				WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+					'start_from' => 'cart',
+				) );
+				exit;
+			}
 		}
 		public function check_nonce() {
 			if ( isset( $_GET['wc_ppexpress_latam_ips_admin_nonce'] ) ) { // Input var okay.
@@ -112,7 +229,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				$ips = new WC_PayPal_Connect_IPS();
 				$ips->maybe_received_credentials();
 			}
-			if ( true === self::check_key_nonce('wc_ppexpress_latam_remove_cert') ) {
+			if ( true === self::check_key_nonce( 'wc_ppexpress_latam_remove_cert' ) ) {
 				@unlink( dirname( __FILE__ ) . '/cert/live_key_data.pem' ); // @codingStandardsIgnoreLine
 				$settings_array = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
 				$settings_array['api_certificate'] = '';
@@ -121,7 +238,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				wp_safe_redirect( WC_Paypal_Express_MX::get_admin_link() );
 				exit;
 			}
-			if ( true === self::check_key_nonce('wc_ppexpress_latam_remove_sandbox_cert') ) {
+			if ( true === self::check_key_nonce( 'wc_ppexpress_latam_remove_sandbox_cert' ) ) {
 				@unlink( dirname( __FILE__ ) . '/cert/sandbox_key_data.pem' ); // @codingStandardsIgnoreLine
 				$settings_array = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
 				$settings_array['sandbox_api_certificate'] = '';
@@ -194,10 +311,10 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			if ( $ips->is_supported() ) {
 				$live_url = $ips->get_signup_url( 'live' );
 				$sandbox_url = $ips->get_signup_url( 'sandbox' );
-				
+
 				$api_creds_text         = '<a href="' . esc_url( $live_url ) . '" class="button button-primary">' . __( 'Setup or link an existing PayPal account', 'woocommerce-paypal-express-mx' ) . '</a>';
 				$sandbox_api_creds_text = '<a href="' . esc_url( $sandbox_url ) . '" class="button button-primary">' . __( 'Setup or link an existing PayPal Sandbox account', 'woocommerce-paypal-express-mx' ) . '</a>';
-				
+
 				$api_creds_text .= ' <span id="ppexpress_display">' . __( 'or <a href="#woocommerce_ppexpress_latam_api_username" class="ppexpress_latam-toggle-settings">click here to toggle manual API credential input</a>.', 'woocommerce-paypal-express-mx' ) . '</span>';
 				$sandbox_api_creds_text .= ' <span id="ppexpress_display_sandbox">' . __( 'or <a href="#woocommerce_ppexpress_latam_sandbox_api_username" class="ppexpress_latam-toggle-sandbox-settings">click here to toggle manual API credential input</a>.', 'woocommerce-paypal-express-mx' ) . '</span>';
 			}
@@ -248,12 +365,12 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				}
 			}
 			$currency_org = get_woocommerce_currency();
-			$header_image_url = $this->get_option('header_image_url');
-			if ( isset ( $_POST['woocommerce_ppexpress_latam_header_image_url'] ) ) {
+			$header_image_url = $this->get_option( 'header_image_url' );
+			if ( isset( $_POST['woocommerce_ppexpress_latam_header_image_url'] ) ) {
 				$header_image_url = $_POST['woocommerce_ppexpress_latam_header_image_url'];
 			}
-			$logo_image_url = $this->get_option('logo_image_url');
-			if ( isset ( $_POST['woocommerce_ppexpress_latam_logo_image_url'] ) ) {
+			$logo_image_url = $this->get_option( 'logo_image_url' );
+			if ( isset( $_POST['woocommerce_ppexpress_latam_logo_image_url'] ) ) {
 				$logo_image_url = $_POST['woocommerce_ppexpress_latam_logo_image_url'];
 			}
 			$this->form_fields = include( dirname( __FILE__ ) . '/setting/data-settings-payment.php' );
@@ -275,6 +392,114 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 */
 		public function is_credit_available() {
 			return true === $this->is_credit_available() && 'yes' === $this->get_option( 'credit_enabled' );
+		}
+
+		/**
+		 * Process the payment and return the result.
+		 *
+		 * @param int $order_id Order ID.
+		 *
+		 * @return array           Redirect.
+		 */
+		public function process_payment( $order_id ) {
+			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
+				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
+			}
+			if ( 'redirect' == $this->checkout_mode ) {
+				$url = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+					'start_from' => 'checkout',
+					'order_id' => $order_id,
+					'return_url' => true,
+				) );
+				return array(
+					'result'    => 'success',
+					'redirect'  => $url,
+				);
+			} else {
+				if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '<' ) ) {
+					$url = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+						'start_from' => 'checkout',
+						'order_id' => $order_id,
+						'return_url' => true,
+					) );
+					return array(
+						'result'   => 'success',
+						'redirect' => $url,
+					);
+				} else {
+					$order = wc_get_order( $order_id );
+					return array(
+						'result'   => 'success',
+						'redirect' => add_query_arg( 'order', method_exists( $order, 'get_id' )?$order->get_id():$order->id, add_query_arg( 'key', $order->order_key, get_permalink( woocommerce_get_page_id( 'pay' ) ) ) ),
+					);
+				}
+			}
+		}
+		/**
+		 * Process the payment and return the result.
+		 *
+		 * @param int $order_id Order ID.
+		 *
+		 * @return array           Redirect.
+		 */
+		public function order_processed( $order_id ) {
+			if ( 'modal_on_checkout' !== $this->checkout_mode ) {
+				return;
+			}
+			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
+				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
+			}
+			$token = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+				'start_from' => 'checkout',
+				'order_id' => $order_id,
+				'return_token' => true,
+			) );
+			if ( false === $token ) { // Error proccesing order on PayPal...
+				return;
+			}
+			$ret = array(
+				'result'   => 'failure', //WC Checkout Hacking...
+				'refresh' => true,
+				'reload' => false,
+				'messages' => "<div style='display:none' id='pp_latam_redirect' data-order_id='{$order_id}' data-token='{$token}'></div>'",
+			);
+			echo json_encode( $ret );
+			exit;
+		}
+		/**
+		 * Generate the form.
+		 *
+		 * @param int $order_id Order ID.
+		 *
+		 * @return string           Payment form.
+		 */
+		public function generate_form( $order_id ) {
+			$order = wc_get_order( $order_id );
+			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
+				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
+			}
+			$url = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+				'start_from' => 'checkout',
+				'order_id' => $order_id,
+				'return_url' => true,
+			) );
+			if ( $url ) {
+				$html = '<p>' . __( 'Thank you for your order, please click the button below to pay with PayPal.', 'woocommerce-paypal-express-mx' ) . '</p>';
+				$html .= '<a id="btn_ppexpress_latam_order" href="' . $url . '" class="button alt">' . __( 'Pay with PayPal', 'woocommerce-paypal-express-mx' ) . '</a> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel &amp; Restore Cart', 'woocommerce-paypal-express-mx' ) . '</a>';
+				return $html;
+			} else {
+				$html = '<p>' . __( 'There was a problem with Paypal, try later or contact our team.', 'woocommerce-paypal-express-mx' ) . '</p>';
+				$html .= '<a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Reload Cart', 'woocommerce-paypal-express-mx' ) . '</a>';
+				return $html;
+			}
+		}
+		/**
+		 * Output for the order received page.
+		 *
+		 * @return void
+		 */
+		public function receipt_page( $order ) {
+			echo $this->generate_form( $order );
 		}
 		/**
 		 * Set Metadata of Order.

@@ -48,10 +48,10 @@ return array(
 		'title'       => __( 'API Username', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 	),
@@ -59,10 +59,10 @@ return array(
 		'title'       => __( 'API Password', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'password',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 	),
@@ -70,10 +70,10 @@ return array(
 		'title'       => __( 'API Signature', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 		'placeholder' => __( 'Optional if you provide a certificate below', 'woocommerce-paypal-express-mx' ),
@@ -101,10 +101,10 @@ return array(
 		'title'       => __( 'Sandbox API Username', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 	),
@@ -112,10 +112,10 @@ return array(
 		'title'       => __( 'Sandbox API Password', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'password',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 	),
@@ -123,10 +123,10 @@ return array(
 		'title'       => __( 'Sandbox API Signature', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'text',
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
-					/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
+			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-					'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
-				),
+			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+		),
 		'default'     => '',
 		'desc_tip'    => false,
 		'placeholder' => __( 'Optional if you provide a certificate below', 'woocommerce-paypal-express-mx' ),
@@ -223,6 +223,26 @@ return array(
 		'default'     => 'no',
 		'description' => __( 'Customer may enter a note to the merchant on the PayPal page during checkout', 'woocommerce-paypal-express-mx' ),
 	),
+	'require_phone_number' => array(
+		'title'       => __( 'Require Phone Number', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Require Phone Number', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'no',
+		'description' => __( 'Require buyer to enter their telephone number during checkout if none is provided by PayPal', 'woocommerce-paypal-express-mx' ),
+	),
+	'checkout_mode' => array(
+		'title'       => __( 'Checkout Mode', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'Indicate if customers will pay in a modal window or the page will be redirected to paypal.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'live',
+		'desc_tip'    => true,
+		'options'     => array(
+			'modal'              => __( 'Modal Windows with confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
+			'modal_on_checkout'  => __( 'Modal Windows without confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
+			'redirect'           => __( 'Redirect', 'woocommerce-paypal-express-mx' ),
+		),
+	),
 	'debug' => array(
 		'title' => __( 'Debug', 'woocommerce-paypal-express-mx' ),
 		'type' => 'checkbox',
@@ -318,7 +338,7 @@ return array(
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your logo, enter the URL of your logo image here.<br/>The image must be no larger than 190x60, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
 		'preview'     => '' !== $logo_image_url ? wp_get_attachment_image( $logo_image_url, array( 190, 60 ), false, array(
 			'id' => 'logo_image_url-image',
-		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_logo_image_url\',\'img#logo_image_url-image\'));">'.__( 'Remove Image', 'woocommerce-paypal-express-mx' ).'</a>' : '',
+		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_logo_image_url\',\'img#logo_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
 		'max-width'   => '190',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
@@ -327,7 +347,9 @@ return array(
 		'title'       => __( 'Header Image (750×90)', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'media',
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your header, enter the URL of your header image here.<br/>The image must be no larger than 750x90, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
-		'preview'     => '' !== $header_image_url ? wp_get_attachment_image( $header_image_url, array( 750, 90 ), false, array( 'id' => 'header_image_url-image' ) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_header_image_url\',\'img#header_image_url-image\'));">'.__( 'Remove Image', 'woocommerce-paypal-express-mx' ).'</a>' : '',
+		'preview'     => '' !== $header_image_url ? wp_get_attachment_image( $header_image_url, array( 750, 90 ), false, array(
+			'id' => 'header_image_url-image',
+		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_header_image_url\',\'img#header_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
 		'max-width'   => '750',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),

@@ -106,7 +106,7 @@ class WC_PayPal_Interface_Latam {
 	 */
 	public function validate_active_credentials( $show_message = false, $force = false, $env = null ) {
 		static $cache_id = null;
-		if ( is_null( $env ) || ( 'live' != $env && 'sandbox' != $env ) ) {
+		if ( is_null( $env ) || ( 'live' !== $env && 'sandbox' !== $env ) ) {
 			$env = $this->get_option( 'environment' );
 		}
 		if ( false === $force && $cache_id == $this->get_cache_key( $env ) ) {
@@ -137,7 +137,7 @@ class WC_PayPal_Interface_Latam {
 		$this->service = false;
 		if ( ! empty( $username ) ) {
 			if ( empty( $password ) ) {
-				if ( $show_message ) {
+				if ( true === $show_message ) {
 					WC_Admin_Settings::add_error( __( 'Error: You must enter API password.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;
@@ -152,9 +152,9 @@ class WC_PayPal_Interface_Latam {
 				) );
 			} elseif ( ! empty( $api_certificate ) && empty( $api_signature ) ) {
 				if ( ! file_exists( dirname( __FILE__ ) . '/cert/' . $env . '_key_data.pem' ) ) {
-                    $cert = @openssl_x509_read( base64_decode( $api_certificate ) ); // @codingStandardsIgnoreLine
-                    if ( false === $cert ) {
-						if ( $show_message ) {
+					$cert = @openssl_x509_read( base64_decode( $api_certificate ) ); // @codingStandardsIgnoreLine
+					if ( false === $cert ) {
+						if ( true === $show_message ) {
 							WC_Admin_Settings::add_error( __( 'Error: The API certificate is not valid.', 'woocommerce-paypal-express-mx' ) );
 						}
 						return false;
@@ -162,13 +162,13 @@ class WC_PayPal_Interface_Latam {
 					$cert_info   = openssl_x509_parse( $cert );
 					$valid_until = $cert_info['validTo_time_t'];
 					if ( $valid_until < time() ) {
-						if ( $show_message ) {
+						if ( true === $show_message ) {
 							WC_Admin_Settings::add_error( __( 'Error: The API certificate has expired.', 'woocommerce-paypal-express-mx' ) );
 						}
 						return false;
 					}
 					if ( $cert_info['subject']['CN'] != $username ) {
-						if ( $show_message ) {
+						if ( true === $show_message ) {
 							WC_Admin_Settings::add_error( __( 'Error: The API username does not match the name in the API certificate.  Make sure that you have the correct API certificate.', 'woocommerce-paypal-express-mx' ) );
 						}
 						return false;
@@ -184,13 +184,13 @@ class WC_PayPal_Interface_Latam {
 					'acct1.Subject'   => $api_subject,
 				) );
 			} else {
-				if ( $show_message ) {
+				if ( true === $show_message ) {
 					WC_Admin_Settings::add_error( __( 'Error: You must enter "API Signature" or "API Certificate" field.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;
 			}// End if().
 			try {
-				if ( $force === true || ! is_array( $cache_acc_balance ) || ! isset( $cache_acc_balance['time'] ) || $cache_acc_balance['time'] + 3600 < time() ) {
+				if ( true === $force || ! is_array( $cache_acc_balance ) || ! isset( $cache_acc_balance['time'] ) || $cache_acc_balance['time'] + 3600 < time() ) {
 					$get_balance = new GetBalanceRequestType();
 					$get_balance->ReturnAllCurrencies = 1;
 					$get_balance_req = new GetBalanceReq();
@@ -198,7 +198,7 @@ class WC_PayPal_Interface_Latam {
 					$pp_balance = $pp_service->GetBalance( $get_balance_req );
 					if ( ! in_array( $pp_balance->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
 						WC_Paypal_Logger::obj()->warning( 'Error on credentials: ' . print_r( $pp_balance, true ) );
-						if ( $show_message ) {
+						if ( true === $show_message ) {
 							WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
 						}
 						return false;
@@ -215,13 +215,13 @@ class WC_PayPal_Interface_Latam {
 					$this->acc_balance = (float) $cache_acc_balance['balance'];
 					$this->acc_currency = $cache_acc_balance['currency'];
 				}
-				if ( $force === true || ! is_array( $cache_acc_id ) || ! isset( $cache_acc_id['time'] ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
+				if ( true === $force || ! is_array( $cache_acc_id ) || ! isset( $cache_acc_id['time'] ) || $cache_acc_id['time'] + 24 * 3600 < time() ) {
 					$pal_details_req = new GetPalDetailsReq();
 					$pal_details_req->GetPalDetailsRequest = new GetPalDetailsRequestType();
 					$pal_details = $pp_service->GetPalDetails( $pal_details_req );
 					if ( ! in_array( $pal_details->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
 						WC_Paypal_Logger::obj()->warning( 'Error on get paypal details: ' . print_r( $pal_details, true ) );
-						if ( $show_message ) {
+						if ( true === $show_message ) {
 							WC_Admin_Settings::add_error( __( 'Error: The API credentials present problems to get details.', 'woocommerce-paypal-express-mx' ) );
 						}
 						return false;
@@ -238,13 +238,13 @@ class WC_PayPal_Interface_Latam {
 					$this->acc_id = $cache_acc_id['acc_id'];
 					$this->acc_locale = $cache_acc_id['acc_locale'];
 				}
-				if ( $show_message ) {
+				if ( true === $show_message ) {
 					WC_Admin_Settings::add_message( __( 'You credentials is OK, your actual balance is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_balance . ' ' . $this->acc_currency );
 					WC_Admin_Settings::add_message( __( 'You Payer ID is: ', 'woocommerce-paypal-express-mx' ) . $this->acc_id );
 				}
 			} catch ( Exception $ex ) {
 				WC_Paypal_Logger::obj()->warning( 'Error on credentials: ' . print_r( $ex, true ) );
-				if ( $show_message ) {
+				if ( true === $show_message ) {
 					WC_Admin_Settings::add_error( __( 'Error: The API credentials you provided are not valid.  Please double-check that you entered them correctly and try again.', 'woocommerce-paypal-express-mx' ) );
 				}
 				return false;

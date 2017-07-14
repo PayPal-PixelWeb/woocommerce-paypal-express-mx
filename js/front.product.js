@@ -1,7 +1,6 @@
-/* global wc_ppec_context */
+/* global pp_latam_product */
 ;(function( $, window, document ) {
 	'use strict';
-
 	var $wc_ppexpress_latam = {
 		init: function() {
 			window.paypalCheckoutReady = function() {
