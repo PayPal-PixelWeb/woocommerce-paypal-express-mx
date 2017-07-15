@@ -20,26 +20,25 @@
 			}
 		}
 	}
-	var pp_with_error = false;
-	var submitted = false;
-	$('input[name="payment_method"]').closest('form').submit(function() {
-		submitted = true;
+	var pp_opened = false;
+	$('form.checkout').submit(function() {
+		if ( 'ppexpress_latam' == $('input[name="payment_method"]').val() && $('#not-popup-ppexpress-latam').length < 1) {
+			paypal.checkout.initXO();
+			pp_opened = true;
+		}
 		return true;
 	});
-	$('input[type="submit"],button[type="submit"]').click(function() {
-		if ( 'ppexpress_latam' == $('input[name="payment_method"]').val() ) {
-			submitted = true;
-		}
-	});
-	$( document.body ).bind('update_checkout', function() {
-		if ( submitted && 'ppexpress_latam' == $('input[name="payment_method"]').val() ) {
-			setTimeout(function(){
-				var pp_token = $('#pp_latam_redirect').attr('data-token');
-				if ( pp_token ) {
-					paypal.checkout.initXO();
-					paypal.checkout.startFlow(pp_token);
-				}
-			}, 500);
+	$( document.body ).bind('checkout_error', function() {
+		if ( 'ppexpress_latam' == $('input[name="payment_method"]').val() && $('#not-popup-ppexpress-latam').length < 1 ) {
+			var pp_token = $('#pp_latam_redirect').attr('data-token');
+			if ( pp_token ) {
+				paypal.checkout.initXO();
+				pp_opened = true;
+				paypal.checkout.startFlow(pp_token);
+			} else if ( pp_opened ) {
+				paypal.checkout.closeFlow();
+				pp_opened = false;
+			}
 		}
 	});
 	if ( wc_ppexpress_cart_context.show_modal * 1 ) {

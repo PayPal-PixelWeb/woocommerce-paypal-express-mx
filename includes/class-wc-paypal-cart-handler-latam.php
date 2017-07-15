@@ -35,25 +35,26 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	private function __construct() {
 		$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
-		if ( ! empty( $_GET['ppexpress-latam-return'] )
-			&& ! empty( $_GET['token'] )
-			&& ! empty( $_GET['PayerID'] )
-			&& isset( $session['start_from'] )
-			&& 'cart' == $session['start_from'] ) {
-			add_action( 'woocommerce_checkout_init', array( $this, 'checkout_init' ) );
-			add_filter( 'woocommerce_default_address_fields', array( $this, 'filter_default_address_fields' ) );
-			add_filter( 'woocommerce_billing_fields', array( $this, 'filter_billing_fields' ) );
-			add_action( 'woocommerce_checkout_process', array( $this, 'copy_checkout_details_to_post' ) );
+		if ( ! empty( $_GET['ppexpress-latam-return'] ) ) {
+			$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+			if( ! empty( $_GET['token'] )
+				&& ! empty( $_GET['PayerID'] )
+				&& isset( $session['start_from'] )
+				&& 'cart' == $session['start_from'] ) {
+				add_action( 'woocommerce_checkout_init', array( $this, 'checkout_init' ) );
+				add_filter( 'woocommerce_default_address_fields', array( $this, 'filter_default_address_fields' ) );
+				add_filter( 'woocommerce_billing_fields', array( $this, 'filter_billing_fields' ) );
+				add_action( 'woocommerce_checkout_process', array( $this, 'copy_checkout_details_to_post' ) );
 
-			//add_action( 'wp', array( $this, 'maybe_return_from_paypal' ) );
-			//add_action( 'wp', array( $this, 'maybe_cancel_checkout_with_paypal' ) );
-			add_action( 'woocommerce_cart_emptied', array( $this, 'maybe_clear_session_data' ) );
+				//add_action( 'wp', array( $this, 'maybe_return_from_paypal' ) );
+				//add_action( 'wp', array( $this, 'maybe_cancel_checkout_with_paypal' ) );
+				add_action( 'woocommerce_cart_emptied', array( $this, 'maybe_clear_session_data' ) );
 
-			add_action( 'woocommerce_available_payment_gateways', array( $this, 'maybe_disable_other_gateways' ) );
-			add_action( 'woocommerce_review_order_after_submit', array( $this, 'maybe_render_cancel_link' ) );
+				add_action( 'woocommerce_available_payment_gateways', array( $this, 'maybe_disable_other_gateways' ) );
+				add_action( 'woocommerce_review_order_after_submit', array( $this, 'maybe_render_cancel_link' ) );
 
-			add_action( 'woocommerce_cart_shipping_packages', array( $this, 'maybe_add_shipping_information' ) );
+				add_action( 'woocommerce_cart_shipping_packages', array( $this, 'maybe_add_shipping_information' ) );
+			}
 		}
 	}
 	/**
@@ -124,7 +125,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		}
 		$billing = $this->get_mapped_billing_address( $checkout_details );
 		?>
-		
+		<div style="display:none" id="not-popup-ppexpress-latam"></div>
 		<h3><?php _e( 'Billing details', 'woocommerce-paypal-express-mx' ); ?></h3>
 		<ul>
 			<?php if ( ! empty( $billing['address_1'] ) ) : ?>
@@ -236,7 +237,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		}
 		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];
 
-		$checkout_details = $this->get_checkout_details( $token );
+		$checkout_details = $this->get_checkout( $token );
 		if ( false !== $checkout_details ) {
 			$shipping_details = $this->get_mapped_shipping_address( $checkout_details );
 			foreach ( $shipping_details as $key => $value ) {
@@ -494,14 +495,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			ob_end_clean();
 			?>
 			<script type="text/javascript">
-				if( ( window.opener != null ) && ( window.opener !== window ) &&
-						( typeof window.opener.paypal != "undefined" ) &&
-						( typeof window.opener.paypal.checkout != "undefined" ) ) {
-					window.opener.location.assign( "<?php echo $redirect_url; ?>" );
-					window.close();
-				} else {
-					window.location.assign( "<?php echo $redirect_url; ?>" );
-				}
+				window.location.assign( "<?php echo $cart_url; ?>" );
 			</script>
 			<?php
 			exit;
@@ -515,6 +509,8 @@ class WC_PayPal_Cart_Handler_Latam {
 			/* wrap API method calls on the service object with a try catch */
 			$response = $pp_service->GetExpressCheckoutDetails( $request );
 			if ( in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+				WC_Paypal_Logger::obj()->debug( 'Result on get_checkout: ' . print_r( $response, true ) );
+				WC_Paypal_Logger::obj()->debug( 'DATA for get_checkout: ' . print_r( $request, true ) );
 				return $response;
 			} else {
 				throw new Exception( print_r( $response, true ) );
@@ -525,7 +521,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			return false;
 		}
 	}
-	public function do_checkout( $order_id, $payer_id, $token ) {
+	public function do_checkout( $order_id, $payer_id, $token, $custom = false, $invoice = false ) {
 		$details = $this->_get_details_from_order( $order_id );
 		$notify_url = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'wc_gateway_ipn_paypal_latam', home_url( '/' ) ) );
 		$order_total = new BasicAmountType();
@@ -534,10 +530,16 @@ class WC_PayPal_Cart_Handler_Latam {
 		$payment = new PaymentDetailsType();
 		$payment->OrderTotal = $order_total;
 		$payment->NotifyURL  = $notify_url;
+		if ( false !== $custom ) {
+			$payment->Custom  = $custom;
+		}
+		if ( false !== $invoice ) {
+			$payment->InvoiceID  = $invoice;
+		}
 		$request_type = new DoExpressCheckoutPaymentRequestDetailsType();
 		$request_type->PayerID = $payer_id;
 		$request_type->Token = $token;
-		$request_type->PaymentAction = $paymentAction;
+		$request_type->PaymentAction = $this->get_option('paymentaction');
 		$request_type->PaymentDetails[0] = $payment;
 		$request_details = new DoExpressCheckoutPaymentRequestType();
 		$request_details->DoExpressCheckoutPaymentRequestDetails = $request_type;
@@ -548,6 +550,8 @@ class WC_PayPal_Cart_Handler_Latam {
 			/* wrap API method calls on the service object with a try catch */
 			$response = $pp_service->DoExpressCheckoutPayment( $request );
 			if ( in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+				WC_Paypal_Logger::obj()->debug( 'Result on do_checkout: ' . print_r( $response, true ) );
+				WC_Paypal_Logger::obj()->debug( 'DATA for do_checkout: ' . print_r( $request, true ) );
 				return $response;
 			} else {
 				throw new Exception( print_r( $response, true ) );
