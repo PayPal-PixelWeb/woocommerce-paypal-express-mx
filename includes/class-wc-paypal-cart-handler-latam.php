@@ -29,7 +29,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @var object
 	 */
 	static private $instance;
-
+	static private $parse_state = array("CIUDAD AUTÓNOMA DE BUENOS AIRES"=>"Buenos Aires (Ciudad)","BUENOS AIRES"=>"Buenos Aires (Provincia)","CATAMARCA"=>"Catamarca","CHACO"=>"Chaco","CHUBUT"=>"Chubut","CORRIENTES"=>"Corrientes","CÓRDOBA"=>"Córdoba","ENTRE RÍOS"=>"Entre Ríos","FORMOSA"=>"Formosa","JUJUY"=>"Jujuy","LA PAMPA"=>"La Pampa","LA RIOJA"=>"La Rioja","MENDOZA"=>"Mendoza","MISIONES"=>"Misiones","NEUQUÉN"=>"Neuquén","RÍO NEGRO"=>"Río Negro","SALTA"=>"Salta","SAN JUAN"=>"San Juan","SAN LUIS"=>"San Luis","SANTA CRUZ"=>"Santa Cruz","SANTA FE"=>"Santa Fe","SANTIAGO DEL ESTERO"=>"Santiago del Estero","TIERRA DEL FUEGO"=>"Tierra del Fuego","TUCUMÁN"=>"Tucumán","AC"=>"Acre","AL"=>"Alabama","AP"=>"Armed Forces Pacific","AM"=>"Amazonas","BA"=>"Bari","CE"=>"Caserta","DF"=>"Distrito Federal","ES"=>"Espírito Santo","GO"=>"Gorizia","MA"=>"Massachusetts","MT"=>"Montana","MS"=>"Mississippi","MG"=>"Minas Gerais","PR"=>"Puerto Rico","PB"=>"Paraíba","PA"=>"Pennsylvania","PE"=>"Pescara","PI"=>"Pisa","RN"=>"Rimini","RS"=>"Rio Grande do Sul","RJ"=>"Rio de Janeiro","RO"=>"Rovigo","RR"=>"Roraima","SC"=>"South Carolina","SE"=>"Sergipe","SP"=>"La Spezia","TO"=>"Torino","AB"=>"Alberta","BC"=>"Baja California","MB"=>"Monza e della Brianza","NB"=>"New Brunswick","NL"=>"Nuevo León","NT"=>"Northwest Territories","NS"=>"Nova Scotia","NU"=>"Nuoro","ON"=>"Ontario","QC"=>"Quebec","SK"=>"Saskatchewan","YT"=>"Yukon","Andaman and Nicobar Islands"=>"Andaman and Nicobar Islands","Andhra Pradesh"=>"Andhra Pradesh","APO"=>"Army Post Office","Arunachal Pradesh"=>"Arunachal Pradesh","Assam"=>"Assam","Bihar"=>"Bihar","Chandigarh"=>"Chandigarh","Chhattisgarh"=>"Chhattisgarh","Dadra and Nagar Haveli"=>"Dadra and Nagar Haveli","Daman and Diu"=>"Daman and Diu","Goa"=>"Goa","Gujarat"=>"Gujarat","Haryana"=>"Haryana","Himachal Pradesh"=>"Himachal Pradesh","Jammu and Kashmir"=>"Jammu and Kashmir","Jharkhand"=>"Jharkhand","Karnataka"=>"Karnataka","Kerala"=>"Kerala","Lakshadweep"=>"Lakshadweep","Madhya Pradesh"=>"Madhya Pradesh","Maharashtra"=>"Maharashtra","Manipur"=>"Manipur","Meghalaya"=>"Meghalaya","Mizoram"=>"Mizoram","Nagaland"=>"Nagaland","Delhi (NCT)"=>"National Capital Territory of Delhi","Odisha"=>"Odisha","Puducherry"=>"Puducherry","Punjab"=>"Punjab","Rajasthan"=>"Rajasthan","Sikkim"=>"Sikkim","Tamil Nadu"=>"Tamil Nadu","Telangana"=>"Telangana","Tripura"=>"Tripura","Uttar Pradesh"=>"Uttar Pradesh","Uttarakhand"=>"Uttarakhand","West Bengal"=>"West Bengal","AG"=>"Agrigento","AN"=>"Ancona","AO"=>"Aosta","AR"=>"Arkansas","AT"=>"Asti","AV"=>"Avellino","BT"=>"Barletta-Andria-Trani","BL"=>"Belluno","BN"=>"Benevento","BG"=>"Bergamo","BI"=>"Biella","BO"=>"Bologna","BZ"=>"Bolzano","BS"=>"Brescia","BR"=>"Brindisi","CA"=>"California","CL"=>"Caltanissetta","CB"=>"Campobasso","CI"=>"Carbonia-Iglesias","CT"=>"Connecticut","CZ"=>"Catanzaro","CH"=>"Chieti","CO"=>"Colorado","CS"=>"Cosenza","CR"=>"Cremona","KR"=>"Crotone","CN"=>"Cuneo","EN"=>"Enna","FM"=>"Federated States of Micronesia","FE"=>"Ferrara","FI"=>"Firenze","FG"=>"Foggia","FC"=>"Forlì-Cesena","FR"=>"Frosinone","GE"=>"Genova","GR"=>"Grosseto","IM"=>"Imperia","IS"=>"Isernia","AQ"=>"L'Aquila","LT"=>"Latina","LE"=>"Lecce","LC"=>"Lecco","LI"=>"Livorno","LO"=>"Lodi","LU"=>"Lucca","MC"=>"Macerata","MN"=>"Minnesota","VS"=>"Medio Campidano","ME"=>"Maine","MI"=>"Michigan","MO"=>"Missouri","NA"=>"Napoli","NO"=>"Novara","OG"=>"Ogliastra","OT"=>"Olbia-Tempio","OR"=>"Oregon","PD"=>"Padova","PV"=>"Pavia","PG"=>"Perugia","PU"=>"Pesaro e Urbino","PC"=>"Piacenza","PT"=>"Pistoia","PN"=>"Pordenone","PZ"=>"Potenza","PO"=>"Prato","RG"=>"Ragusa","RA"=>"Ravenna","RC"=>"Reggio Calabria","RE"=>"Reggio Emilia","RI"=>"Rhode Island","RM"=>"Roma","SA"=>"Salerno","SS"=>"Sassari","SV"=>"Savona","SI"=>"Siena","SR"=>"Siracusa","SO"=>"Sondrio","TA"=>"Taranto","TE"=>"Teramo","TR"=>"Terni","TP"=>"Trapani","TN"=>"Tennessee","TV"=>"Treviso","TS"=>"Trieste","UD"=>"Udine","VA"=>"Virginia","VE"=>"Venezia","VB"=>"Verbano-Cusio-Ossola","VC"=>"Vercelli","VR"=>"Verona","VV"=>"Vibo Valentia","VI"=>"Virgin Islands","VT"=>"Vermont","AICHI-KEN"=>"Aichi","AKITA-KEN"=>"Akita","AOMORI-KEN"=>"Aomori","CHIBA-KEN"=>"Chiba","EHIME-KEN"=>"Ehime","FUKUI-KEN"=>"Fukui","FUKUOKA-KEN"=>"Fukuoka","FUKUSHIMA-KEN"=>"Fukushima","GIFU-KEN"=>"Gifu","GUNMA-KEN"=>"Gunma","HIROSHIMA-KEN"=>"Hiroshima","HOKKAIDO"=>"Hokkaido","HYOGO-KEN"=>"Hyogo","IBARAKI-KEN"=>"Ibaraki","ISHIKAWA-KEN"=>"Ishikawa","IWATE-KEN"=>"Iwate","KAGAWA-KEN"=>"Kagawa","KAGOSHIMA-KEN"=>"Kagoshima","KANAGAWA-KEN"=>"Kanagawa","KOCHI-KEN"=>"Kochi","KUMAMOTO-KEN"=>"Kumamoto","KYOTO-FU"=>"Kyoto","MIE-KEN"=>"Mie","MIYAGI-KEN"=>"Miyagi","MIYAZAKI-KEN"=>"Miyazaki","NAGANO-KEN"=>"Nagano","NAGASAKI-KEN"=>"Nagasaki","NARA-KEN"=>"Nara","NIIGATA-KEN"=>"Niigata","OITA-KEN"=>"Oita","OKAYAMA-KEN"=>"Okayama","OKINAWA-KEN"=>"Okinawa","OSAKA-FU"=>"Osaka","SAGA-KEN"=>"Saga","SAITAMA-KEN"=>"Saitama","SHIGA-KEN"=>"Shiga","SHIMANE-KEN"=>"Shimane","SHIZUOKA-KEN"=>"Shizuoka","TOCHIGI-KEN"=>"Tochigi","TOKUSHIMA-KEN"=>"Tokushima","TOKYO-TO"=>"Tokyo","TOTTORI-KEN"=>"Tottori","TOYAMA-KEN"=>"Toyama","WAKAYAMA-KEN"=>"Wakayama","YAMAGATA-KEN"=>"Yamagata","YAMAGUCHI-KEN"=>"Yamaguchi","YAMANASHI-KEN"=>"Yamanashi","AGS"=>"Aguascalientes","BCS"=>"Baja California Sur","CAMP"=>"Campeche","CHIS"=>"Chiapas","CHIH"=>"Chihuahua","COAH"=>"Coahuila","COL"=>"Colima","DGO"=>"Durango","MEX"=>"Estado de México","GTO"=>"Guanajuato","GRO"=>"Guerrero","HGO"=>"Hidalgo","JAL"=>"Jalisco","MICH"=>"Michoacán","MOR"=>"Morelos","NAY"=>"Nayarit","OAX"=>"Oaxaca","PUE"=>"Puebla","QRO"=>"Querétaro","Q ROO"=>"Quintana Roo","SLP"=>"San Luis Potosí","SIN"=>"Sinaloa","SON"=>"Sonora","TAB"=>"Tabasco","TAMPS"=>"Tamaulipas","TLAX"=>"Tlaxcala","VER"=>"Veracruz","YUC"=>"Yucatán","ZAC"=>"Zacatecas","AK"=>"Alaska","AZ"=>"Arizona","DE"=>"Delaware","DC"=>"District of Columbia","FL"=>"Florida","GA"=>"Georgia","HI"=>"Hawaii","ID"=>"Idaho","IL"=>"Illinois","IN"=>"Indiana","IA"=>"Iowa","KS"=>"Kansas","KY"=>"Kentucky","LA"=>"Louisiana","MD"=>"Maryland","NE"=>"Nebraska","NV"=>"Nevada","NH"=>"New Hampshire","NJ"=>"New Jersey","NM"=>"New Mexico","NY"=>"New York","NC"=>"North Carolina","ND"=>"North Dakota","OH"=>"Ohio","OK"=>"Oklahoma","SD"=>"South Dakota","TX"=>"Texas","UT"=>"Utah","WA"=>"Washington","WV"=>"West Virginia","WI"=>"Wisconsin","WY"=>"Wyoming","AA"=>"Armed Forces Americas","AE"=>"Armed Forces Europe","AS"=>"American Samoa","GU"=>"Guam","MH"=>"Marshall Islands","MP"=>"Northern Mariana Islands","PW"=>"Palau");
 	/**
 	 * Initialize the plugin.
 	 */
@@ -201,11 +201,15 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @return array
 	 */
 	public function filter_default_address_fields( $fields ) {
-		if ( method_exists( WC_Paypal_Express_MX::woocommerce_instance()->cart, 'needs_shipping' ) && ! WC_Paypal_Express_MX::woocommerce_instance()->cart->needs_shipping() ) {
+		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		if( ! empty( $_GET['token'] )
+			&& ! empty( $_GET['PayerID'] )
+			&& isset( $session['start_from'] ) ) {
 			$not_required_fields = array( 'address_1', 'city', 'state', 'postcode', 'country' );
 			foreach ( $not_required_fields as $not_required_field ) {
 				if ( array_key_exists( $not_required_field, $fields ) ) {
 					$fields[ $not_required_field ]['required'] = false;
+					$fields[ $not_required_field ]['validate'] = array();
 				}
 			}
 		}
@@ -337,6 +341,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		$notify_url = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'wc_gateway_ipn_paypal_latam', home_url( '/' ) ) );
 		$return_url = $this->_get_return_url( $args );
 		$order = null;
+		$details = null;
 		$set_express_request = null;
 		try {
 			switch ( $args['start_from'] ) {
@@ -486,9 +491,12 @@ class WC_PayPal_Cart_Handler_Latam {
 			}
 			exit;
 		} catch ( Exception $e ) {
-			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
 			WC_Paypal_Logger::obj()->warning( 'Error on start_checkout: ' . $e->getMessage() );
 			WC_Paypal_Logger::obj()->warning( 'DATA for start_checkout: ' . print_r( $set_express_request, true ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for session: ' . print_r( $session, true ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for details: ' . print_r( $details, true ) );
+			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
+			
 			if ( true === $args['return_url'] || true === $args['return_token'] ) {
 				return false;
 			}
@@ -1001,6 +1009,10 @@ class WC_PayPal_Cart_Handler_Latam {
 		$name       = explode( ' ', $address->Name );
 		$first_name = array_shift( $name );
 		$last_name  = implode( ' ', $name );
+		$state = $address->StateOrProvince;
+		if ( isset ( self::$parse_state[ $state ] ) ) {
+			$state = self::$parse_state[ $state ];
+		}
 		return array(
 			'first_name'    => $first_name,
 			'last_name'     => $last_name,
@@ -1008,7 +1020,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			'address_1'     => $address->Street1,
 			'address_2'     => $address->Street2,
 			'city'          => $address->CityName,
-			'state'         => $address->StateOrProvince,
+			'state'         => $state,
 			'postcode'      => $address->PostalCode,
 			'country'       => $address->Country,
 		);
@@ -1026,6 +1038,10 @@ class WC_PayPal_Cart_Handler_Latam {
 		}
 		$pp_payer = $get_checkout->GetExpressCheckoutDetailsResponseDetails->PayerInfo;
 		if ( $pp_payer->Address ) {
+			$state = $pp_payer->Address->StateOrProvince;
+			if ( isset ( self::$parse_state[ $state ] ) ) {
+				$state = self::$parse_state[ $state ];
+			}
 			return array(
 				'first_name' => trim( $pp_payer->PayerName->FirstName . ' ' . $pp_payer->PayerName->MiddleName ),
 				'last_name'  => $pp_payer->PayerName->LastName,
@@ -1033,7 +1049,7 @@ class WC_PayPal_Cart_Handler_Latam {
 				'address_1'  => $pp_payer->Address->Street1,
 				'address_2'  => $pp_payer->Address->Street2,
 				'city'       => $pp_payer->Address->CityName,
-				'state'      => $pp_payer->Address->StateOrProvince,
+				'state'      => $state,
 				'postcode'   => $pp_payer->Address->PostalCode,
 				'country'    => $pp_payer->Address->Country,
 				'phone'      => ! empty( $pp_payer->Address->Phone ) ? $pp_payer->Address->Phone : $pp_payer->ContactPhone,

@@ -187,7 +187,7 @@ return array(
 		'default'     => 'no',
 		'description' => __( 'Require buyer to enter their confirmed address during checkout', 'woocommerce-paypal-express-mx' ),
 	),
-	'credit_enabled' => array(
+	/* 'credit_enabled' => array(
 		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Currently PayPal Credit only available for U.S. merchants.', 'woocommerce-paypal-express-mx' ),
@@ -195,7 +195,7 @@ return array(
 		'default'     => 'no',
 		'desc_tip'    => true,
 		'description' => __( 'This enables PayPal Credit, which displays a PayPal Credit button next to the Express Checkout button. PayPal Express Checkout lets you give customers access to financing through PayPal Credit® - at no additional cost to you. You get paid up front, even though customers have more time to pay. A pre-integrated payment button shows up next to the PayPal Button, and lets customers pay quickly with PayPal Credit®.', 'woocommerce-paypal-express-mx' ),
-	),
+	), */
 	/*
 	 'require_billing_address' => array(
 		'title'       => __( 'Billing Addresses', 'woocommerce-paypal-express-mx' ),

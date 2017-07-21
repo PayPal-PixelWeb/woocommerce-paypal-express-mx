@@ -267,7 +267,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			load_plugin_textdomain( 'woocommerce-paypal-express-mx', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		}
 	}
-	
+	function ppexpress_latam_metabox_cb() {
+		$woocommerce = WC_Paypal_Express_MX::woocommerce_instance();
+		$woocommerce->payment_gateways();
+		do_action( 'woocommerce_ppexpress_latam_metabox' );
+	}
+	function ppexpress_latam_metabox() {
+		add_meta_box( 'ppexpress_latam-metabox', __( 'Paypal Information', 'woocommerce-paypal-express-mx' ), 'ppexpress_latam_metabox_cb', 'shop_order', 'normal', 'high' );
+	}
+	add_action( 'add_meta_boxes', 'ppexpress_latam_metabox' );
 	/**
 	 * Install actions.
 	 *

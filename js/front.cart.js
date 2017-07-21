@@ -76,6 +76,7 @@
 				return;
 			}
 
+			event.preventDefault();
 			event.stopPropagation();
 
 			var data = {

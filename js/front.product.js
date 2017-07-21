@@ -43,10 +43,7 @@
 
 	var costs_updated = false;
 	$( '#btn_ppexpress_latam_product' ).click( function( event ) {
-		if ( costs_updated ) {
-			costs_updated = false;
-			return;
-		}
+		event.preventDefault();
 		event.stopPropagation();
 		var data = {
 			'nonce':      wc_ppexpress_product_context.token_product,
@@ -58,9 +55,9 @@
 			data:    data,
 			url:     wc_ppexpress_product_context.ppexpress_generate_cart_url,
 			success: function( response ) {
-				costs_updated = true;
 				if ( wc_ppexpress_product_context.show_modal * 1 ) {
-					$( '#btn_ppexpress_latam_product' ).click();
+					paypal.checkout.initXO();
+					paypal.checkout.startFlow( response.token );
 				} else {
 					document.location.href = $( '#btn_ppexpress_latam_product' ).attr('href');
 				}
@@ -74,6 +71,7 @@
 			return;
 		}
 
+		event.preventDefault();
 		event.stopPropagation();
 
 		var data = {

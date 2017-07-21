@@ -43,6 +43,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			add_action( 'template_redirect', array( $this, 'maybe_return_from_paypal' ) );
 			add_action( 'woocommerce_api_wc_gateway_ipn_paypal_latam', array( $this, 'check_ipn_response' ) );
 			add_filter( 'woocommerce_thankyou_order_received_text', array( $this, 'thankyou_text' ), 10, 2 );
+			add_action( 'woocommerce_ppexpress_latam_metabox', array( $this, 'show_metabox' ) );
 			$this->check_nonce();
 			$this->init_form_fields();
 			$this->init_settings();
@@ -65,7 +66,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$order_id  = $old_wc ? $order->id : $order->get_id();
 			$transaction_id = $this->get_metadata( $order_id, 'transaction_id' );
 			if ( false !== $transaction_id && strlen( $transaction_id ) > 0 ) {
-				return '<center><img width="200" src="'.plugins_url( '../img/success.svg', __FILE__ ).'" /><br /><b>' . __('Thank you. Your order has been received.', 'woocommerce-paypal-express-mx').'<br />' . __('You Transaction ID is', 'woocommerce-paypal-express-mx').': '.$transaction_id.'</b></center>';
+				return '<center><img width="130" src="'.plugins_url( '../img/pp-success.svg', __FILE__ ).'" /><br /><b>' . __('Thank you. Your order has been received.', 'woocommerce-paypal-express-mx').'<br />' . __('You Transaction ID is', 'woocommerce-paypal-express-mx').': '.$transaction_id.'</b></center>';
 			}
 			return $var; 
 		}
@@ -172,7 +173,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 						// Complete the payment now.
 						$do_checkout = $this->cart_handler->do_checkout( $order_data['order_id'], $payer_id, $token );
 						if ( false !== $do_checkout && isset( $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo ) ) {
-							$this->set_metadata( $order_data['order_id'], 'transaction_id', $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
+							$this->set_metadata( $order_data['order_id'], 'transaction_id', (string) $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
 							// Clear Cart
 							WC_Paypal_Express_MX::woocommerce_instance()->cart->empty_cart();
 							// Redirect
@@ -197,10 +198,16 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			}// End try().
 		}
 		public function check_ipn_response() {
+			if ( ! class_exists( 'WC_PayPal_IPN_Handler_Latam' ) ) {
+				include_once( dirname( __FILE__ ) . '/class-wc-paypal-ipn-handler-latam.php' );
+			}
+			$handler = WC_PayPal_IPN_Handler_Latam::obj();
+			$handler->process_data();
 		}
 		public function verify_checkout() {
 			// If there then call start_checkout() else do nothing so page loads as normal.
 			if ( ! empty( $_GET['ppexpress_latam'] ) && 'true' === $_GET['ppexpress_latam'] ) {
+				
 				// Trying to prevent auto running checkout when back button is pressed from PayPal page.
 				$_GET['ppexpress_latam'] = 'false';
 				WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
@@ -476,7 +483,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					// Complete the payment now.
 					$do_checkout = $this->cart_handler->do_checkout( $order_id, $payer_id, $token, json_encode( array( 'order_id'  => $order_id, 'order_key' => $order_key ) ), $this->get_option( 'invoice_prefix' ) . $order->get_order_number() );
 					if ( false !== $do_checkout && isset( $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo ) ) {
-						$this->set_metadata( $order_id, 'transaction_id', $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
+						$this->set_metadata( $order_id, 'transaction_id', (string) $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
 						return;
 					} else {
 						$ret = array(
@@ -549,6 +556,43 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 */
 		public function receipt_page( $order ) {
 			echo $this->generate_form( $order );
+		}
+
+		function show_metabox() {
+			global $theorder;
+			$order_id = method_exists( $theorder, 'get_id' )?$theorder->get_id():$theorder->id;
+			$status = self::get_metadata( $order_id, 'transaction_id' );
+			if ( ! $status || empty( $status ) ) {
+				echo __( 'This order was not processed by PayPal.', 'woocommerce-mercadoenvios' );
+				return;
+			}
+			?>
+			<table width="70%" style="width:70%">
+			<?php
+			$check_metadata = array ( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
+			self::showLabelMetabox( $order_id, 'transaction_id', __( 'Transaction ID', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_protection_eligibility', __( 'Protection eligibility', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_payment_type', __( 'Payment type', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_first_name', __( 'Payer first name', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_last_name', __( 'Payer last name', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_payer_email', __( 'Payer email', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_payer_status', __( 'Payer status', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_address_status', __( 'Address status', 'woocommerce-paypal-express-mx' ) );
+			self::showLabelMetabox( $order_id, 'ipn_mc_fee', __( 'Transaction fee', 'woocommerce-paypal-express-mx' ), true );
+			?>
+			</table>
+			<?php
+		}
+		public static function showLabelMetabox( $order_id, $id, $text, $is_price = false ) {
+			$data = self::get_metadata( $order_id, $id );
+			if ( false === $data || empty( $data ) ) {
+				return;
+			}
+			?>
+			<tr>
+				<td><strong><?php echo $text; ?>:</strong></td><td><?php echo $is_price?wc_price( $data ):str_replace('"', '', $data); ?></td>
+			<tr>
+			<?php
 		}
 		/**
 		 * Set Metadata of Order.

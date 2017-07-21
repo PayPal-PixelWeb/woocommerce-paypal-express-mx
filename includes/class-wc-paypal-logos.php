@@ -130,6 +130,7 @@ class WC_PayPal_Logos {
 		 * simple or variable product.
 		 */
 		if ( is_product() ) {
+			WC_Paypal_Express_MX::woocommerce_instance()->cart->empty_cart();
 			$product = wc_get_product( $post->ID );
 			$qty     = ! isset( $_POST['qty'] ) ? 1 : absint( $_POST['qty'] );
 
@@ -149,6 +150,13 @@ class WC_PayPal_Logos {
 			}
 
 			WC_Paypal_Express_MX::woocommerce_instance()->cart->calculate_totals();
+			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
+			$token = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+				'start_from' => 'cart',
+				'return_token' => true
+			) );
+			wp_send_json( array( 'is_ok' => WC_Paypal_Express_MX::woocommerce_instance()->cart, 'token' => $token ) );
+			exit;
 		}
 
 		wp_send_json( new stdClass() );
