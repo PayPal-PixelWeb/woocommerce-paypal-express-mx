@@ -514,7 +514,6 @@ class WC_PayPal_Cart_Handler_Latam {
 			WC_Paypal_Logger::obj()->warning( 'DATA for session: ' . print_r( $session, true ) );
 			WC_Paypal_Logger::obj()->warning( 'DATA for details: ' . print_r( $details, true ) );
 			PPWC()->session->set( 'paypal_mx', array() );
-			wp_die('asasas');
 			if ( true === $args['return_url'] || true === $args['return_token'] ) {
 				return false;
 			}
