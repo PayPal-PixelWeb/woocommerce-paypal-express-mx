@@ -58,7 +58,7 @@ class WC_PayPal_Connect_IPS {
 		return add_query_arg(
 			array(
 				'env'                     => $env,
-				'wc_ppexpress_latam_ips_admin_nonce' => wp_create_nonce( 'wc_ppexpress_latam_ips' ),
+				'wc_ppexpress_mx_ips_admin_nonce' => wp_create_nonce( 'wc_ppexpress_mx_ips' ),
 			),
 			WC_Paypal_Express_MX::get_admin_link()
 		);
@@ -90,7 +90,7 @@ class WC_PayPal_Connect_IPS {
 	public function get_signup_url( $env ) {
 		$query_args = array(
 			'redirect'    => urlencode( $this->get_redirect_url( $env ) ),
-			'countryCode' => WC_Paypal_Express_MX::woocommerce_instance()->countries->get_base_country(),
+			'countryCode' => PPWC()->countries->get_base_country(),
 			'merchantId'  => md5( site_url( '/' ) . time() ),
 		);
 
@@ -103,7 +103,7 @@ class WC_PayPal_Connect_IPS {
 	 * @return bool Returns true of base country in supported countries
 	 */
 	public function is_supported() {
-		return in_array( WC_Paypal_Express_MX::woocommerce_instance()->countries->get_base_country(), $this->_supported_countries );
+		return in_array( PPWC()->countries->get_base_country(), $this->_supported_countries );
 	}
 
 	/**
@@ -138,13 +138,13 @@ class WC_PayPal_Connect_IPS {
 		}
 
 		// Require the nonce.
-		if ( empty( $_GET['wc_ppexpress_latam_ips_admin_nonce'] ) || empty( $_GET['env'] ) ) {
+		if ( empty( $_GET['wc_ppexpress_mx_ips_admin_nonce'] ) || empty( $_GET['env'] ) ) {
 			return false;
 		}
 		$env = in_array( $_GET['env'], array( 'live', 'sandbox' ) ) ? $_GET['env'] : 'live';
 
 		// Verify the nonce.
-		if ( ! wp_verify_nonce( $_GET['wc_ppexpress_latam_ips_admin_nonce'], 'wc_ppexpress_latam_ips' ) ) {
+		if ( ! wp_verify_nonce( $_GET['wc_ppexpress_mx_ips_admin_nonce'], 'wc_ppexpress_mx_ips' ) ) {
 			wp_die( __( 'Invalid connection request', 'woocommerce-paypal-express-mx' ) );
 		}
 
@@ -197,7 +197,7 @@ class WC_PayPal_Connect_IPS {
 			}
 
 			// Save credentials to settings API
-			$settings_array = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+			$settings_array = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 
 			if ( 'live' === $env ) {
 				$settings_array['environment']     = 'live';
@@ -215,7 +215,7 @@ class WC_PayPal_Connect_IPS {
 				$settings_array['sandbox_api_subject']     = '';
 			}
 
-			update_option( 'woocommerce_ppexpress_latam_settings', $settings_array );
+			update_option( 'woocommerce_ppexpress_mx_settings', $settings_array );
 		}
 		$this->_redirect_with_messages( $error_msgs );
 	}

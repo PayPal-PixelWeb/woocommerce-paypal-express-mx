@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: PayPal Express Checkout MX-Latam
+ * Plugin Name: PayPal Express Checkout MX
  * Plugin URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
- * Description: PayPal Express Checkout MX-Latam
+ * Description: PayPal Express Checkout MX
  * Author: PayPal, Leivant, PixelWeb, Kijam
  * Author URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
- * Version: 1.0.0
+ * Version: 1.0.1
  * License: Apache-2.0
  * Text Domain: woocommerce-paypal-express-mx
  * Domain Path: /languages/
@@ -34,7 +34,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	 *
 	 * @var string
 	 */
-		const VERSION = '1.0.0';
+		const VERSION = '1.0.1';
 
 		/**
 		 * Instance of this class.
@@ -67,6 +67,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 						__( 'NOTE: PayPal does not accept decimal places for the currency in which you are transacting.  The "Number of Decimals" option in WooCommerce has automatically been set to 0 for you.', 'woocommerce-paypal-express-mx');
 					}
 					include_once 'includes/class-wc-paypal-express-mx-gateway.php';
+					include_once 'includes/class-wc-paypal-installment-gateway.php';
 					add_action( 'woocommerce_init', array( $this, 'woocommerce_loaded' ) );
 					add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
 					add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_action_links' ) );
@@ -108,6 +109,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			} else {
 				$methods[] = 'WC_Paypal_Express_MX_Gateway';
 			}
+			if ( ! isset( $_GET['tab'] ) || 'checkout' !== $_GET['tab'] ) {
+				$methods[] = 'WC_Paypal_Installment_Gateway';
+			}
 			return $methods;
 		}
 
@@ -143,7 +147,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @return  string
 		 */
 		public function woocommerce_missing_version_notice() {
-			echo '<div class="error"><p>' . __( 'WooCommerce Gateway PayPal Express Checkout MX-Latam requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) . '</p></div>';
+			echo '<div class="error"><p>' . __( 'WooCommerce Gateway PayPal Express Checkout MX requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) . '</p></div>';
 		}
 
 		/**
@@ -250,7 +254,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 */
 		public static function get_admin_link() {
 			if ( version_compare( self::woocommerce_instance()->version, '2.6', '>=' ) ) {
-				$section_slug = 'ppexpress_latam';
+				$section_slug = 'ppexpress_mx';
 			} else {
 				$section_slug = strtolower( 'WC_Paypal_Express_MX_Gateway' );
 			}
@@ -267,15 +271,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			load_plugin_textdomain( 'woocommerce-paypal-express-mx', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		}
 	}
-	function ppexpress_latam_metabox_cb() {
-		$woocommerce = WC_Paypal_Express_MX::woocommerce_instance();
+	function ppexpress_mx_metabox_cb() {
+		$woocommerce = PPWC();
 		$woocommerce->payment_gateways();
-		do_action( 'woocommerce_ppexpress_latam_metabox' );
+		do_action( 'woocommerce_ppexpress_mx_metabox' );
 	}
-	function ppexpress_latam_metabox() {
-		add_meta_box( 'ppexpress_latam-metabox', __( 'Paypal Information', 'woocommerce-paypal-express-mx' ), 'ppexpress_latam_metabox_cb', 'shop_order', 'normal', 'high' );
+	function ppexpress_mx_metabox() {
+		add_meta_box( 'ppexpress_mx-metabox', __( 'Paypal Information', 'woocommerce-paypal-express-mx' ), 'ppexpress_mx_metabox_cb', 'shop_order', 'normal', 'high' );
 	}
-	add_action( 'add_meta_boxes', 'ppexpress_latam_metabox' );
+	add_action( 'add_meta_boxes', 'ppexpress_mx_metabox' );
 	/**
 	 * Install actions.
 	 *
@@ -299,4 +303,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	register_activation_hook( __FILE__, 'ppexpress_mx_activate' );
 	register_uninstall_hook( __FILE__, 'ppexpress_mx_uninstall' );
 	add_action( 'plugins_loaded', array( 'WC_Paypal_Express_MX', 'get_instance' ), 0 );
+	function PPWC() {
+		return WC_Paypal_Express_MX::woocommerce_instance();
+	}
 endif;

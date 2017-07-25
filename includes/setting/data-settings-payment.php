@@ -181,11 +181,11 @@ return array(
 		'desc_tip'    => true,
 	),
 	'require_confirmed_address' => array(
-		'title'       => __( 'Require confirmed address by Paypal', 'woocommerce-paypal-express-mx' ),
+		'title'       => __( 'Require confirmed address by Paypal for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
-		'label'       => __( 'Require confirmed address by Paypal', 'woocommerce-paypal-express-mx' ),
+		'label'       => __( 'Require confirmed address by Paypal for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'no',
-		'description' => __( 'Require buyer to enter their confirmed address during checkout', 'woocommerce-paypal-express-mx' ),
+		'description' => __( 'Require buyer to enter their confirmed address during checkout for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 	),
 	/* 'credit_enabled' => array(
 		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
@@ -205,15 +205,15 @@ return array(
 		'description' => sprintf( __( 'PayPal only returns a shipping address back to the website. To make sure billing address is returned as well, please enable this functionality on your PayPal account by calling %1$sPayPal Technical Support%2$s.', 'woocommerce-paypal-express-mx' ), '<a href="https://www.paypal.com/us/selfhelp/contact/call">', '</a>' ),
 	), */
 	'paymentaction' => array(
-		'title'       => __( 'Payment Action', 'woocommerce-paypal-express-mx' ),
+		'title'       => __( 'Payment Type', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'Choose whether you wish to capture funds immediately or authorize payment only.', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'sale',
 		'desc_tip'    => true,
 		'options'     => array(
-			'Sale'          => __( 'Sale', 'woocommerce-paypal-express-mx' ),
-			'Authorization' => __( 'Authorize', 'woocommerce-paypal-express-mx' ),
+			'Sale'          => __( 'Direct sale', 'woocommerce-paypal-express-mx' ),
+			'Authorization' => __( 'Authorize and Capture', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'allow_note_enabled' => array(
@@ -222,6 +222,27 @@ return array(
 		'label'       => __( 'Allow Note on checkout', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'no',
 		'description' => __( 'Customer may enter a note to the merchant on the PayPal page during checkout', 'woocommerce-paypal-express-mx' ),
+	),
+	'show_installment_gateway' => array(
+		'title'       => __( 'Show installment gateway on checkout', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Show installment gateway on checkout', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'no',
+		'description' => __( 'This option add a new gateway payment on checkout for "Paypal Checkout with Installment".', 'woocommerce-paypal-express-mx' ),
+	),
+	'title_installment' => array(
+		'title'       => __( 'Title of Installment Gateway', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'text',
+		'description' => __( 'This controls the title which the user sees during checkout for Installment.', 'woocommerce-paypal-express-mx' ),
+		'default'     => __( 'PayPal with Installment', 'woocommerce-paypal-express-mx' ),
+		'desc_tip'    => true,
+	),
+	'description_installment' => array(
+		'title'       => __( 'Description of Installment Gateway', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'text',
+		'desc_tip'    => true,
+		'description' => __( 'This controls the description which the user sees during checkout for Installment.', 'woocommerce-paypal-express-mx' ),
+		'default'     => __( 'Pay via PayPal with Installment.', 'woocommerce-paypal-express-mx' ),
 	),
 	'require_phone_number' => array(
 		'title'       => __( 'Require Phone Number', 'woocommerce-paypal-express-mx' ),
@@ -338,18 +359,18 @@ return array(
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your logo, enter the URL of your logo image here.<br/>The image must be no larger than 190x60, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
 		'preview'     => '' !== $logo_image_url ? wp_get_attachment_image( $logo_image_url, array( 190, 60 ), false, array(
 			'id' => 'logo_image_url-image',
-		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_logo_image_url\',\'img#logo_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
+		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_mx_logo_image_url\',\'img#logo_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
 		'max-width'   => '190',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
 	),
-	'header_image_url' => array(
+	/* 'header_image_url' => array(
 		'title'       => __( 'Header Image (750×90)', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'media',
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your header, enter the URL of your header image here.<br/>The image must be no larger than 750x90, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
 		'preview'     => '' !== $header_image_url ? wp_get_attachment_image( $header_image_url, array( 750, 90 ), false, array(
 			'id' => 'header_image_url-image',
-		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_latam_header_image_url\',\'img#header_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
+		) ) . '<br /><a style="color: #bc0b0b;" href="javascript:void(ppexpress_remove_img(\'input#media-woocommerce_ppexpress_mx_header_image_url\',\'img#header_image_url-image\'));">' . __( 'Remove Image', 'woocommerce-paypal-express-mx' ) . '</a>' : '',
 		'max-width'   => '750',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
@@ -377,5 +398,5 @@ return array(
 		'default'     => '#ffffff',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
-	),
+	), */
 );

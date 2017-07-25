@@ -22,7 +22,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * Initialize the plugin.
 	 */
 	private function __construct() {
-		$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );  // Array containing configuration parameters. (not required if config file is used)
+		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );  // Array containing configuration parameters. (not required if config file is used)
 		$config = array(
 			// values: 'sandbox' for testing
 			//		   'live' for production
@@ -137,7 +137,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 */
 	private function send_ipn_email_notification( $subject, $message ) {
 		$new_order_settings = get_option( 'woocommerce_new_order_settings', array() );
-		$mailer             = WC_Paypal_Express_MX::woocommerce_instance()->mailer();
+		$mailer             = PPWC()->mailer();
 		$message            = $mailer->wrap_message( $subject, $message );
 		$mailer->send( ! empty( $new_order_settings['recipient'] ) ? $new_order_settings['recipient'] : get_option( 'admin_email' ), strip_tags( $subject ), $message );
 	}

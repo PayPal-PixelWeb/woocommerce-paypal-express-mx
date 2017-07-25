@@ -34,9 +34,9 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * Initialize the plugin.
 	 */
 	private function __construct() {
-		$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
-		if ( ! empty( $_GET['ppexpress-latam-return'] ) ) {
-			$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
+		if ( ! empty( $_GET['ppexpress-mx-return'] ) ) {
+			$session    = PPWC()->session->get( 'paypal_mx', array() );
 			if( ! empty( $_GET['token'] )
 				&& ! empty( $_GET['PayerID'] )
 				&& isset( $session['start_from'] )
@@ -84,7 +84,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @since 1.0.0
 	 */
 	public function maybe_clear_session_data() {
-		WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
+		PPWC()->session->set( 'paypal_mx', array() );
 	}
 	/**
 	 * If there's an active PayPal session during checkout (e.g. if the customer started checkout
@@ -115,7 +115,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * Is hooked to woocommerce_checkout_billing action by checkout_init
 	 */
 	public function paypal_billing_details() {
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];
 		$checkout_details = $this->get_checkout( $token );
 		if ( false === $checkout_details ) {
@@ -125,11 +125,11 @@ class WC_PayPal_Cart_Handler_Latam {
 		}
 		$billing = $this->get_mapped_billing_address( $checkout_details );
 		?>
-		<div style="display:none" id="not-popup-ppexpress-latam"></div>
+		<div class="woocommerce-billing-fields__field-wrapper" id="not-popup-ppexpress-mx"></div>
 		<h3><?php _e( 'Billing details', 'woocommerce-paypal-express-mx' ); ?></h3>
 		<ul>
 			<?php if ( ! empty( $billing['address_1'] ) ) : ?>
-				<li><strong><?php _e( 'Address:', 'woocommerce-paypal-express-mx' ) ?></strong></br><?php echo WC_Paypal_Express_MX::woocommerce_instance()->countries->get_formatted_address( $billing ); ?></li>
+				<li><strong><?php _e( 'Address:', 'woocommerce-paypal-express-mx' ) ?></strong></br><?php echo PPWC()->countries->get_formatted_address( $billing ); ?></li>
 			<?php else : ?>
 				<li><strong><?php _e( 'Name:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['first_name'] . ' ' . $billing ['last_name'] ); ?></li>
 			<?php endif; ?>
@@ -140,6 +140,8 @@ class WC_PayPal_Cart_Handler_Latam {
 
 			<?php if ( ! empty( $billing ['phone'] ) ) : ?>
 				<li><strong><?php _e( 'Tel:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['phone'] ); ?></li>
+			<?php elseif ( 'yes' === $this->get_option('require_phone_number') ) : ?>
+				<li><?php woocommerce_form_field( 'billing_phone', array( 'label' => __( 'Phone', 'woocommerce-paypal-express-mx' ), 'required' => true, 'validate' => array( 'phone' ) ) ); ?></li>
 			<?php endif; ?>
 		</ul>
 		<?php
@@ -152,11 +154,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * Is hooked to woocommerce_checkout_shipping action by checkout_init
 	 */
 	public function paypal_shipping_details() {
-		if ( method_exists( WC_Paypal_Express_MX::woocommerce_instance()->cart, 'needs_shipping' ) && ! WC_Paypal_Express_MX::woocommerce_instance()->cart->needs_shipping() ) {
+		if ( method_exists( PPWC()->cart, 'needs_shipping' ) && ! PPWC()->cart->needs_shipping() ) {
 			return;
 		}
 
-		$session          = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam' );
+		$session          = PPWC()->session->get( 'paypal_mx' );
 		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];
 		$checkout_details = $this->get_checkout( $token );
 		if ( false === $checkout_details ) {
@@ -167,7 +169,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		?>
 		<h3><?php _e( 'Shipping details', 'woocommerce-paypal-express-mx' ); ?></h3>
 		<?php
-		echo WC_Paypal_Express_MX::woocommerce_instance()->countries->get_formatted_address( $this->get_mapped_shipping_address( $checkout_details ) );
+		echo PPWC()->countries->get_formatted_address( $this->get_mapped_shipping_address( $checkout_details ) );
 	}
 	/**
 	 * This function filter the packages adding shipping information from PayPal on the checkout page
@@ -201,7 +203,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @return array
 	 */
 	public function filter_default_address_fields( $fields ) {
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		if( ! empty( $_GET['token'] )
 			&& ! empty( $_GET['PayerID'] )
 			&& isset( $session['start_from'] ) ) {
@@ -228,14 +230,14 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	public function copy_checkout_details_to_post() {
 
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		$session    = PPWC()->session->get( 'paypal_mx', array() );
 
-		// Make sure the selected payment method is ppexpress_latam
+		// Make sure the selected payment method is ppexpress_mx
 		if ( ! is_array( $session )
 			|| ! isset( $session['start_from'] )
 			|| 'cart' !== $session['start_from']
 			|| ! isset( $_POST['payment_method'] )
-			|| 'ppexpress_latam' !== $_POST['payment_method']
+			|| ( 'ppexpress_mx' !== $_POST['payment_method'] && 'ppexpress_installment_mx' !== $_POST['payment_method'] )
 		) {
 			return;
 		}
@@ -259,6 +261,9 @@ class WC_PayPal_Cart_Handler_Latam {
 				}
 			}
 			foreach ( $billing_details as $key => $value ) {
+				if ( 'phone' === $key && empty( $value ) && isset( $_POST['billing_phone'] ) ) {
+					continue;
+				}
 				$_POST[ 'billing_' . $key ] = $value;
 			}
 		}
@@ -273,11 +278,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @return array Available gateways
 	 */
 	public function maybe_disable_other_gateways( $gateways ) {
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
+		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		// Unset all other gateways after checking out from cart.
 		if ( isset( $session['start_from'] ) && 'cart' == $session['start_from'] && $session['expire_in'] > time() ) {
 			foreach ( $gateways as $id => $gateway ) {
-				if ( 'ppexpress_latam' !== $id ) {
+				if ( 'ppexpress_mx' !== $id && 'ppexpress_installment_mx' !== $id ) {
 					unset( $gateways[ $id ] );
 				}
 			}
@@ -297,8 +302,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	public function maybe_render_cancel_link() {
 		printf(
-			'<a href="%s" class="wc-gateway-ppexpress-latam-cancel">%s</a>',
-			esc_url( add_query_arg( 'wc-gateway-ppexpress-latam-clear-session', true, wc_get_cart_url() ) ),
+			'<a href="%s" class="wc-gateway-ppexpress-mx-cancel">%s</a>',
+			esc_url( add_query_arg( 'wc-gateway-ppexpress-mx-clear-session', true, wc_get_cart_url() ) ),
 			esc_html__( 'Cancel', 'woocommerce-paypal-express-mx' )
 		);
 	}
@@ -319,7 +324,6 @@ class WC_PayPal_Cart_Handler_Latam {
 		if ( array_key_exists( 'billing_phone', $billing_fields ) ) {
 			$billing_fields['billing_phone']['required'] = 'yes' === $this->get_option( 'require_phone_number' );
 		};
-
 		return $billing_fields;
 	}
 	/**
@@ -336,13 +340,14 @@ class WC_PayPal_Cart_Handler_Latam {
 				'return_token'             => false,
 			)
 		);
-		$session    = WC_Paypal_Express_MX::woocommerce_instance()->session->get( 'paypal_latam', array() );
-		$cart_url   = WC_Paypal_Express_MX::woocommerce_instance()->cart->get_cart_url();
+		$session    = PPWC()->session->get( 'paypal_mx', array() );
+		$cart_url   = PPWC()->cart->get_cart_url();
 		$notify_url = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'wc_gateway_ipn_paypal_latam', home_url( '/' ) ) );
 		$return_url = $this->_get_return_url( $args );
 		$order = null;
 		$details = null;
 		$set_express_request = null;
+		$old_wc    = version_compare( WC_VERSION, '3.0', '<' );
 		try {
 			switch ( $args['start_from'] ) {
 				case 'checkout':
@@ -389,6 +394,18 @@ class WC_PayPal_Cart_Handler_Latam {
 			$order_total->currencyID = $currency;
 			$order_total->value = $details['order_total'];
 			$set_express_details = new SetExpressCheckoutRequestDetailsType();
+			/* $set_express_details->cppheaderbordercolor = str_replace( '#', '', $this->get_option( 'border_header_color' ) );
+			$set_express_details->cppheaderbackcolor = str_replace( '#', '', $this->get_option( 'background_header_color' ) );
+			$set_express_details->cpppayflowcolor = str_replace( '#', '', $this->get_option( 'background_page_color' ) ); */
+			//$set_express_details->cppcartbordercolor = $this->get_option( '' );
+			$logo_image_url = wp_get_attachment_image_url( $this->get_option( 'logo_image_url' ), 'pplogo' );
+			/* $header_image_url = wp_get_attachment_image_url( $this->get_option( 'header_image_url' ), 'ppheader' );
+			if ( ! empty( $header_image_url ) ) {
+				$set_express_details->cpplogoimage = false !== stristr( $logo_image_url, 'http://' ) ? str_ireplace( 'http://', 'https://images.weserv.nl/?url=' , $logo_image_url ) : $logo_image_url;
+			}
+			if ( ! empty( $header_image_url ) ) {
+				$set_express_details->cppheaderimage = false !== stristr( $header_image_url, 'http://' ) ? str_ireplace( 'http://', 'https://images.weserv.nl/?url=' , $header_image_url ) : $header_image_url;
+			} */
 			$payment_details = new PaymentDetailsType();
 			foreach ( $details['items'] as $idx => $item ) {
 				$item_details = new PaymentDetailsItemType();
@@ -405,6 +422,15 @@ class WC_PayPal_Cart_Handler_Latam {
 				$payment_details->PaymentDetailsItem[ $idx ] = $item_details;
 			}
 			if ( 'checkout' === $args['start_from'] ) {
+				$order_id  = $old_wc ? $order->id : $order->get_id();
+				$order_key = $old_wc ? $order->order_key : $order->get_order_key();
+				$payment_details->InvoiceID = $this->get_option( 'invoice_prefix' ) . $order->get_order_number();
+				$payment_details->Custom = json_encode( array(
+					'order_id'  => $order_id,
+					'order_key' => $order_key,
+				) );
+			}
+			if ( 'checkout' === $args['start_from'] && 'yes' !== $this->get_option( 'require_confirmed_address' ) ) {
 				$address = new AddressType();
 				$address->Name            = $details['shipping_address']['name'];
 				$address->Street1         = $details['shipping_address']['address1'];
@@ -415,14 +441,6 @@ class WC_PayPal_Cart_Handler_Latam {
 				$address->PostalCode      = $details['shipping_address']['zip'];
 				$address->Phone           = $details['shipping_address']['phone'];
 				$payment_details->ShipToAddress = $address;
-				$old_wc    = version_compare( WC_VERSION, '3.0', '<' );
-				$order_id  = $old_wc ? $order->id : $order->get_id();
-				$order_key = $old_wc ? $order->order_key : $order->get_order_key();
-				$payment_details->InvoiceID = $this->get_option( 'invoice_prefix' ) . $order->get_order_number();
-				$payment_details->Custom = json_encode( array(
-					'order_id'  => $order_id,
-					'order_key' => $order_key,
-				) );
 				$set_express_details->AddressOverride = 1;
 			} else {
 				/*
@@ -477,7 +495,7 @@ class WC_PayPal_Cart_Handler_Latam {
 					'set_express_url'    => $redirect_url,
 					'do_express_token'   => false,
 				);
-				WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', $session );
+				PPWC()->session->set( 'paypal_mx', $session );
 				if ( $args['return_url'] ) {
 					return $redirect_url;
 				}
@@ -495,8 +513,8 @@ class WC_PayPal_Cart_Handler_Latam {
 			WC_Paypal_Logger::obj()->warning( 'DATA for start_checkout: ' . print_r( $set_express_request, true ) );
 			WC_Paypal_Logger::obj()->warning( 'DATA for session: ' . print_r( $session, true ) );
 			WC_Paypal_Logger::obj()->warning( 'DATA for details: ' . print_r( $details, true ) );
-			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
-			
+			PPWC()->session->set( 'paypal_mx', array() );
+			wp_die('asasas');
 			if ( true === $args['return_url'] || true === $args['return_token'] ) {
 				return false;
 			}
@@ -591,7 +609,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	protected function _get_return_url( array $context_args ) {
 		$query_args = array(
-			'ppexpress-latam-return' => 'true',
+			'ppexpress-mx-return' => 'true',
 		);
 		if ( $context_args['create_billing_agreement'] ) {
 			$query_args['create-billing-agreement'] = 'true';
@@ -610,7 +628,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @return string Cancel URL
 	 */
 	protected function _get_cancel_url() {
-		return add_query_arg( 'ppexpress-latam-cancel', 'true', wc_get_cart_url() );
+		return add_query_arg( 'ppexpress-mx-cancel', 'true', wc_get_cart_url() );
 	}
 
 	/**
@@ -679,13 +697,13 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	public function get_details_from_cart() {
 		$decimals      = WC_Paypal_Express_MX::get_number_of_decimal_digits();
-		$discounts     = round( WC_Paypal_Express_MX::woocommerce_instance()->cart->get_cart_discount_total(), $decimals );
+		$discounts     = round( PPWC()->cart->get_cart_discount_total(), $decimals );
 		$rounded_total = $this->_get_rounded_total_in_cart();
 
 		$details = array(
-			'total_item_amount' => round( WC_Paypal_Express_MX::woocommerce_instance()->cart->cart_contents_total, $decimals ) + $discounts,
-			'order_tax'         => round( WC_Paypal_Express_MX::woocommerce_instance()->cart->tax_total + WC_Paypal_Express_MX::woocommerce_instance()->cart->shipping_tax_total, $decimals ),
-			'shipping'          => round( WC_Paypal_Express_MX::woocommerce_instance()->cart->shipping_total, $decimals ),
+			'total_item_amount' => round( PPWC()->cart->cart_contents_total, $decimals ) + $discounts,
+			'order_tax'         => round( PPWC()->cart->tax_total + PPWC()->cart->shipping_tax_total, $decimals ),
+			'shipping'          => round( PPWC()->cart->shipping_total, $decimals ),
 			'items'             => $this->_get_paypal_line_items_from_cart(),
 		);
 
@@ -736,7 +754,7 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		// If the totals don't line up, adjust the tax to make it work (it's
 		// probably a tax mismatch).
-		$wc_order_total = round( WC_Paypal_Express_MX::woocommerce_instance()->cart->total, $decimals );
+		$wc_order_total = round( PPWC()->cart->total, $decimals );
 		if ( $wc_order_total != $details['order_total'] ) {
 			// tax cannot be negative
 			if ( $details['order_total'] < $wc_order_total ) {
@@ -768,7 +786,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
 
 		$items = array();
-		foreach ( WC_Paypal_Express_MX::woocommerce_instance()->cart->cart_contents as $cart_item_key => $values ) {
+		foreach ( PPWC()->cart->cart_contents as $cart_item_key => $values ) {
 			$amount = round( $values['line_subtotal'] / $values['quantity'] , $decimals );
 
 			if ( version_compare( WC_VERSION, '3.0', '<' ) ) {
@@ -804,7 +822,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
 
 		$rounded_total = 0;
-		foreach ( WC_Paypal_Express_MX::woocommerce_instance()->cart->cart_contents as $cart_item_key => $values ) {
+		foreach ( PPWC()->cart->cart_contents as $cart_item_key => $values ) {
 			$amount         = round( $values['line_subtotal'] / $values['quantity'] , $decimals );
 			$rounded_total += round( $amount * $values['quantity'], $decimals );
 		}
@@ -937,7 +955,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		//
 		// @see https://github.com/woothemes/woocommerce-paypal-express-mx/issues/139
 		if ( empty( $shipping_country ) ) {
-			$shipping_country = WC_Paypal_Express_MX::woocommerce_instance()->countries->get_base_country();
+			$shipping_country = PPWC()->countries->get_base_country();
 		}
 		$shipping_address['country']  = $shipping_country;
 

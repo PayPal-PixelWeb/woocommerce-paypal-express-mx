@@ -30,7 +30,7 @@ class WC_PayPal_Interface_Latam {
 	 * Initialize the plugin.
 	 */
 	private function __construct() {
-		$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class WC_PayPal_Interface_Latam {
 		}
 		$cache_id = $this->get_cache_key( $env );
 		if ( true === $force ) {
-			$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+			$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 			WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_id_' . $cache_id, array() );
 			WC_Paypal_Express_MX_Gateway::set_metadata( 0, 'acc_balance_' . $cache_id, array() );
 		}

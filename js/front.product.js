@@ -1,16 +1,15 @@
 /* global pp_latam_product */
 ;(function( $, window, document ) {
 	'use strict';
-	var $wc_ppexpress_latam = {
+	var is_modal =  wc_ppexpress_product_context.show_modal * 1;
+	var $wc_ppexpress_mx = {
 		init: function() {
 			window.paypalCheckoutReady = function() {
 				paypal.checkout.setup(
 					wc_ppexpress_product_context.payer_id,
 					{
 						environment: wc_ppexpress_product_context.environment,
-						button: ['btn_ppexpress_latam_product', 'btn_ppexpress_latam_widget'],
-						locale: wc_ppexpress_product_context.locale,
-						container: ['btn_ppexpress_latam_product', 'btn_ppexpress_latam_widget']
+						locale: wc_ppexpress_product_context.locale
 					}
 				);
 			}
@@ -40,59 +39,74 @@
 			'data'       : data
 		};
 	};
-
-	var costs_updated = false;
-	$( '#btn_ppexpress_latam_product' ).click( function( event ) {
-		event.preventDefault();
-		event.stopPropagation();
+	$( '#btn_ppexpress_mx_product' ).click( function( event ) {
+		var atts = get_attributes();
+		if ( atts.count !=  atts.chosenCount ) {
+			alert( wc_ppexpress_product_context.att_empty );
+			return;
+		}
+		if ( is_modal ) {
+			paypal.checkout.initXO();
+		}
 		var data = {
 			'nonce':      wc_ppexpress_product_context.token_product,
 			'qty':        $( '.quantity .qty' ).val(),
-			'attributes': $( '.variations_form' ).length ? get_attributes().data : []
+			'attributes': $( '.variations_form' ).length ? atts.data : []
 		};
 		$.ajax( {
 			type:    'POST',
 			data:    data,
 			url:     wc_ppexpress_product_context.ppexpress_generate_cart_url,
 			success: function( response ) {
-				if ( wc_ppexpress_product_context.show_modal * 1 ) {
-					paypal.checkout.initXO();
+				if ( response.token ) {
 					paypal.checkout.startFlow( response.token );
+				} else if ( response.url ) {
+					document.location.href = response.url;
 				} else {
-					document.location.href = $( '#btn_ppexpress_latam_product' ).attr('href');
+					paypal.checkout.closeFlow();
+					alert( wc_ppexpress_product_context.pp_error );
+					location.reload(true);
 				}
 			}
 		} );
 	} );
-	$( '#btn_ppexpress_latam_widget' ).click( function( event ) {
-		if ( costs_updated ) {
-			costs_updated = false;
 
-			return;
+	function open_modal_cart() {
+		if ( is_modal ) {
+			paypal.checkout.initXO();
 		}
-
-		event.preventDefault();
-		event.stopPropagation();
-
 		var data = {
 			'nonce':      wc_ppexpress_product_context.token_cart,
 		};
-
 		$.ajax( {
 			type:    'POST',
 			data:    data,
 			url:     wc_ppexpress_product_context.ppexpress_update_cart_url,
 			success: function( response ) {
-				costs_updated = true;
-				if ( wc_ppexpress_product_context.show_modal * 1 ) {
-					$( '#btn_ppexpress_latam_widget' ).click();
+				if ( response.token ) {
+					paypal.checkout.startFlow( response.token );
+				} else if ( response.url ) {
+					document.location.href = response.url;
 				} else {
-					document.location.href = $( '#btn_ppexpress_latam_widget' ).attr('href');
+					paypal.checkout.closeFlow();
+					alert( wc_ppexpress_product_context.pp_error );
+					location.reload(true);
 				}
 			}
 		} );
-	} );
-	if ( wc_ppexpress_product_context.show_modal * 1 ) {
-		$wc_ppexpress_latam.init();
+	}
+	function check_click() {
+		$('#btn_ppexpress_mx_widget,#btn_ppexpress_mx_cart').each(function(){
+			if ( ! $(this).hasClass('addedEventPP') ) {
+				$(this).addClass('addedEventPP');
+				$(this).click( open_modal_cart );
+			}
+		});
+	}
+	setInterval(check_click, 2000);
+	$( document.body ).bind('wc_fragment_refresh', check_click);
+	$( document.body ).bind('wc_fragments_loaded', check_click);
+	if ( is_modal ) {
+		$wc_ppexpress_mx.init();
 	}
 })( jQuery, window, document );

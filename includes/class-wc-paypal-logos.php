@@ -67,7 +67,7 @@ class WC_PayPal_Logos {
 	 * Initialize the plugin.
 	 */
 	private function __construct() {
-		$this->settings = (array) get_option( 'woocommerce_ppexpress_latam_settings', array() );
+		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 		if ( true === WC_Paypal_Express_MX_Gateway::obj()->is_configured() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'woocommerce_before_cart_totals', array( $this, 'before_cart_totals' ) );
@@ -84,6 +84,7 @@ class WC_PayPal_Logos {
 				add_action( 'wp_footer', array( $this, 'footer_logo' ) );
 			}
 			$this->checkout_mode = $this->get_option( 'checkout_mode' );
+			$this->show_modal = apply_filters( 'woocommerce_paypal_express_checkout_show_cart_modal', in_array( $this->checkout_mode, array( 'modal_on_checkout', 'modal' ) ) );
 		}
 	}
 	/**
@@ -98,9 +99,23 @@ class WC_PayPal_Logos {
 			define( 'WOOCOMMERCE_CART', true );
 		}
 
-		WC_Paypal_Express_MX::woocommerce_instance()->shipping->reset_shipping();
-		WC_Paypal_Express_MX::woocommerce_instance()->cart->calculate_totals();
-		wp_send_json( new stdClass() );
+		PPWC()->shipping->reset_shipping();
+		PPWC()->cart->calculate_totals();
+		PPWC()->session->set( 'paypal_mx', array() );
+		if ( $this->show_modal ) {
+			$token = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+				'start_from' => 'cart',
+				'return_token' => true
+			) );
+			wp_send_json( array( 'is_ok' => PPWC()->cart, 'token' => $token ) );
+		} else {
+			$url = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
+				'start_from' => 'cart',
+				'return_url' => true
+			) );
+			wp_send_json( array( 'is_ok' => PPWC()->cart, 'url' => $url ) );
+		}
+		exit;
 	}
 	/**
 	 * Start checkout handler when cart is loaded.
@@ -122,7 +137,7 @@ class WC_PayPal_Logos {
 			define( 'WOOCOMMERCE_CART', true );
 		}
 
-		WC_Paypal_Express_MX::woocommerce_instance()->shipping->reset_shipping();
+		PPWC()->shipping->reset_shipping();
 
 		/**
 		 * If this page is single product page, we need to simulate
@@ -130,7 +145,7 @@ class WC_PayPal_Logos {
 		 * simple or variable product.
 		 */
 		if ( is_product() ) {
-			WC_Paypal_Express_MX::woocommerce_instance()->cart->empty_cart();
+			PPWC()->cart->empty_cart();
 			$product = wc_get_product( $post->ID );
 			$qty     = ! isset( $_POST['qty'] ) ? 1 : absint( $_POST['qty'] );
 
@@ -144,18 +159,18 @@ class WC_PayPal_Logos {
 					$variation_id = $data_store->find_matching_product_variation( $product, $attributes );
 				}
 
-				WC_Paypal_Express_MX::woocommerce_instance()->cart->add_to_cart( $product->get_id(), $qty, $variation_id, $attributes );
+				PPWC()->cart->add_to_cart( $product->get_id(), $qty, $variation_id, $attributes );
 			} elseif ( $product->is_type( 'simple' ) ) {
-				WC_Paypal_Express_MX::woocommerce_instance()->cart->add_to_cart( $product->get_id(), $qty );
+				PPWC()->cart->add_to_cart( $product->get_id(), $qty );
 			}
 
-			WC_Paypal_Express_MX::woocommerce_instance()->cart->calculate_totals();
-			WC_Paypal_Express_MX::woocommerce_instance()->session->set( 'paypal_latam', array() );
+			PPWC()->cart->calculate_totals();
+			PPWC()->session->set( 'paypal_mx', array() );
 			$token = WC_PayPal_Cart_Handler_Latam::obj()->start_checkout( array(
 				'start_from' => 'cart',
 				'return_token' => true
 			) );
-			wp_send_json( array( 'is_ok' => WC_Paypal_Express_MX::woocommerce_instance()->cart, 'token' => $token ) );
+			wp_send_json( array( 'is_ok' => PPWC()->cart, 'token' => $token ) );
 			exit;
 		}
 
@@ -166,20 +181,14 @@ class WC_PayPal_Logos {
 		echo apply_filters( 'ppexpress_footer', '<div style="width: 100%;height: 100px;background-color: #003087;"><a href="https://paypal.com/" target="_blank"><img style="margin: auto;padding-top: 23px;" src="' . self::get_button( 'paypal_accepted' ) . '" /></a></div>' );
 	}
 	function widget_paypal_button() {
-		echo apply_filters( 'ppexpress_widget_paypal_button', '<a id="btn_ppexpress_latam_widget" href="' . esc_url( add_query_arg( array(
-						'ppexpress_latam' => 'true',
-		), wc_get_page_permalink( 'cart' ) ) ) . '"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), 'small' ) . '" />' );
+		echo apply_filters( 'ppexpress_widget_paypal_button', '<a id="btn_ppexpress_mx_widget" href="javascript:void(0)"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), 'small' ) . '" />' );
 	}
 	function display_paypal_button_product() {
-		echo apply_filters( 'ppexpress_display_paypal_button_product', '<a id="btn_ppexpress_latam_product" href="' . esc_url( add_query_arg( array(
-						'ppexpress_latam' => 'true',
-		), wc_get_page_permalink( 'cart' ) ) ) . '"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_product' ) ) . '" /></a>' );
+		echo apply_filters( 'ppexpress_display_paypal_button_product', '<a id="btn_ppexpress_mx_product" href="javascript:void(0)"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_product' ) ) . '" /></a>' );
 	}
 	function display_paypal_button_checkout() {
 		echo apply_filters( 'ppexpress_display_paypal_button_checkout_separator', '<div style="text-align:center;width:100%;color: #b6b6b6;">' . __( '&mdash; or &mdash;', 'woocommerce-paypal-express-mx' ) . '</div>' );
-		echo apply_filters( 'ppexpress_display_paypal_button_checkout', '<a id="btn_ppexpress_latam_cart" href="' . esc_url( add_query_arg( array(
-						'ppexpress_latam' => 'true',
-		), wc_get_page_permalink( 'cart' ) ) ) . '"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_cart' ) ) . '" /></a>' );
+		echo apply_filters( 'ppexpress_display_paypal_button_checkout', '<a id="btn_ppexpress_mx_cart" href="javascript:void(0)"><img style="margin: 10px auto;" src="' . self::get_button_checkout( $this->get_option( 'button_type' ), $this->get_option( 'button_color' ), $this->get_option( 'button_size_cart' ) ) . '" /></a>' );
 	}
 	/**
 	 * Get options.
@@ -203,7 +212,10 @@ class WC_PayPal_Logos {
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
 					'environment'   => WC_PayPal_Interface_Latam::get_env(),
 					'locale'        => WC_PayPal_Interface_Latam::get_locale(),
-					'show_modal'    => apply_filters( 'woocommerce_paypal_express_checkout_show_cart_modal', in_array( $this->checkout_mode, array( 'modal_on_checkout', 'modal' ) ) ),
+					'att_empty'     => __('Please select all attributes', 'woocommerce-paypal-express-mx' ),
+					'pp_error'      => __('Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
+					'flow_method'   => $this->checkout_mode,
+					'show_modal'    => $this->show_modal,
 					'token_product' => wp_create_nonce( 'ppexpress_token_product' ),
 					'ppexpress_generate_cart_url' => WC_AJAX::get_endpoint( 'wc_ppexpress_generate_cart' ),
 					'token_cart'    => wp_create_nonce( 'ppexpress_token_cart' ),
@@ -218,10 +230,13 @@ class WC_PayPal_Logos {
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
 					'environment'   => WC_PayPal_Interface_Latam::get_env(),
 					'locale'        => WC_PayPal_Interface_Latam::get_locale(),
+					'att_empty'     => __('Please select all attributes', 'woocommerce-paypal-express-mx' ),
+					'pp_error'      => __('Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
+					'flow_method'   => $this->get_option( 'checkout_mode' ),
 					'start_flow'    => esc_url( add_query_arg( array(
-						'ppexpress_latam' => 'true',
+						'ppexpress_mx' => 'true',
 					), wc_get_page_permalink( 'cart' ) ) ),
-					'show_modal'    => apply_filters( 'woocommerce_paypal_express_checkout_show_cart_modal', in_array( $this->checkout_mode, array( 'modal_on_checkout', 'modal' ) ) ),
+					'show_modal'    => $this->show_modal,
 					'token_cart'    => wp_create_nonce( 'ppexpress_token_cart' ),
 					'ppexpress_update_cart_url' => WC_AJAX::get_endpoint( 'wc_ppexpress_update_cart' ),
 				)
@@ -233,11 +248,14 @@ class WC_PayPal_Logos {
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
 					'environment'   => WC_PayPal_Interface_Latam::get_env(),
+					'att_empty'     => __('Please select all attributes', 'woocommerce-paypal-express-mx' ),
+					'pp_error'      => __('Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
+					'flow_method'   => $this->get_option( 'checkout_mode' ),
 					'locale'        => WC_PayPal_Interface_Latam::get_locale(),
 					'start_flow'    => esc_url( add_query_arg( array(
-						'ppexpress_latam' => 'true',
+						'ppexpress_mx' => 'true',
 					), wc_get_page_permalink( 'cart' ) ) ),
-					'show_modal'    => apply_filters( 'woocommerce_paypal_express_checkout_show_cart_modal', in_array( $this->checkout_mode, array( 'modal_on_checkout', 'modal' ) ) ),
+					'show_modal'    => $this->show_modal,
 					'token_cart'    => wp_create_nonce( 'ppexpress_token_cart' ),
 					'ppexpress_update_cart_url' => WC_AJAX::get_endpoint( 'wc_ppexpress_update_cart' ),
 				)

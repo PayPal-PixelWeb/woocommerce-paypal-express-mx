@@ -1,104 +1,65 @@
 /* global pp_latam_cart */
 ;(function( $, window, document ) {
 	'use strict';
-	$( document ).ready(function() {
-		if ( $('#btn_ppexpress_latam_order, #btn_ppexpress_latam_cart, #btn_ppexpress_latam_widget').length < 1 )
-			return;
-
-		var $wc_ppexpress_latam = {
-			init: function() {
-				window.paypalCheckoutReady = function() {
-					paypal.checkout.setup(
-						wc_ppexpress_cart_context.payer_id,
-						{
-							environment: wc_ppexpress_cart_context.environment,
-							button: ['btn_ppexpress_latam_order', 'btn_ppexpress_latam_cart', 'btn_ppexpress_latam_widget'],
-							locale: wc_ppexpress_cart_context.locale,
-							container: ['btn_ppexpress_latam_order', 'btn_ppexpress_latam_cart', 'btn_ppexpress_latam_widget']
-						}
-					);
-				}
+	var is_modal =  wc_ppexpress_cart_context.show_modal * 1;
+	var $wc_ppexpress_mx = {
+		init: function() {
+			window.paypalCheckoutReady = function() {
+				paypal.checkout.setup(
+					wc_ppexpress_cart_context.payer_id,
+					{
+						environment: wc_ppexpress_cart_context.environment,
+						locale: wc_ppexpress_cart_context.locale
+					}
+				);
 			}
 		}
-		var get_attributes = function() {
-			var select = $( '.variations_form' ).find( '.variations select' ),
-				data   = {},
-				count  = 0,
-				chosen = 0;
+	}
 
-			select.each( function() {
-				var attribute_name = $( this ).data( 'attribute_name' ) || $( this ).attr( 'name' );
-				var value	  = $( this ).val() || '';
-
-				if ( value.length > 0 ) {
-					chosen++;
-				}
-
-				count++;
-				data[ attribute_name ] = value;
-			} );
-
-			return {
-				'count'      : count,
-				'chosenCount': chosen,
-				'data'       : data
-			};
+	function open_modal_cart() {
+		if ( is_modal ) {
+			paypal.checkout.initXO();
+		}
+		var data = {
+			'nonce':      wc_ppexpress_cart_context.token_cart,
 		};
-
-		var costs_updated = false;
-		$( '#btn_ppexpress_latam_cart' ).click( function( event ) {
-			if ( costs_updated ) {
-				costs_updated = false;
-				return;
-			}
-			event.stopPropagation();
-			var data = {
-				'nonce':      wc_ppexpress_cart_context.token_cart
-			};
-			$.ajax( {
-				type:    'POST',
-				data:    data,
-				url:     wc_ppexpress_cart_context.ppexpress_update_cart_url,
-				success: function( response ) {
-					costs_updated = true;
-					if ( wc_ppexpress_cart_context.show_modal * 1 ) {
-						$( '#btn_ppexpress_latam_cart' ).click();
-					} else {
-						document.location.href = $( '#btn_ppexpress_latam_cart' ).attr('href');
-					}
+		$.ajax( {
+			type:    'POST',
+			data:    data,
+			url:     wc_ppexpress_cart_context.ppexpress_update_cart_url,
+			success: function( response ) {
+				if ( response.token ) {
+					paypal.checkout.startFlow( response.token );
+				} else if ( response.url ) {
+					document.location.href = response.url;
+				} else {
+					paypal.checkout.closeFlow();
+					alert( wc_ppexpress_cart_context.pp_error );
+					location.reload(true);
 				}
-			} );
-		} );
-		$( '#btn_ppexpress_latam_widget' ).click( function( event ) {
-			if ( costs_updated ) {
-				costs_updated = false;
-
-				return;
 			}
-
-			event.preventDefault();
-			event.stopPropagation();
-
-			var data = {
-				'nonce':      wc_ppexpress_cart_context.token_cart,
-			};
-
-			$.ajax( {
-				type:    'POST',
-				data:    data,
-				url:     wc_ppexpress_cart_context.ppexpress_update_cart_url,
-				success: function( response ) {
-					costs_updated = true;
-					if ( wc_ppexpress_cart_context.show_modal * 1 ) {
-						$( '#btn_ppexpress_latam_widget' ).click();
-					} else {
-						document.location.href = $( '#btn_ppexpress_latam_widget' ).attr('href');
-					}
-				}
-			} );
 		} );
-		if ( wc_ppexpress_cart_context.show_modal * 1 ) {
-			$wc_ppexpress_latam.init();
-		}
+	}
+	function check_click() {
+		$('#btn_ppexpress_mx_widget,#btn_ppexpress_mx_cart').each(function(){
+			if ( ! $(this).hasClass('addedEventPP') ) {
+				$(this).addClass('addedEventPP');
+				$(this).click( open_modal_cart );
+			}
+		});
+	}
+	setInterval(check_click, 2000);
+	$( document.body ).bind('wc_fragment_refresh', check_click);
+	$( document.body ).bind('wc_fragments_loaded', check_click);
+	$('#btn_ppexpress_mx_order').click(function() {
+		paypal.checkout.initXO();
+		paypal.checkout.startFlow($(this).attr('data-token'));
 	});
+	if ( is_modal ) {
+		$wc_ppexpress_mx.init();
+		/* if ( $('#btn_ppexpress_mx_order').length > 0 ) {
+			paypal.checkout.initXO();
+			paypal.checkout.startFlow($('#btn_ppexpress_mx_order').attr('data-token'));
+		}*/
+	}
 })( jQuery, window, document );

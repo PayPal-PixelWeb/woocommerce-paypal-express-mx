@@ -1,10 +1,10 @@
 {
     "name": "woocommerce-paypal-express-mx",
-    "description": "PayPal Express Checkout MX-Latam",
+    "description": "PayPal Express Checkout MX",
     "keywords": ["paypal", "payments", "woocommerce"],
     "type": "plugin",
     "license": "Apache-2.0",
-    "homepage": "https://github.com/PayPal-PixelWeb/PayPal-Woo",
+    "homepage": "https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx",
     "authors": [
         {
             "name": "PayPal",
