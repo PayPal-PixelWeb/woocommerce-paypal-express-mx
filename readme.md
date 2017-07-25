@@ -1,6 +1,6 @@
-# PayPal Express Checkout MX-Latam for WooCommerce
+# PayPal Express Checkout MX for WooCommerce
 
-   Adds PayPal Express Checkout MX-Latam for WooCommerce plugin
+   Adds PayPal Express Checkout MX for WooCommerce plugin
 
 ## Description
 
