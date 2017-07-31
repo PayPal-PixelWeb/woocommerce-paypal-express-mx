@@ -9,7 +9,7 @@ if ( ! class_exists( 'WC_Paypal_Installment_Gateway' ) ) :
 			$this->id = 'ppexpress_installment_mx';
 			add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_page' ) );
 			$this->enabled = true;
-			$this->title = __('Paypal Installment', 'woocommerce-paypal-express-mx');
+			$this->title = __( 'Paypal Installment', 'woocommerce-paypal-express-mx' );
 			$this->pp = WC_Paypal_Express_MX_Gateway::obj();
 		}
 		public function process_payment( $order_id ) {

@@ -25,13 +25,13 @@ class WC_PayPal_IPN_Handler_Latam {
 		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );  // Array containing configuration parameters. (not required if config file is used)
 		$config = array(
 			// values: 'sandbox' for testing
-			//		   'live' for production
-			"mode" => WC_PayPal_Interface_Latam::get_env(),
+			// 'live' for production
+			'mode' => WC_PayPal_Interface_Latam::get_env(),
 			// These values are defaulted in SDK. If you want to override default values, uncomment it and add your value.
 			// "http.ConnectionTimeOut" => "5000",
 			// "http.Retry" => "2",
 		);
-		$this->ipn_interface = new PPIPNMessage(null, $config);  
+		$this->ipn_interface = new PPIPNMessage( null, $config );
 	}
 	/**
 	 * Get instance of this class.
@@ -55,7 +55,7 @@ class WC_PayPal_IPN_Handler_Latam {
 		return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : false ;
 	}
 	public function check_ipn() {
-		WC_Paypal_Logger::obj()->debug( 'Check IPN: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents('php://input') );
+		WC_Paypal_Logger::obj()->debug( 'Check IPN: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents( 'php://input' ) );
 		if ( true === $this->ipn_interface->validate() ) {
 			$this->ipn_data = $this->ipn_interface->getRawData();
 			WC_Paypal_Logger::obj()->debug( 'IPN is Valid. DATA: ' . json_encode( $this->ipn_data ) );
@@ -67,7 +67,7 @@ class WC_PayPal_IPN_Handler_Latam {
 			}
 			return $this->ipn_data;
 		}
-		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents('php://input') );
+		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents( 'php://input' ) );
 		return false;
 	}
 	/**
@@ -86,7 +86,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * Check currency from IPN matches the order.
 	 *
 	 * @param WC_Order $order Order object
-	 * @param string $currency Currency
+	 * @param string   $currency Currency
 	 */
 	private function validate_currency( $order, $currency ) {
 		$old_wc = version_compare( WC_VERSION, '3.0', '<' );
@@ -119,7 +119,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * Check payment amount from IPN matches the order.
 	 *
 	 * @param WC_Order $order Order object
-	 * @param int $amount Amount
+	 * @param int      $amount Amount
 	 */
 	private function validate_amount( $order, $amount ) {
 		if ( number_format( $order->get_total(), 2, '.', '' ) != number_format( $amount, 2, '.', '' ) ) {
@@ -168,10 +168,10 @@ class WC_PayPal_IPN_Handler_Latam {
 		$this->validate_transaction_type( $this->ipn_data['txn_type'] );
 		$this->validate_currency( $order, $this->ipn_data['mc_currency'] );
 		$this->validate_amount( $order, $this->ipn_data['mc_gross'] );
-		$check_metadata = array ( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
+		$check_metadata = array( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
 		foreach ( $check_metadata as $meta_key ) {
-			if ( isset( $this->ipn_data[$meta_key] ) && ! empty( $this->ipn_data[$meta_key] ) ) {
-				$meta_value = wc_clean( $this->ipn_data[$meta_key] );
+			if ( isset( $this->ipn_data[ $meta_key ] ) && ! empty( $this->ipn_data[ $meta_key ] ) ) {
+				$meta_value = wc_clean( $this->ipn_data[ $meta_key ] );
 				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'ipn_' . $meta_key, $meta_value );
 			}
 		}
@@ -216,7 +216,7 @@ class WC_PayPal_IPN_Handler_Latam {
 					sprintf( __( 'Order #%1$s has had a reversal cancelled. Please check the status of payment and update the order status accordingly here: %2$s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number(), esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) )
 				);
 				break;
-		}
+		}// End switch().
 		return true;
 	}
 }

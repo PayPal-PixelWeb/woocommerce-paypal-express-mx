@@ -62,15 +62,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			}
 			$this->logos = WC_PayPal_Logos::obj();
 		}
-		// define the woocommerce_thankyou_order_received_text callback 
-		function thankyou_text( $var, $order ) { 
+		// define the woocommerce_thankyou_order_received_text callback
+		function thankyou_text( $var, $order ) {
 			$old_wc    = version_compare( WC_VERSION, '3.0', '<' );
 			$order_id  = $old_wc ? $order->id : $order->get_id();
 			$transaction_id = $this->get_metadata( $order_id, 'transaction_id' );
 			if ( false !== $transaction_id && strlen( $transaction_id ) > 0 ) {
-				return '<center><img width="130" src="'.plugins_url( '../img/pp-success.svg', __FILE__ ).'" /><br /><b>' . __('Thank you. Your order has been received.', 'woocommerce-paypal-express-mx').'<br />' . __('You Transaction ID is', 'woocommerce-paypal-express-mx').': '.$transaction_id.'</b></center>';
+				return '<center><img width="130" src="' . plugins_url( '../img/pp-success.svg', __FILE__ ) . '" /><br /><b>' . __( 'Thank you. Your order has been received.', 'woocommerce-paypal-express-mx' ) . '<br />' . __( 'You Transaction ID is', 'woocommerce-paypal-express-mx' ) . ': ' . $transaction_id . '</b></center>';
 			}
-			return $var; 
+			return $var;
 		}
 		function pplatam_script_enqueue( $hook ) {
 			if ( 'woocommerce_page_wc-settings' !== $hook ) {
@@ -204,9 +204,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					return $gateways;
 				}
 				if ( ! class_exists( 'WC_Paypal_Installment_Gateway' ) ) {
-					include_once( dirname(__FILE__) . '/class-wc-paypal-installment-gateway.php' );
+					include_once( dirname( __FILE__ ) . '/class-wc-paypal-installment-gateway.php' );
 				}
-				if ( !isset( $gateways['ppexpress_installment_mx'] ) ) {
+				if ( ! isset( $gateways['ppexpress_installment_mx'] ) ) {
 					$gateways['ppexpress_installment_mx'] = new WC_Paypal_Installment_Gateway();
 				}
 				$gateways['ppexpress_installment_mx']->icon = $this->icon;
@@ -419,7 +419,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$token = isset( $_GET['token'] ) ? $_GET['token'] : ( isset( $session['get_express_token'] ) ? $session['get_express_token'] : '' );
 			$payer_id = isset( $_GET['PayerID'] ) ? $_GET['token'] : ( isset( $session['payer_id'] ) ? $session['payer_id'] : '');
 			if ( ! empty( $token ) && ! empty( $session ) && 'cart' === $session['start_from'] ) {
-				$transaction_id = $this->get_metadata($order_id, 'transaction_id');
+				$transaction_id = $this->get_metadata( $order_id, 'transaction_id' );
 				if ( ! empty( $transaction_id ) && strlen( $transaction_id ) > 0 ) {
 					PPWC()->cart->empty_cart();
 					$order = wc_get_order( $order_id );
@@ -486,18 +486,20 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					$this->set_metadata( $order_id, 'payer_id', $payer_id );
 
 					// Maybe create billing agreement.
-					//if ( $create_billing_agreement ) {
-					//	$this->create_billing_agreement( $order, $checkout_details );
-					//}
-					
+					// if ( $create_billing_agreement ) {
+					// $this->create_billing_agreement( $order, $checkout_details );
+					// }
 					$order = wc_get_order( $order_id );
-					if ( true == method_exists($order, 'get_order_key')) {
+					if ( true == method_exists( $order, 'get_order_key' ) ) {
 						$order_key = $order->get_order_key();
 					} else {
 						$order_key = $order->order_key;
 					}
 					// Complete the payment now.
-					$do_checkout = $this->cart_handler->do_checkout( $order_id, $payer_id, $token, json_encode( array( 'order_id'  => $order_id, 'order_key' => $order_key ) ), $this->get_option( 'invoice_prefix' ) . $order->get_order_number() );
+					$do_checkout = $this->cart_handler->do_checkout( $order_id, $payer_id, $token, json_encode( array(
+						'order_id' => $order_id,
+						'order_key' => $order_key,
+					) ), $this->get_option( 'invoice_prefix' ) . $order->get_order_number() );
 					if ( false !== $do_checkout && isset( $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo ) ) {
 						$this->set_metadata( $order_id, 'transaction_id', (string) $do_checkout->DoExpressCheckoutPaymentResponseDetails->PaymentInfo[0]->TransactionID );
 						return;
@@ -506,7 +508,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 							'result'   => 'failure',
 							'refresh' => true,
 							'reload' => false,
-							'messages' => '<div class="woocommerce-error">'.__( 'Error code 10001: Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ).'</div>',
+							'messages' => '<div class="woocommerce-error">' . __( 'Error code 10001: Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ) . '</div>',
 						);
 						echo json_encode( $ret );
 						exit;
@@ -516,12 +518,12 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 						'result'   => 'failure',
 						'refresh' => true,
 						'reload' => false,
-						'messages' => __( '<div class="woocommerce-error">'.'Error code 10002: Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ).'</div>',
+						'messages' => __( '<div class="woocommerce-error">' . 'Error code 10002: Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ) . '</div>',
 					);
 					echo json_encode( $ret );
 					exit;
-				}
-			}
+				}// End if().
+			}// End if().
 			if ( 'modal_on_checkout' !== $this->checkout_mode ) {
 				return;
 			}
@@ -535,8 +537,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				return;
 			}
 			$ret = array(
-				'result'   => 'failure', //WC Checkout Hacking...
-				'refresh' => true,
+				'result'   => 'failure', // WC Checkout Hacking...
+				'refresh' => false,
 				'reload' => false,
 				'messages' => "<div style='display:none' id='pp_latam_redirect' data-order_id='{$order_id}' data-token='{$token}'></div>'",
 			);
@@ -560,7 +562,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			) );
 			if ( $token ) {
 				$html = '<p>' . __( 'Thank you for your order, please click the button below to pay with PayPal.', 'woocommerce-paypal-express-mx' ) . '</p>';
-				$html .= '<a id="btn_ppexpress_mx_order" data-token="' . $token . '" href="javascript:void(0);" class="button alt">' . __( 'Pay with PayPal', 'woocommerce-paypal-express-mx' ) . '</a> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel &amp; Restore Cart', 'woocommerce-paypal-express-mx' ) . '</a>';
+				$html .= '<div id="btn_ppexpress_mx_order" data-token="' . $token . '" style="float: left;margin-right: 30px;"></div> <a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel &amp; Restore Cart', 'woocommerce-paypal-express-mx' ) . '</a>';
 				return $html;
 			} else {
 				$html = '<p>' . __( 'There was a problem with Paypal, try later or contact our team.', 'woocommerce-paypal-express-mx' ) . '</p>';
@@ -588,7 +590,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			?>
 			<table width="70%" style="width:70%">
 			<?php
-			$check_metadata = array ( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
+			$check_metadata = array( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
 			self::showLabelMetabox( $order_id, 'transaction_id', __( 'Transaction ID', 'woocommerce-paypal-express-mx' ) );
 			self::showLabelMetabox( $order_id, 'ipn_protection_eligibility', __( 'Protection eligibility', 'woocommerce-paypal-express-mx' ) );
 			self::showLabelMetabox( $order_id, 'ipn_payment_type', __( 'Payment type', 'woocommerce-paypal-express-mx' ) );
@@ -609,7 +611,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			}
 			?>
 			<tr>
-				<td><strong><?php echo $text; ?>:</strong></td><td><?php echo $is_price?wc_price( $data ):str_replace('"', '', $data); ?></td>
+				<td><strong><?php echo $text; ?>:</strong></td><td><?php echo $is_price?wc_price( $data ):str_replace( '"', '', $data ); ?></td>
 			<tr>
 			<?php
 		}
@@ -656,7 +658,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					'data' => wp_json_encode( $value ),
 				), array( '%d', '%s', '%s' ) );
 			}
-			self::$cache_metadata[$order_id.'-'.$key] = $value;
+			self::$cache_metadata[ $order_id . '-' . $key ] = $value;
 			wp_cache_set( 'ppmetadata-' . $order_id . '-' . $key, $value, 'ppmetadata' );
 			WC_Paypal_Logger::obj()->debug( "set_metadata [order:{$order_id}]: [{$key}]=>" . print_r( $value, true ) . ' Result: ' . print_r( $result, true ) );
 			return $result;
@@ -671,8 +673,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 */
 		static public function get_metadata( $order_id, $key ) {
 			global $wpdb;
-			if ( isset(self::$cache_metadata[$order_id.'-'.$key] ) ) {
-				return self::$cache_metadata[$order_id.'-'.$key];
+			if ( isset( self::$cache_metadata[ $order_id . '-' . $key ] ) ) {
+				return self::$cache_metadata[ $order_id . '-' . $key ];
 			}
 			$data = wp_cache_get( 'ppmetadata-' . $order_id . '-' . $key, 'ppmetadata' );
 			if ( false === $data || empty( $data ) ) {
@@ -691,11 +693,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 				));
 				wp_cache_set( 'ppmetadata-' . $order_id . '-' . $key, $data, 'ppmetadata' );
 				WC_Paypal_Logger::obj()->debug( "get_metadata [order:{$order_id}]: [{$key}] | Result: " . print_r( $data, true ) );
-				self::$cache_metadata[$order_id.'-'.$key] = $data ? json_decode( $data, true ) : false;
+				self::$cache_metadata[ $order_id . '-' . $key ] = $data ? json_decode( $data, true ) : false;
 			} else {
-				self::$cache_metadata[$order_id.'-'.$key] = $data;
+				self::$cache_metadata[ $order_id . '-' . $key ] = $data;
 			}
-			return self::$cache_metadata[$order_id.'-'.$key];
+			return self::$cache_metadata[ $order_id . '-' . $key ];
 		}
 		/**
 		 * Create table in database.

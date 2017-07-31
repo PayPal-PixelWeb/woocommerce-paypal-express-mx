@@ -295,12 +295,12 @@ return array(
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your cart page.', 'woocommerce-paypal-express-mx' ),
-		'default'     => 'large',
+		'default'     => 'medium',
 		'desc_tip'    => true,
 		'options'     => array(
 			'small'  => __( 'Small', 'woocommerce-paypal-express-mx' ),
 			'medium' => __( 'Medium', 'woocommerce-paypal-express-mx' ),
-			'large'  => __( 'Large', 'woocommerce-paypal-express-mx' ),
+			'responsive'  => __( 'Responsive', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'button_size_product' => array(
@@ -308,12 +308,12 @@ return array(
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your product page.', 'woocommerce-paypal-express-mx' ),
-		'default'     => 'large',
+		'default'     => 'medium',
 		'desc_tip'    => true,
 		'options'     => array(
-			'small'  => __( 'Small', 'woocommerce-paypal-express-mx' ),
-			'medium' => __( 'Medium', 'woocommerce-paypal-express-mx' ),
-			'large'  => __( 'Large', 'woocommerce-paypal-express-mx' ),
+			'small'       => __( 'Small', 'woocommerce-paypal-express-mx' ),
+			'medium'      => __( 'Medium', 'woocommerce-paypal-express-mx' ),
+			'responsive'  => __( 'Responsive', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'button_type' => array(
@@ -321,11 +321,11 @@ return array(
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'Choose whether is square or oval.', 'woocommerce-paypal-express-mx' ),
-		'default'     => 'oval',
+		'default'     => 'pill',
 		'desc_tip'    => true,
 		'options'     => array(
-			'squere'  => __( 'Squere', 'woocommerce-paypal-express-mx' ),
-			'oval'    => __( 'Oval', 'woocommerce-paypal-express-mx' ),
+			'rect'    => __( 'Squere', 'woocommerce-paypal-express-mx' ),
+			'pill'    => __( 'Oval', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'button_color' => array(
@@ -339,6 +339,18 @@ return array(
 			'blue'    => __( 'Blue', 'woocommerce-paypal-express-mx' ),
 			'gold'    => __( 'Gold', 'woocommerce-paypal-express-mx' ),
 			'silver'  => __( 'Silver', 'woocommerce-paypal-express-mx' ),
+		),
+	),
+	'button_locale' => array(
+		'title'       => __( 'Button Lang', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'select',
+		'class'       => 'wc-enhanced-select',
+		'description' => __( 'Choose whether Spanish and English.', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'blue',
+		'desc_tip'    => true,
+		'options'     => array(
+			'es_ES'    => __( 'Spanish', 'woocommerce-paypal-express-mx' ),
+			'en_US'    => __( 'English', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'landing_page' => array(

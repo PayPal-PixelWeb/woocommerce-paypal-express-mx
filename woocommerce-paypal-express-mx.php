@@ -60,11 +60,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			if ( class_exists( 'WC_Payment_Gateway' ) ) {
 				if ( version_compare( self::woocommerce_instance()->version, '2.5', '<' ) ) {
 					add_action( 'admin_notices', array( $this, 'woocommerce_missing_version_notice' ) );
-				} else if ( false === self::woocommerce_missing_openssl() && false === self::woocommerce_missing_curl() ) {
+				} elseif ( false === self::woocommerce_missing_openssl() && false === self::woocommerce_missing_curl() ) {
 					if ( self::currency_has_decimal_restriction() ) {
 						update_option( 'woocommerce_price_num_decimals', 0 );
 						update_option( 'wc_gateway_ppce_display_decimal_msg', true );
-						__( 'NOTE: PayPal does not accept decimal places for the currency in which you are transacting.  The "Number of Decimals" option in WooCommerce has automatically been set to 0 for you.', 'woocommerce-paypal-express-mx');
+						__( 'NOTE: PayPal does not accept decimal places for the currency in which you are transacting.  The "Number of Decimals" option in WooCommerce has automatically been set to 0 for you.', 'woocommerce-paypal-express-mx' );
 					}
 					include_once 'includes/class-wc-paypal-express-mx-gateway.php';
 					include_once 'includes/class-wc-paypal-installment-gateway.php';
@@ -186,15 +186,15 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			return false;
 		}
 		/**
-		* Whether currency has decimal restriction for PPCE to functions?
-		*
-		* @return bool True if it has restriction otherwise false
-		*/
+		 * Whether currency has decimal restriction for PPCE to functions?
+		 *
+		 * @return bool True if it has restriction otherwise false
+		 */
 		public static function currency_has_decimal_restriction() {
-			//include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-express-mx-gateway.php';
+			// include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-express-mx-gateway.php';
 			return (
-				//'yes' === WC_Paypal_Express_MX_Gateway::obj()->enabled
-				//&&
+				// 'yes' === WC_Paypal_Express_MX_Gateway::obj()->enabled
+				// &&
 				in_array( get_woocommerce_currency(), array( 'HUF', 'TWD', 'JPY' ) )
 				&&
 				0 !== absint( get_option( 'woocommerce_price_num_decimals', 2 ) )
