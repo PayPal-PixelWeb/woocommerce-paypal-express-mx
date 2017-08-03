@@ -1,4 +1,4 @@
-/* global pp_latam_cart */
+/* global pp_mx_product */
 ;(function( $, window, document ) {
 	'use strict';
 	var is_modal = parseInt( wc_ppexpress_product_context.show_modal );

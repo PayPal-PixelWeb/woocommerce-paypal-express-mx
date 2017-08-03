@@ -87,7 +87,10 @@ class WC_PayPal_Logos {
 			'start_from' => 'cart',
 			'return_token' => true,
 		) );
-		wp_send_json( array( 'is_ok' => PPWC()->cart, 'paymentID' => $token ) );
+		wp_send_json( array(
+			'is_ok' => PPWC()->cart,
+			'paymentID' => $token,
+		) );
 		exit;
 	}
 	/**
@@ -147,7 +150,10 @@ class WC_PayPal_Logos {
 				'start_from' => 'cart',
 				'return_token' => true,
 			) );
-			wp_send_json( array( 'is_ok' => PPWC()->cart, 'paymentID' => $token ) );
+			wp_send_json( array(
+				'is_ok' => PPWC()->cart,
+				'paymentID' => $token,
+			) );
 			exit;
 		}
 

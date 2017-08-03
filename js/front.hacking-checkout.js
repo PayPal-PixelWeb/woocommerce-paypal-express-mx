@@ -1,4 +1,4 @@
-/* global pp_latam_checkout */
+/* global pp_mx_checkout */
 ;(function( $, window, document ) {
 	'use strict';
 	var is_express = parseInt( wc_ppexpress_cart_context.is_express );

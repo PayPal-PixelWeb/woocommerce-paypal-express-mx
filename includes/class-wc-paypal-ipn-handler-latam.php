@@ -161,27 +161,32 @@ class WC_PayPal_IPN_Handler_Latam {
 			WC_Paypal_Logger::obj()->warning( 'Error: Order Keys do not match.' );
 			exit;
 		}
-		if ( $order->has_status( array( 'processing', 'completed' ) ) ) {
-			WC_Paypal_Logger::obj()->info( 'Aborting, Order #' . $order_id . ' is already complete.' );
-			exit;
-		}
-		$this->validate_transaction_type( $this->ipn_data['txn_type'] );
-		$this->validate_currency( $order, $this->ipn_data['mc_currency'] );
-		$this->validate_amount( $order, $this->ipn_data['mc_gross'] );
-		$check_metadata = array( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
+		$check_metadata = array( 'mc_fee', 'txn_id', 'parent_txn_id', 'pending_reason', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
 		foreach ( $check_metadata as $meta_key ) {
 			if ( isset( $this->ipn_data[ $meta_key ] ) && ! empty( $this->ipn_data[ $meta_key ] ) ) {
 				$meta_value = wc_clean( $this->ipn_data[ $meta_key ] );
 				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'ipn_' . $meta_key, $meta_value );
 			}
 		}
+		$this->validate_currency( $order, $this->ipn_data['mc_currency'] );
 		switch ( $this->ipn_data['payment_status'] ) {
 			case 'completed':
+				$this->validate_transaction_type( $this->ipn_data['txn_type'] );
+				$this->validate_amount( $order, $this->ipn_data['mc_gross'] );
+				if ( $order->has_status( array( 'processing', 'completed' ) ) ) {
+					WC_Paypal_Logger::obj()->info( 'Aborting, Order #' . $order_id . ' is already complete.' );
+					exit;
+				}
+				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', false );
 				$order->add_order_note( __( 'IPN payment completed', 'woocommerce-paypal-express-mx' ) );
 				$order->payment_complete( ! empty( $this->ipn_data['txn_id'] ) ? wc_clean( $this->ipn_data['txn_id'] ) : '' );
 				break;
 			case 'pending':
+				$this->validate_transaction_type( $this->ipn_data['txn_type'] );
+				$this->validate_amount( $order, $this->ipn_data['mc_gross'] );
 				if ( 'authorization' === $this->ipn_data['pending_reason'] ) {
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', true );
 					$this->payment_on_hold( $order, __( 'Payment authorized. Change payment status to processing or complete to capture funds.', 'woocommerce-paypal-express-mx' ) );
 				} else {
 					$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'woocommerce-paypal-express-mx' ), $this->ipn_data['pending_reason'] ) );
@@ -191,10 +196,14 @@ class WC_PayPal_IPN_Handler_Latam {
 			case 'denied':
 			case 'expired':
 			case 'voided':
+				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
 				$order->update_status( 'failed', sprintf( __( 'Payment %s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), wc_clean( $this->ipn_data['payment_status'] ) ) );
 				break;
 			case 'refunded':
 				if ( $order->get_total() == ( $this->ipn_data['mc_gross'] * -1 ) ) {
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
 					// Mark order as refunded.
 					$order->update_status( 'refunded', sprintf( __( 'Payment %s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), strtolower( $this->ipn_data['payment_status'] ) ) );
 					$this->send_ipn_email_notification(

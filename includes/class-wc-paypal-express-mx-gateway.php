@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Plugin Gateway Class.
  */
 include_once( dirname( __FILE__ ) . '/override/class-wc-override-payment-gateway.php' );
 include_once( dirname( __FILE__ ) . '/class-wc-paypal-interface-latam.php' );
 include_once( dirname( __FILE__ ) . '/class-wc-paypal-logos.php' );
+
 if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 	/**
 	 * WC_Paypal_Express_MX_Gateway Class.
@@ -30,7 +32,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->title           = $this->get_option( 'title' );
 			$this->description     = $this->get_option( 'description' );
 			$this->method_title    = __( 'PayPal Express Checkout MX', 'woocommerce-paypal-express-mx' );
-			$this->checkout_mode          = $this->get_option( 'checkout_mode', 'redirect' );
+			$this->checkout_mode   = $this->get_option( 'checkout_mode', 'redirect' );
 			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
 				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
 			}
@@ -46,6 +48,10 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			add_action( 'woocommerce_api_wc_gateway_ipn_paypal_latam', array( $this, 'check_ipn_response' ) );
 			add_filter( 'woocommerce_thankyou_order_received_text', array( $this, 'thankyou_text' ), 10, 2 );
 			add_action( 'woocommerce_ppexpress_mx_metabox', array( $this, 'show_metabox' ) );
+			add_action( 'woocommerce_order_status_processing', array( $this, 'auth_order' ) );
+			add_action( 'woocommerce_order_status_completed', array( $this, 'auth_order' ) );
+			add_action( 'woocommerce_order_status_refunded', array( $this, 'void_order' ) );
+			add_action( 'woocommerce_order_status_cancelled', array( $this, 'void_order' ) );
 			$this->check_nonce();
 			$this->init_form_fields();
 			$this->init_settings();
@@ -578,7 +584,145 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		public function receipt_page( $order ) {
 			echo $this->generate_form( $order );
 		}
-
+		public function auth_order( $order_id ) {
+			$transaction_id = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'transaction_id' );
+			if ( ! is_string( $transaction_id ) || 0 === strlen( $transaction_id ) || true !== $this->is_available() ) {
+				return;
+			}
+			$is_auth_order  = (bool) WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'is_auth_order' );
+			$pending_reason = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'ipn_pending_reason' );
+			if ( true === $is_auth_order && 'authorization' === $pending_reason ) {
+				$order          = wc_get_order( $order_id );
+				$decimals       = WC_Paypal_Express_MX::is_currency_supports_zero_decimal() ? 0 : 2;
+				$wc_order_total = round( $order->get_total(), $decimals );
+				/*
+				*
+				`Amount` to capture which takes mandatory params:
+				* `currencyCode`
+				* `amount`
+				*/
+				$amount = new PayPal\CoreComponentTypes\BasicAmountType( get_woocommerce_currency(), $wc_order_total );
+				/*
+				*  `DoCaptureRequest` which takes mandatory params:
+				* `Authorization ID` - Authorization identification number of the
+				payment you want to capture. This is the transaction ID returned from
+				DoExpressCheckoutPayment, DoDirectPayment, or CheckOut. For
+				point-of-sale transactions, this is the transaction ID returned by
+				the CheckOut call when the payment action is Authorization.
+				* `amount` - Amount to capture
+				* `CompleteCode` - Indicates whether or not this is your last capture.
+				It is one of the following values:
+				* Complete – This is the last capture you intend to make.
+				* NotComplete – You intend to make additional captures.
+				`Note:
+				If Complete, any remaining amount of the original authorized
+				transaction is automatically voided and all remaining open
+				authorizations are voided.`
+				*/
+				$capture_type = new PayPal\PayPalAPI\DoCaptureRequestType( $transaction_id, $amount, 'Complete' );
+				$capture_request = new PayPal\PayPalAPI\DoCaptureReq();
+				$capture_request->DoCaptureRequest = $capture_type;
+				$pp_service = WC_PayPal_Interface_Latam::get_static_interface_service();
+				WC_Paypal_Logger::obj()->debug( 'Request capture_order: ' . print_r( $capture_request, true ) );
+				try {
+					/* wrap API method calls on the service object with a try catch */
+					$capture_result = $pp_service->DoCapture($capture_request);
+					WC_Paypal_Logger::obj()->debug( 'auth_order -> capture_result: ' . print_r( $capture_result, true ) );
+					if ( ! in_array( $capture_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not capture the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+					} else {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', false );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', false );
+					}
+				} catch (Exception $e) {
+					WC_Paypal_Logger::obj()->warning( 'Error on auth_order: ' . $e->getMessage() );
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not capture the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+				}
+			}
+		}
+		public function void_order( $order_id ) {
+			$transaction_id = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'transaction_id' );
+			if ( ! is_string( $transaction_id ) || 0 === strlen( $transaction_id ) || true !== $this->is_available() ) {
+				return;
+			}
+			$is_refunded = (bool) WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'is_refunded' );
+			if ( true === $is_refunded ) {
+				return;
+			}
+			$is_auth_order = (bool) WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'is_auth_order' );
+			$pending_reason = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'ipn_pending_reason' );
+			if ( true === $is_auth_order && 'authorization' === $pending_reason ) {
+				$order          = wc_get_order( $order_id );
+				/*
+				 *  # DoVoid API
+				 Void an order or an authorization.
+				 This sample code uses Merchant PHP SDK to make API call
+				 */
+				$void_request_type = new PayPal\PayPalAPI\DoVoidRequestType();
+				/*
+				 *  DoVoidRequest which takes mandatory params:
+				 * `Authorization ID` - Original authorization ID specifying the
+				 authorization to void or, to void an order, the order ID.
+				 `Important:
+				 If you are voiding a transaction that has been reauthorized, use the
+				 ID from the original authorization, and not the reauthorization.`
+				*/
+				$void_request_type->AuthorizationID = $transaction_id;
+				$void_request = new PayPal\PayPalAPI\DoVoidReq();
+				$void_request->DoVoidRequest = $void_request_type;
+				$pp_service = WC_PayPal_Interface_Latam::get_static_interface_service();
+				WC_Paypal_Logger::obj()->debug( 'Request void_order: ' . print_r( $void_request, true ) );
+				try {
+					/* wrap API method calls on the service object with a try catch */
+					$void_result = $pp_service->DoVoid( $void_request );
+					WC_Paypal_Logger::obj()->debug( 'void_order -> void_result: ' . print_r( $void_result, true ) );
+					if ( ! in_array( $void_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not void the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+					} else {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'This order was voided from WooCommerce.', 'woocommerce-paypal-express-mx' ) );
+					}
+				} catch (Exception $e) {
+					WC_Paypal_Logger::obj()->warning( 'Error on void_order: ' . $e->getMessage() );
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not void the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+				}
+			} else {
+				$payment_id     = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'ipn_txn_id' );
+				if ( is_string( $payment_id ) && 0 !== strlen( $payment_id ) ) {
+					$transaction_id = $payment_id;
+				}
+				$order          = wc_get_order( $order_id );
+				$decimals       = WC_Paypal_Express_MX::is_currency_supports_zero_decimal() ? 0 : 2;
+				$wc_order_total = round( $order->get_total(), $decimals );
+				$refund_type    = new PayPal\PayPalAPI\RefundTransactionRequestType();
+				$refund_type->TransactionID = $transaction_id;
+				$refund_type->Amount        = new PayPal\CoreComponentTypes\BasicAmountType( get_woocommerce_currency(), $wc_order_total );
+				$refund_type->RefundType    = 'Full';
+				$refund_type->Memo          = __( 'Order refunded by WC, order number:', '' ) . ' #' . $order_id . ' - ID: ' . $transaction_id;
+				$refund_request = new PayPal\PayPalAPI\RefundTransactionReq();
+				$refund_request->RefundTransactionRequest = $refund_type;
+				$pp_service = WC_PayPal_Interface_Latam::get_static_interface_service();
+				WC_Paypal_Logger::obj()->debug( 'Request refund_order: ' . print_r( $refund_request, true ) );
+				try {
+					/* wrap API method calls on the service object with a try catch */
+					$refund_result = $pp_service->RefundTransaction( $refund_request );
+					WC_Paypal_Logger::obj()->debug( 'Result refund_order: ' . print_r( $refund_result, true ) );
+					if ( ! in_array( $refund_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not refund the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+					} else {
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
+						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'This order was refunded from WooCommerce.', 'woocommerce-paypal-express-mx' ) );
+						return;
+					}
+				} catch (Exception $e) {
+					WC_Paypal_Logger::obj()->warning( 'Error on refund_order: ' . $e->getMessage() );
+					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not refund the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
+				}
+			}
+		}
 		function show_metabox() {
 			global $theorder;
 			$order_id = method_exists( $theorder, 'get_id' )?$theorder->get_id():$theorder->id;
@@ -590,8 +734,17 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			?>
 			<table width="70%" style="width:70%">
 			<?php
+			$payment_id  = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'ipn_txn_id' );
+			$transaction_id  = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'transaction_id' );
+			$pp_mx_error = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'pp_mx_error' );
+			if ( is_string( $pp_mx_error ) ) {
+				echo '<td><b style="color:red">' . __( 'Paypal Error', 'woocommerce-mercadoenvios' ) . '</b></td><td><span style="color:red">' . $pp_mx_error . '</span></td>';
+			}
 			$check_metadata = array( 'mc_fee', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
 			self::showLabelMetabox( $order_id, 'transaction_id', __( 'Transaction ID', 'woocommerce-paypal-express-mx' ) );
+			if ( is_string( $payment_id ) && 0 !== strlen( $payment_id ) && $payment_id != $transaction_id ) {
+				self::showLabelMetabox( $order_id, 'ipn_txn_id', __( 'Capture ID', 'woocommerce-paypal-express-mx' ) );
+			}
 			self::showLabelMetabox( $order_id, 'ipn_protection_eligibility', __( 'Protection eligibility', 'woocommerce-paypal-express-mx' ) );
 			self::showLabelMetabox( $order_id, 'ipn_payment_type', __( 'Payment type', 'woocommerce-paypal-express-mx' ) );
 			self::showLabelMetabox( $order_id, 'ipn_first_name', __( 'Payer first name', 'woocommerce-paypal-express-mx' ) );

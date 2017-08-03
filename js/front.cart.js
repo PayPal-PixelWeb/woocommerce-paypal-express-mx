@@ -1,7 +1,7 @@
-/* global pp_latam_cart */
+/* global pp_mx_cart */
 ;(function( $, window, document ) {
 	'use strict';
-	var is_modal = parseInt( wc_ppexpress_product_context.show_modal );
+	var is_modal = parseInt( wc_ppexpress_cart_context.show_modal );
 	var PAYPAL_REDIRECT_URL = 'https://www.paypal.com/checkoutnow?token=';
 	function check_click() {
 		$( '.btn_ppexpress_mx_widget,#btn_ppexpress_mx_cart' ).each(function(){
