@@ -3,7 +3,7 @@
 use PayPal\IPN\PPIPNMessage;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit; // Exit if accessed directly.
 }
 
 /**
@@ -16,20 +16,30 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * @var object
 	 */
 	private static $instance = null;
+	/**
+	 * Instance of IPN Paypal Class.
+	 *
+	 * @var object
+	 */
 	private $ipn_interface = null;
+	/**
+	 * Data of IPN Paypal.
+	 *
+	 * @var array
+	 */
 	private $ipn_data = null;
 	/**
 	 * Initialize the plugin.
 	 */
 	private function __construct() {
-		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );  // Array containing configuration parameters. (not required if config file is used)
+		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );  // Array containing configuration parameters. (not required if config file is used).
 		$config = array(
 			// values: 'sandbox' for testing
-			// 'live' for production
+			// 'live' for production.
 			'mode' => WC_PayPal_Interface_Latam::get_env(),
 			// These values are defaulted in SDK. If you want to override default values, uncomment it and add your value.
-			// "http.ConnectionTimeOut" => "5000",
-			// "http.Retry" => "2",
+			// http.ConnectionTimeOut => "5000", //...
+			// http.Retry => "2", //...
 		);
 		$this->ipn_interface = new PPIPNMessage( null, $config );
 	}
@@ -38,7 +48,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 */
 	static public function get_instance() {
 		if ( null === self::$instance ) {
-			self::$instance = new self;
+			self::$instance = new self();
 		}
 		return self::$instance;
 	}
@@ -50,24 +60,33 @@ class WC_PayPal_IPN_Handler_Latam {
 	}
 	/**
 	 * Get options.
+	 *
+	 * @param string $key Key to get Option.
 	 */
 	private function get_option( $key ) {
 		return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : false ;
 	}
+	/**
+	 * Check is valid IPN.
+	 */
 	public function check_ipn() {
 		WC_Paypal_Logger::obj()->debug( 'Check IPN: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents( 'php://input' ) );
 		if ( true === $this->ipn_interface->validate() ) {
 			$this->ipn_data = $this->ipn_interface->getRawData();
-			WC_Paypal_Logger::obj()->debug( 'IPN is Valid. DATA: ' . json_encode( $this->ipn_data ) );
+			WC_Paypal_Logger::obj()->debug( 'IPN is Valid. DATA: ' . wp_json_encode( $this->ipn_data ) );
 			// Lowercase returned variables.
 			$this->ipn_data['payment_status'] = strtolower( $this->ipn_data['payment_status'] );
 			// Sandbox fix.
-			if ( ( empty( $posted_data['pending_reason'] ) || 'authorization' !== $posted_data['pending_reason'] ) && isset( $posted_data['test_ipn'] ) && 1 == $posted_data['test_ipn'] && 'pending' == $posted_data['payment_status'] ) {
+			if ( ( empty( $posted_data['pending_reason'] ) || 'authorization' !== $posted_data['pending_reason'] ) && isset( $posted_data['test_ipn'] ) && 1 === (int) $posted_data['test_ipn'] && 'pending' === $posted_data['payment_status'] ) {
 				$this->ipn_data['payment_status'] = 'completed';
 			}
 			return $this->ipn_data;
 		}
-		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents( 'php://input' ) );
+		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request', array(
+			'POST' => $_POST,
+			'GET' => $_GET,
+			'php://input' => file_get_contents( 'php://input' ),
+		) );
 		return false;
 	}
 	/**
@@ -77,7 +96,7 @@ class WC_PayPal_IPN_Handler_Latam {
 	 */
 	private function validate_transaction_type( $txn_type ) {
 		$accepted_types = array( 'cart', 'instant', 'express_checkout', 'web_accept', 'masspay', 'send_money' );
-		if ( ! in_array( strtolower( $txn_type ), $accepted_types ) ) {
+		if ( ! in_array( strtolower( $txn_type ), $accepted_types, true ) ) {
 			WC_Paypal_Logger::obj()->warning( 'Aborting, Invalid type:' . $txn_type );
 			exit;
 		}
@@ -85,8 +104,8 @@ class WC_PayPal_IPN_Handler_Latam {
 	/**
 	 * Check currency from IPN matches the order.
 	 *
-	 * @param WC_Order $order Order object
-	 * @param string   $currency Currency
+	 * @param WC_Order $order Order object.
+	 * @param string   $currency Currency.
 	 */
 	private function validate_currency( $order, $currency ) {
 		$old_wc = version_compare( WC_VERSION, '3.0', '<' );
@@ -102,8 +121,8 @@ class WC_PayPal_IPN_Handler_Latam {
 	/**
 	 * Hold order and add note.
 	 *
-	 * @param  WC_Order $order  Order object
-	 * @param  string   $reason On-hold reason
+	 * @param  WC_Order $order  Order object.
+	 * @param  string   $reason On-hold reason.
 	 */
 	private function payment_on_hold( $order, $reason = '' ) {
 		$order->update_status( 'on-hold', $reason );
@@ -118,8 +137,8 @@ class WC_PayPal_IPN_Handler_Latam {
 	/**
 	 * Check payment amount from IPN matches the order.
 	 *
-	 * @param WC_Order $order Order object
-	 * @param int      $amount Amount
+	 * @param WC_Order $order Order object.
+	 * @param int      $amount Amount.
 	 */
 	private function validate_amount( $order, $amount ) {
 		if ( number_format( $order->get_total(), 2, '.', '' ) != number_format( $amount, 2, '.', '' ) ) {
@@ -132,8 +151,8 @@ class WC_PayPal_IPN_Handler_Latam {
 	/**
 	 * Send a notification to the user handling orders.
 	 *
-	 * @param string $subject Email subject
-	 * @param string $message Email message
+	 * @param string $subject Email subject.
+	 * @param string $message Email message.
 	 */
 	private function send_ipn_email_notification( $subject, $message ) {
 		$new_order_settings = get_option( 'woocommerce_new_order_settings', array() );
@@ -141,6 +160,9 @@ class WC_PayPal_IPN_Handler_Latam {
 		$message            = $mailer->wrap_message( $subject, $message );
 		$mailer->send( ! empty( $new_order_settings['recipient'] ) ? $new_order_settings['recipient'] : get_option( 'admin_email' ), strip_tags( $subject ), $message );
 	}
+	/**
+	 * Process data of IPN.
+	 */
 	public function process_data() {
 		if ( null === $this->ipn_data && false === $this->check_ipn() ) {
 			return false;

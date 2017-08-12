@@ -505,7 +505,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 *
 		 * @param int $order_id Order ID.
 		 *
-		 * @return array           Redirect.
+		 * @return array Redirect.
 		 */
 		public function process_payment( $order_id ) {
 			$session    = PPWC()->session->get( 'paypal_mx', array() );
@@ -724,7 +724,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					/* wrap API method calls on the service object with a try catch */
 					$capture_result = $pp_service->DoCapture( $capture_request );
 					WC_Paypal_Logger::obj()->debug( 'auth_order -> capture_result', array( $capture_result ) );
-					if ( ! in_array( $capture_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) { // @codingStandardsIgnoreLine
+					if ( ! in_array( $capture_result->Ack, array( 'Success', 'SuccessWithWarning' ), true ) ) { // @codingStandardsIgnoreLine
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not capture the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
 					} else {
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
@@ -783,7 +783,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					/* wrap API method calls on the service object with a try catch */
 					$void_result = $pp_service->DoVoid( $void_request );
 					WC_Paypal_Logger::obj()->debug( 'void_order -> void_result', array( $void_result ) );
-					if ( ! in_array( $void_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) { // @codingStandardsIgnoreLine
+					if ( ! in_array( $void_result->Ack, array( 'Success', 'SuccessWithWarning' ), true ) ) { // @codingStandardsIgnoreLine
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not void the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
 					} else {
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
@@ -815,7 +815,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 					/* wrap API method calls on the service object with a try catch */
 					$refund_result = $pp_service->RefundTransaction( $refund_request );
 					WC_Paypal_Logger::obj()->debug( 'Result refund_order', array( $refund_result ) );
-					if ( ! in_array( $refund_result->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) { // @codingStandardsIgnoreLine
+					if ( ! in_array( $refund_result->Ack, array( 'Success', 'SuccessWithWarning' ), true ) ) { // @codingStandardsIgnoreLine
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'pp_mx_error', __( 'Could not refund the order on PayPal, you must do it manually.', 'woocommerce-paypal-express-mx' ) );
 					} else {
 						WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );

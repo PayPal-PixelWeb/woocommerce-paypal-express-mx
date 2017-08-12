@@ -1,12 +1,19 @@
 <?php
+/**
+ * Cart Handler for WooCommerce Plugin.
+ *
+ * @package   WooCommerce -> Paypal Express Checkout MX
+ * @author    Kijam Lopez <info@kijam.com>
+ * @license   Apache-2.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
 
 use PayPal\PayPalAPI\GetBalanceReq;
 use PayPal\PayPalAPI\GetBalanceRequestType;
 use PayPal\Service\PayPalAPIInterfaceServiceService;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
 
 /**
  * PayPal Express Integrated PayPal Signup Handler.
@@ -46,12 +53,12 @@ class WC_PayPal_Connect_IPS {
 	 *
 	 * This is store URL that will be redirected from middleware.
 	 *
-	 * @param string $env Environment
+	 * @param string $env Environment.
 	 *
 	 * @return string Redirect URL
 	 */
 	public function get_redirect_url( $env ) {
-		if ( ! in_array( $env, array( 'live', 'sandbox' ) ) ) {
+		if ( in_array( $env, array( 'live', 'sandbox' ), true ) ) {
 			$env = 'live';
 		}
 
@@ -67,7 +74,7 @@ class WC_PayPal_Connect_IPS {
 	/**
 	 * Get login URL to WC middleware.
 	 *
-	 * @param string $env Environment
+	 * @param string $env Environment.
 	 *
 	 * @return string Signup URL
 	 */
@@ -83,13 +90,13 @@ class WC_PayPal_Connect_IPS {
 	/**
 	 * Get signup URL to WC middleware.
 	 *
-	 * @param string $env Environment
+	 * @param string $env Environment.
 	 *
 	 * @return string Signup URL
 	 */
 	public function get_signup_url( $env ) {
 		$query_args = array(
-			'redirect'    => urlencode( $this->get_redirect_url( $env ) ),
+			'redirect'    => rawurlencode( $this->get_redirect_url( $env ) ),
 			'countryCode' => PPWC()->countries->get_base_country(),
 			'merchantId'  => md5( site_url( '/' ) . time() ),
 		);
@@ -103,11 +110,13 @@ class WC_PayPal_Connect_IPS {
 	 * @return bool Returns true of base country in supported countries
 	 */
 	public function is_supported() {
-		return in_array( PPWC()->countries->get_base_country(), $this->_supported_countries );
+		return in_array( PPWC()->countries->get_base_country(), $this->_supported_countries, true );
 	}
 
 	/**
 	 * Redirect with messages.
+	 *
+	 * @param string $error_msg Message.
 	 *
 	 * @return void
 	 */
@@ -138,21 +147,23 @@ class WC_PayPal_Connect_IPS {
 		}
 
 		// Require the nonce.
-		if ( empty( $_GET['wc_ppexpress_mx_ips_admin_nonce'] ) || empty( $_GET['env'] ) ) {
+		if ( empty( $_GET['wc_ppexpress_mx_ips_admin_nonce'] ) || empty( $_GET['env'] ) ) { // @codingStandardsIgnoreLine
 			return false;
 		}
-		$env = in_array( $_GET['env'], array( 'live', 'sandbox' ) ) ? $_GET['env'] : 'live';
+		$env = in_array( wp_unslash( $_GET['env'] ), array( 'live', 'sandbox' ), true ) ? wp_unslash( $_GET['env'] ) : 'live'; // @codingStandardsIgnoreLine
 
 		// Verify the nonce.
-		if ( ! wp_verify_nonce( $_GET['wc_ppexpress_mx_ips_admin_nonce'], 'wc_ppexpress_mx_ips' ) ) {
+		if ( ! wp_verify_nonce( wp_unslash( $_GET['wc_ppexpress_mx_ips_admin_nonce'] ), 'wc_ppexpress_mx_ips' ) ) { // @codingStandardsIgnoreLine
 			wp_die( __( 'Invalid connection request', 'woocommerce-paypal-express-mx' ) );
 		}
 
-		WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow with parameters: %s', __METHOD__, print_r( $_GET, true ) ) );
+		WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow with parameters', __METHOD__ ), array(
+			'GET:' => $_GET, // @codingStandardsIgnoreLine
+		) );
 
 		// Check if error.
-		if ( ! empty( $_GET['error'] ) ) {
-			$error_message = ! empty( $_GET['error_message'] ) ? $_GET['error_message'] : '';
+		if ( ! empty( $_GET['error'] ) ) { // @codingStandardsIgnoreLine
+			$error_message = ! empty( $_GET['error_message'] ) ? $_GET['error_message'] : ''; // @codingStandardsIgnoreLine
 			WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow with error: %s', __METHOD__, $error_message ) );
 
 			$this->_redirect_with_messages( __( 'Sorry, Easy Setup encountered an error.  Please try again.', 'woocommerce-paypal-express-mx' ) );
@@ -160,7 +171,7 @@ class WC_PayPal_Connect_IPS {
 
 		// Make sure credentials present in query string.
 		foreach ( array( 'api_style', 'api_username', 'api_password', 'signature' ) as $param ) {
-			if ( empty( $_GET[ $param ] ) ) {
+			if ( empty( $_GET[ $param ] ) ) { // @codingStandardsIgnoreLine
 				WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow but missing parameter %s', __METHOD__, $param ) );
 
 				$this->_redirect_with_messages( __( 'Sorry, Easy Setup encountered an error.  Please try again.', 'woocommerce-paypal-express-mx' ) );
@@ -170,19 +181,19 @@ class WC_PayPal_Connect_IPS {
 		$error_msgs = array();
 		try {
 			$get_balance = new GetBalanceRequestType();
-			$get_balance->ReturnAllCurrencies = 1;
+			$get_balance->ReturnAllCurrencies = 1; // @codingStandardsIgnoreLine
 			$get_balance_req = new GetBalanceReq();
-			$get_balance_req->GetBalanceRequest = $get_balance;
+			$get_balance_req->GetBalanceRequest = $get_balance; // @codingStandardsIgnoreLine
 			$pp_service = new PayPalAPIInterfaceServiceService(array(
 				'mode' => $env,
-				'acct1.UserName'  => $_GET['api_username'],
-				'acct1.Password'  => $_GET['api_password'],
-				'acct1.Signature' => $_GET['signature'],
+				'acct1.UserName'  => $_GET['api_username'], // @codingStandardsIgnoreLine
+				'acct1.Password'  => $_GET['api_password'], // @codingStandardsIgnoreLine
+				'acct1.Signature' => $_GET['signature'], // @codingStandardsIgnoreLine
 			));
 			$pp_balance = $pp_service->GetBalance( $get_balance_req );
-			WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ' . print_r( $pp_balance, true ) );
+			WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ', array( $pp_balance ) );
 		} catch ( Exception $ex ) {
-			WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ' . print_r( $ex, true ) );
+			WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ', array( $ex ) );
 			$error_msgs[] = array(
 				'warning' => __( 'Easy Setup was able to obtain your API credentials, but an error occurred while trying to verify that they work correctly.  Please try Easy Setup again.', 'woocommerce-paypal-express-mx' ),
 			);
@@ -193,24 +204,24 @@ class WC_PayPal_Connect_IPS {
 			);
 
 			if ( ! empty( $error_msgs ) ) {
-				WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow: %s', __METHOD__, print_r( $error_msgs, true ) ) );
+				WC_Paypal_Logger::obj()->debug( sprintf( '%s: returned back from IPS flow', __METHOD__ ), array( $error_msgs ) );
 			}
 
-			// Save credentials to settings API
+			// Save credentials to settings API.
 			$settings_array = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 
 			if ( 'live' === $env ) {
 				$settings_array['environment']     = 'live';
-				$settings_array['api_username']    = $_GET['api_username'];
-				$settings_array['api_password']    = $_GET['api_password'];
-				$settings_array['api_signature']   = $_GET['signature'];
+				$settings_array['api_username']    = $_GET['api_username']; // @codingStandardsIgnoreLine
+				$settings_array['api_password']    = $_GET['api_password']; // @codingStandardsIgnoreLine
+				$settings_array['api_signature']   = $_GET['signature']; // @codingStandardsIgnoreLine
 				$settings_array['api_certificate'] = '';
 				$settings_array['api_subject']     = '';
 			} else {
 				$settings_array['environment']     = 'sandbox';
-				$settings_array['sandbox_api_username']    = $_GET['api_username'];
-				$settings_array['sandbox_api_password']    = $_GET['api_password'];
-				$settings_array['sandbox_api_signature']   = $_GET['signature'];
+				$settings_array['sandbox_api_username']    = $_GET['api_username']; // @codingStandardsIgnoreLine
+				$settings_array['sandbox_api_password']    = $_GET['api_password']; // @codingStandardsIgnoreLine
+				$settings_array['sandbox_api_signature']   = $_GET['signature']; // @codingStandardsIgnoreLine
 				$settings_array['sandbox_api_certificate'] = '';
 				$settings_array['sandbox_api_subject']     = '';
 			}
