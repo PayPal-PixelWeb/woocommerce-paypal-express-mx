@@ -1,4 +1,15 @@
 <?php
+/**
+ * Cart Handler for WooCommerce Plugin.
+ *
+ * @package   WooCommerce -> Paypal Express Checkout MX
+ * @author    Kijam Lopez <info@kijam.com>
+ * @license   Apache-2.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
 
 use PayPal\CoreComponentTypes\BasicAmountType;
 use PayPal\EBLBaseComponents\PaymentDetailsItemType;
@@ -15,10 +26,6 @@ use PayPal\PayPalAPI\GetExpressCheckoutDetailsResponseType;
 use PayPal\PayPalAPI\GetExpressCheckoutDetailsRequestType;
 use PayPal\Service\PayPalAPIInterfaceServiceService;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 /**
  * PayPal API Interface Hander from Cart of WooCommerce
  */
@@ -29,6 +36,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @var object
 	 */
 	static private $instance;
+	/**
+	 * Parse city/state of API to Real Name
+	 *
+	 * @var array
+	 */
 	static private $parse_state = array(
 		'CIUDAD AUTÓNOMA DE BUENOS AIRES' => 'Buenos Aires (Ciudad)',
 		'BUENOS AIRES' => 'Buenos Aires (Provincia)',
@@ -344,19 +356,17 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	private function __construct() {
 		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
-		if ( ! empty( $_GET['ppexpress-mx-return'] ) ) {
+		if ( ! empty( $_GET['ppexpress-mx-return'] ) ) { // @codingStandardsIgnoreLine
 			$session    = PPWC()->session->get( 'paypal_mx', array() );
-			if ( ! empty( $_GET['token'] )
-				&& ! empty( $_GET['PayerID'] )
+			if ( ! empty( $_GET['token'] ) // @codingStandardsIgnoreLine
+				&& ! empty( $_GET['PayerID'] ) // @codingStandardsIgnoreLine
 				&& isset( $session['start_from'] )
-				&& 'cart' == $session['start_from'] ) {
+				&& 'cart' === $session['start_from'] ) {
 				add_action( 'woocommerce_checkout_init', array( $this, 'checkout_init' ) );
 				add_filter( 'woocommerce_default_address_fields', array( $this, 'filter_default_address_fields' ) );
 				add_filter( 'woocommerce_billing_fields', array( $this, 'filter_billing_fields' ) );
 				add_action( 'woocommerce_checkout_process', array( $this, 'copy_checkout_details_to_post' ) );
 
-				// add_action( 'wp', array( $this, 'maybe_return_from_paypal' ) );
-				// add_action( 'wp', array( $this, 'maybe_cancel_checkout_with_paypal' ) );
 				add_action( 'woocommerce_cart_emptied', array( $this, 'maybe_clear_session_data' ) );
 
 				add_action( 'woocommerce_available_payment_gateways', array( $this, 'maybe_disable_other_gateways' ) );
@@ -368,21 +378,31 @@ class WC_PayPal_Cart_Handler_Latam {
 	}
 	/**
 	 * Get instance of this class.
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_instance() {
 		if ( null === self::$instance ) {
-			self::$instance = new self;
+			self::$instance = new self();
 		}
 		return self::$instance;
 	}
 	/**
 	 * Short alias for get_instance.
+	 *
+	 * @since 1.0.0
 	 */
 	static public function obj() {
 		return self::get_instance();
 	}
 	/**
 	 * Get options.
+	 *
+	 * @param string $key Key of Option.
+	 *
+	 * @return mixed
+	 *
+	 * @since 1.0.0
 	 */
 	private function get_option( $key ) {
 		return isset( $this->settings[ $key ] ) ? $this->settings[ $key ] : false ;
@@ -402,18 +422,17 @@ class WC_PayPal_Cart_Handler_Latam {
 	 *
 	 * Hooked to the woocommerce_checkout_init action
 	 *
-	 * @param WC_Checkout $checkout
+	 * @param object $checkout is WP_Checkout object.
+	 *
+	 * @since 1.0.0
 	 */
 	function checkout_init( $checkout ) {
 		// Since we've removed the billing and shipping checkout fields, we should also remove the
-		// billing and shipping portion of the checkout form
+		// billing and shipping portion of the checkout form.
 		remove_action( 'woocommerce_checkout_billing', array( $checkout, 'checkout_form_billing' ) );
 		remove_action( 'woocommerce_checkout_shipping', array( $checkout, 'checkout_form_shipping' ) );
 
-		// Lastly, let's add back in 1) displaying customer details from PayPal, 2) allow for
-		// account registration and 3) shipping details from PayPal
 		add_action( 'woocommerce_checkout_billing', array( $this, 'paypal_billing_details' ) );
-		// add_action( 'woocommerce_checkout_billing', array( $this, 'account_registration' ) );
 		add_action( 'woocommerce_checkout_shipping', array( $this, 'paypal_shipping_details' ) );
 	}
 	/**
@@ -422,10 +441,12 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * session (e.g. if the customer started checkout with PayPal from their cart.)
 	 *
 	 * Is hooked to woocommerce_checkout_billing action by checkout_init
+	 *
+	 * @since 1.0.0
 	 */
 	public function paypal_billing_details() {
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
-		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];
+		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];  // @codingStandardsIgnoreLine
 		$checkout_details = $this->get_checkout( $token );
 		if ( false === $checkout_details ) {
 			wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
@@ -435,26 +456,39 @@ class WC_PayPal_Cart_Handler_Latam {
 		$billing = $this->get_mapped_billing_address( $checkout_details );
 		?>
 		<div class="woocommerce-billing-fields__field-wrapper" id="not-popup-ppexpress-mx"></div>
-		<h3><?php _e( 'Billing details', 'woocommerce-paypal-express-mx' ); ?></h3>
+		<h3><?php esc_html( __( 'Billing details', 'woocommerce-paypal-express-mx' ) ); ?></h3>
 		<ul>
 			<?php if ( ! empty( $billing['address_1'] ) ) : ?>
-				<li><strong><?php _e( 'Address:', 'woocommerce-paypal-express-mx' ) ?></strong></br><?php echo PPWC()->countries->get_formatted_address( $billing ); ?></li>
+				<li><strong><?php esc_html( __( 'Address:', 'woocommerce-paypal-express-mx' ) ?></strong></br><?php echo PPWC()->countries->get_formatted_address( $billing ); ?></li>
 			<?php else : ?>
-				<li><strong><?php _e( 'Name:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['first_name'] . ' ' . $billing ['last_name'] ); ?></li>
+				<li><strong><?php esc_html( __( 'Name:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['first_name'] . ' ' . $billing ['last_name'] ); ?></li>
 			<?php endif; ?>
 
 			<?php if ( ! empty( $billing ['email'] ) ) : ?>
-				<li><strong><?php _e( 'Email:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['email'] ); ?></li>
+				<li><strong><?php esc_html( __( 'Email:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['email'] ); ?></li>
 			<?php endif; ?>
 
 			<?php if ( ! empty( $billing ['phone'] ) ) : ?>
-				<li><strong><?php _e( 'Tel:', 'woocommerce-paypal-express-mx' ) ?></strong> <?php echo esc_html( $billing ['phone'] ); ?></li>
+				<li>
+					<strong>
+						<?php
+							esc_html( __( 'Tel:', 'woocommerce-paypal-express-mx' );
+						?>
+					</strong>
+					<?php
+						echo esc_html( $billing ['phone'] );
+					?>
+				</li>
 			<?php elseif ( 'yes' === $this->get_option( 'require_phone_number' ) ) : ?>
-				<li><?php woocommerce_form_field( 'billing_phone', array(
-					'label' => __( 'Phone', 'woocommerce-paypal-express-mx' ),
-					'required' => true,
-					'validate' => array( 'phone' ),
-				) ); ?></li>
+				<li>
+					<?php
+						woocommerce_form_field( 'billing_phone', array(
+							'label' => __( 'Phone', 'woocommerce-paypal-express-mx' ),
+							'required' => true,
+							'validate' => array( 'phone' ),
+						) );
+					?>
+				</li>
 			<?php endif; ?>
 		</ul>
 		<?php
@@ -465,6 +499,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * session (e.g. if the customer started checkout with PayPal from their cart.)
 	 *
 	 * Is hooked to woocommerce_checkout_shipping action by checkout_init
+	 *
+	 * @since 1.0.0
 	 */
 	public function paypal_shipping_details() {
 		if ( method_exists( PPWC()->cart, 'needs_shipping' ) && ! PPWC()->cart->needs_shipping() ) {
@@ -480,7 +516,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			exit;
 		}
 		?>
-		<h3><?php _e( 'Shipping details', 'woocommerce-paypal-express-mx' ); ?></h3>
+		<h3><?php __( 'Shipping details', 'woocommerce-paypal-express-mx' ); ?></h3>
 		<?php
 		echo PPWC()->countries->get_formatted_address( $this->get_mapped_shipping_address( $checkout_details ) );
 	}
@@ -488,10 +524,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * This function filter the packages adding shipping information from PayPal on the checkout page
 	 * after the user is authenticated by PayPal.
 	 *
-	 * @since 1.9.13 Introduced
-	 * @param array $packages
+	 * @param array $packages list of packages.
 	 *
-	 * @return mixed
+	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	public function maybe_add_shipping_information( $packages ) {
 		$checkout_details = $this->get_checkout( wc_clean( $_GET['token'] ) );
@@ -505,16 +542,19 @@ class WC_PayPal_Cart_Handler_Latam {
 			$packages[0]['destination']['address_2'] = $destination['address_2'];
 		}
 		return $packages;
-	}	/**
-		 * If the cart doesn't need shipping at all, don't require the address fields
-		 * (this is unique to PPEC). This is one of two places we need to filter fields.
-		 * See also filter_billing_fields below.
-		 *
-		 * @since 1.0.0
-		 * @param $fields array
-		 *
-		 * @return array
-		 */
+	}
+
+	/**
+	 * If the cart doesn't need shipping at all, don't require the address fields
+	 * This is one of two places we need to filter fields.
+	 * See also filter_billing_fields below.
+	 *
+	 * @param array $fields list of fields to check.
+	 *
+	 * @return array
+	 *
+	 * @since 1.0.0
+	 */
 	public function filter_default_address_fields( $fields ) {
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		if ( ! empty( $_GET['token'] )
@@ -545,7 +585,7 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
 
-		// Make sure the selected payment method is ppexpress_mx
+		// Make sure the selected payment method is ppexpress_mx.
 		if ( ! is_array( $session )
 			|| ! isset( $session['start_from'] )
 			|| 'cart' !== $session['start_from']
@@ -564,7 +604,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			}
 
 			$billing_details = $this->get_mapped_billing_address( $checkout_details );
-			// If the billing address is empty, copy address from shipping
+			// If the billing address is empty, copy address from shipping.
 			if ( empty( $billing_details['address_1'] ) ) {
 				$copyable_keys = array( 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' );
 				foreach ( $copyable_keys as $copyable_key ) {
@@ -584,16 +624,16 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Maybe disable this or other gateways.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $gateways Available gateways
+	 * @param array $gateways Available gateways.
 	 *
 	 * @return array Available gateways
+	 *
+	 * @since 1.0.0
 	 */
 	public function maybe_disable_other_gateways( $gateways ) {
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		// Unset all other gateways after checking out from cart.
-		if ( isset( $session['start_from'] ) && 'cart' == $session['start_from'] && $session['expire_in'] > time() ) {
+		if ( isset( $session['start_from'] ) && 'cart' === $session['start_from'] && $session['expire_in'] > time() ) {
 			foreach ( $gateways as $id => $gateway ) {
 				if ( 'ppexpress_mx' !== $id && 'ppexpress_installment_mx' !== $id ) {
 					unset( $gateways[ $id ] );
@@ -609,9 +649,9 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * away the session provided and possibly select a different payment
 	 * gateway.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @return void
+	 *
+	 * @since 1.0.0
 	 */
 	public function maybe_render_cancel_link() {
 		printf(
@@ -628,10 +668,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 *
 	 * This is one of two places we need to filter fields. See also filter_default_address_fields above.
 	 *
-	 * @since 1.0.0
-	 * @param $billing_fields array
+	 * @param array $billing_fields List of fields to check if phone is required.
 	 *
 	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	public function filter_billing_fields( $billing_fields ) {
 		if ( array_key_exists( 'billing_phone', $billing_fields ) ) {
@@ -641,6 +682,12 @@ class WC_PayPal_Cart_Handler_Latam {
 	}
 	/**
 	 * Start checkout.
+	 *
+	 * @param array $args List of fields to check if phone is required.
+	 *
+	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	public function start_checkout( array $args ) {
 		$args = wp_parse_args(
@@ -676,9 +723,9 @@ class WC_PayPal_Cart_Handler_Latam {
 			if (
 				! empty( $session )
 				&& isset( $session['order_id'] )
-				&& $session['start_from'] == $args['start_from']
-				&& $session['order_id'] == $args['order_id']
-				&& $session['order_total'] == $details['order_total']
+				&& $session['start_from'] === $args['start_from']
+				&& $session['order_id'] === $args['order_id']
+				&& (float) $session['order_total'] === (float) $details['order_total']
 				&& $session['expire_in'] > time()
 			) {
 				if ( $args['return_url'] ) {
@@ -707,29 +754,19 @@ class WC_PayPal_Cart_Handler_Latam {
 			$order_total->currencyID = $currency;
 			$order_total->value = $details['order_total'];
 			$set_express_details = new SetExpressCheckoutRequestDetailsType();
-			/*
-			 $set_express_details->cppheaderbordercolor = str_replace( '#', '', $this->get_option( 'border_header_color' ) );
-			$set_express_details->cppheaderbackcolor = str_replace( '#', '', $this->get_option( 'background_header_color' ) );
-			$set_express_details->cpppayflowcolor = str_replace( '#', '', $this->get_option( 'background_page_color' ) ); */
-			// $set_express_details->cppcartbordercolor = $this->get_option( '' );
+
 			$logo_image_url = wp_get_attachment_image_url( $this->get_option( 'logo_image_url' ), 'pplogo' );
-			/*
-			 $header_image_url = wp_get_attachment_image_url( $this->get_option( 'header_image_url' ), 'ppheader' );
-			if ( ! empty( $header_image_url ) ) {
+			if ( ! empty( $logo_image_url ) ) {
 				$set_express_details->cpplogoimage = false !== stristr( $logo_image_url, 'http://' ) ? str_ireplace( 'http://', 'https://images.weserv.nl/?url=' , $logo_image_url ) : $logo_image_url;
 			}
-			if ( ! empty( $header_image_url ) ) {
-				$set_express_details->cppheaderimage = false !== stristr( $header_image_url, 'http://' ) ? str_ireplace( 'http://', 'https://images.weserv.nl/?url=' , $header_image_url ) : $header_image_url;
-			} */
 			$payment_details = new PaymentDetailsType();
 			foreach ( $details['items'] as $idx => $item ) {
 				$item_details = new PaymentDetailsItemType();
+
 				$item_details->Name = $item['name'];
 				$item_details->Amount = $item['amount'];
-				/*
-                 * Item quantity. This field is required when you pass a value for ItemCategory. For digital goods (ItemCategory=Digital), this field is required.
-				 */
 				$item_details->Quantity = $item['quantity'];
+
 				/*
 				 * Indicates whether an item is digital or physical. For digital goods, this field is required and must be set to Digital
 				 */
@@ -740,7 +777,7 @@ class WC_PayPal_Cart_Handler_Latam {
 				$order_id  = $old_wc ? $order->id : $order->get_id();
 				$order_key = $old_wc ? $order->order_key : $order->get_order_key();
 				$payment_details->InvoiceID = $this->get_option( 'invoice_prefix' ) . $order->get_order_number();
-				$payment_details->Custom = json_encode( array(
+				$payment_details->Custom = wp_json_encode( array(
 					'order_id'  => $order_id,
 					'order_key' => $order_key,
 				) );
@@ -775,9 +812,10 @@ class WC_PayPal_Cart_Handler_Latam {
 			$set_express_details->PaymentDetails[0] = $payment_details;
 			$set_express_details->CancelURL = $cancel_url;
 			$set_express_details->ReturnURL = $return_url;
-			if ( in_array( $this->get_option( 'landing_page' ), array( 'Billing', 'Login' ) ) ) {
+			if ( true === in_array( $this->get_option( 'landing_page' ), array( 'Billing', 'Login' ) ) ) {
 				$set_express_details->LandingPage = $this->get_option( 'landing_page' );
 			}
+
 			/*
 			 * Determines where or not PayPal displays shipping address fields on the PayPal pages. For digital goods, this field is required, and you must set it to 1. It is one of the following values:
 				0 ? PayPal displays the shipping address on the PayPal pages.
@@ -824,20 +862,18 @@ class WC_PayPal_Cart_Handler_Latam {
 			}
 			exit;
 		} catch ( Exception $e ) {
-			WC_Paypal_Logger::obj()->warning( 'Error on start_checkout: ' . $e->getMessage() );
-			WC_Paypal_Logger::obj()->warning( 'DATA for start_checkout: ' . print_r( $set_express_request, true ) );
-			WC_Paypal_Logger::obj()->warning( 'DATA for session: ' . print_r( $session, true ) );
-			WC_Paypal_Logger::obj()->warning( 'DATA for details: ' . print_r( $details, true ) );
+			WC_Paypal_Logger::obj()->warning( 'Error on start_checkout' . $e->getMessage() );
+			WC_Paypal_Logger::obj()->warning( 'DATA for start_checkout', array( $set_express_request ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for session', array( $session ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for details', array( $details ) );
 			PPWC()->session->set( 'paypal_mx', array() );
 			if ( true === $args['return_url'] || true === $args['return_token'] ) {
 				return false;
 			}
 			ob_end_clean();
-			?>
-			<script type="text/javascript">
-				window.location.assign( "<?php echo $cart_url; ?>" );
-			</script>
-			<?php
+			echo '<script type="text/javascript">
+				window.location.assign( "<?php echo esc_url( $cart_url ); ?>" );
+			</script>';
 			exit;
 		}// End try().
 	}
@@ -848,16 +884,16 @@ class WC_PayPal_Cart_Handler_Latam {
 		try {
 			/* wrap API method calls on the service object with a try catch */
 			$response = $pp_service->GetExpressCheckoutDetails( $request );
-			if ( in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
-				WC_Paypal_Logger::obj()->debug( 'Result on get_checkout: ' . print_r( $response, true ) );
-				WC_Paypal_Logger::obj()->debug( 'DATA for get_checkout: ' . print_r( $request, true ) );
+			if ( true === in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
+				WC_Paypal_Logger::obj()->debug( 'Result on get_checkout', array( $response ) );
+				WC_Paypal_Logger::obj()->debug( 'DATA for get_checkout', array( $request ) );
 				return $response;
 			} else {
 				throw new Exception( print_r( $response, true ) );
 			}
 		} catch ( Exception $e ) {
 			WC_Paypal_Logger::obj()->warning( 'Error on get_checkout: ' . $e->getMessage() );
-			WC_Paypal_Logger::obj()->warning( 'DATA for get_checkout: ' . print_r( $request, true ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for get_checkout', array( $request ) );
 			return false;
 		}
 	}
@@ -890,15 +926,15 @@ class WC_PayPal_Cart_Handler_Latam {
 			/* wrap API method calls on the service object with a try catch */
 			$response = $pp_service->DoExpressCheckoutPayment( $request );
 			if ( in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ) ) ) {
-				WC_Paypal_Logger::obj()->debug( 'Result on do_checkout: ' . print_r( $response, true ) );
-				WC_Paypal_Logger::obj()->debug( 'DATA for do_checkout: ' . print_r( $request, true ) );
+				WC_Paypal_Logger::obj()->debug( 'Result on do_checkout', array( $response ) );
+				WC_Paypal_Logger::obj()->debug( 'DATA for do_checkout', array( $request ) );
 				return $response;
 			} else {
 				throw new Exception( print_r( $response, true ) );
 			}
 		} catch ( Exception $e ) {
 			WC_Paypal_Logger::obj()->warning( 'Error on do_checkout: ' . $e->getMessage() );
-			WC_Paypal_Logger::obj()->warning( 'DATA for do_checkout: ' . print_r( $request, true ) );
+			WC_Paypal_Logger::obj()->warning( 'DATA for do_checkout: ', array( $request ) );
 			return false;
 		}
 	}
@@ -907,8 +943,6 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * Get return URL.
 	 *
 	 * The URL to return from express checkout.
-	 *
-	 * @since 1.2.0
 	 *
 	 * @param array $context_args {
 	 *     Context args to retrieve SetExpressCheckout parameters.
@@ -920,6 +954,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * }
 	 *
 	 * @return string Return URL
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_return_url( array $context_args ) {
 		$query_args = array(
@@ -933,13 +969,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	}
 
 	/**
-	 * Get cancel URL.
-	 *
-	 * The URL to return when canceling the express checkout.
-	 *
-	 * @since 1.2.0
+	 * Get cancel URL. The URL to return when canceling the express checkout.
 	 *
 	 * @return string Cancel URL
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_cancel_url() {
 		return add_query_arg( 'ppexpress-mx-cancel', 'true', wc_get_cart_url() );
@@ -948,9 +982,9 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get billing agreement description to be passed to PayPal.
 	 *
-	 * @since 1.2.0
-	 *
 	 * @return string Billing agreement description
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_billing_agreement_description() {
 		/* translators: placeholder is blogname */
@@ -966,11 +1000,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get extra line item when for subtotal mismatch.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param float $amount Item's amount
+	 * @param float $amount Item's amount.
 	 *
 	 * @return array Line item
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_extra_offset_line_item( $amount ) {
 		return array(
@@ -984,11 +1018,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get extra line item when for discount.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param float $amount Item's amount
+	 * @param float $amount Item's amount.
 	 *
 	 * @return array Line item
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_extra_discount_line_item( $amount ) {
 		return  array(
@@ -1004,8 +1038,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 *
 	 * This is the details when buyer is checking out from cart page.
 	 *
-	 * @since 1.2.0
-	 * @version 1.2.1
+	 * @since 1.0.0
 	 *
 	 * @return array Order details
 	 */
@@ -1030,14 +1063,13 @@ class WC_PayPal_Cart_Handler_Latam {
 		// if they do not match, check to see what the merchant would like to do.
 		// Options are to remove line items or add a line item to adjust for
 		// the difference.
-		if ( $details['total_item_amount'] != $rounded_total ) {
+		if ( (float) $details['total_item_amount'] !== (float) $rounded_total ) {
 			if ( 'add' === apply_filters( 'woocommerce_paypal_express_checkout_subtotal_mismatch_behavior', 'add' ) ) {
 				// Add line item to make up different between WooCommerce
 				// calculations and PayPal calculations.
 				$diff = round( $details['total_item_amount'] - $rounded_total, $decimals );
-				if ( $diff != 0 ) {
+				if ( 0.0 !== $diff ) {
 					$extra_line_item = $this->_get_extra_offset_line_item( $diff );
-
 					$details['items'][]            = $extra_line_item;
 					$details['total_item_amount'] += $extra_line_item['amount'];
 					$details['order_total']       += $extra_line_item['amount'];
@@ -1050,7 +1082,7 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		// Enter discount shenanigans. Item total cannot be 0 so make modifications
 		// accordingly.
-		if ( $details['total_item_amount'] == $discounts ) {
+		if ( (float) $details['total_item_amount'] === (float) $discounts ) {
 			// Omit line items altogether.
 			unset( $details['items'] );
 			$details['ship_discount_amount'] = 0;
@@ -1069,8 +1101,8 @@ class WC_PayPal_Cart_Handler_Latam {
 		// If the totals don't line up, adjust the tax to make it work (it's
 		// probably a tax mismatch).
 		$wc_order_total = round( PPWC()->cart->total, $decimals );
-		if ( $wc_order_total != $details['order_total'] ) {
-			// tax cannot be negative
+		if ( (float) $wc_order_total !== (float) $details['order_total'] ) {
+			// tax cannot be negative.
 			if ( $details['order_total'] < $wc_order_total ) {
 				$details['order_tax'] += $wc_order_total - $details['order_total'];
 				$details['order_tax'] = round( $details['order_tax'], $decimals );
@@ -1092,9 +1124,9 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get line items from cart contents.
 	 *
-	 * @since 1.2.0
-	 *
 	 * @return array Line items
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_paypal_line_items_from_cart() {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
@@ -1128,9 +1160,9 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get rounded total of items in cart.
 	 *
-	 * @since 1.2.0
-	 *
 	 * @return float Rounded total in cart
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_rounded_total_in_cart() {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
@@ -1149,11 +1181,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	 *
 	 * This is the details when buyer is checking out from checkout page.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param int $order_id Order ID
+	 * @param int $order_id Order ID.
 	 *
 	 * @return array Order details
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_details_from_order( $order_id ) {
 		$order         = wc_get_order( $order_id );
@@ -1174,7 +1206,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		// if they do not match, check to see what the merchant would like to do.
 		// Options are to remove line items or add a line item to adjust for
 		// the difference.
-		if ( $details['total_item_amount'] != $rounded_total ) {
+		if ( (float) $details['total_item_amount'] !== (float) $rounded_total ) {
 			if ( 'add' === apply_filters( 'woocommerce_paypal_express_checkout_subtotal_mismatch_behavior', 'add' ) ) {
 				// Add line item to make up different between WooCommerce
 				// calculations and PayPal calculations.
@@ -1190,7 +1222,7 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		// Enter discount shenanigans. Item total cannot be 0 so make modifications
 		// accordingly.
-		if ( $details['total_item_amount'] == $discounts ) {
+		if ( (float) $details['total_item_amount'] === (float) $discounts ) {
 			// Omit line items altogether.
 			unset( $details['items'] );
 			$details['ship_discount_amount'] = 0;
@@ -1210,8 +1242,8 @@ class WC_PayPal_Cart_Handler_Latam {
 		// If the totals don't line up, adjust the tax to make it work (it's
 		// probably a tax mismatch).
 		$wc_order_total = round( $order->get_total(), $decimals );
-		if ( $wc_order_total != $details['order_total'] ) {
-			// tax cannot be negative
+		if ( (float) $wc_order_total !== (float) $details['order_total'] ) {
+			// tax cannot be negative.
 			if ( $details['order_total'] < $wc_order_total ) {
 				$details['order_tax'] += $wc_order_total - $details['order_total'];
 				$details['order_tax'] = round( $details['order_tax'], $decimals );
@@ -1266,8 +1298,6 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		// In case merchant only expects domestic shipping and hides shipping
 		// country, fallback to base country.
-		//
-		// @see https://github.com/woothemes/woocommerce-paypal-express-mx/issues/139
 		if ( empty( $shipping_country ) ) {
 			$shipping_country = PPWC()->countries->get_base_country();
 		}
@@ -1281,11 +1311,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get line items from given order.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param int|WC_Order $order Order ID or order object
+	 * @param int $order Order ID or order object.
 	 *
 	 * @return array Line items
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_paypal_line_items_from_order( $order ) {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
@@ -1309,11 +1339,11 @@ class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Get rounded total of a given order.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param int|WC_Order Order ID or order object
+	 * @param int $order Order ID or order object.
 	 *
 	 * @return float
+	 *
+	 * @since 1.0.0
 	 */
 	protected function _get_rounded_total_in_order( $order ) {
 		$decimals = WC_Paypal_Express_MX::get_number_of_decimal_digits();
@@ -1327,10 +1357,12 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		return $rounded_total;
 	}
+
 	/**
-	 * Map PayPal shipping address to WC shipping address.
+	 * Map PayPal shipping address to WC shipping address
 	 *
-	 * @param  object $checkout_details Checkout details
+	 * @param  object $get_checkout Paypal Checkout Details Object.
+	 *
 	 * @return array
 	 */
 	public function get_mapped_shipping_address( $get_checkout ) {
@@ -1362,7 +1394,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * Map PayPal billing address to WC shipping address
 	 * NOTE: Not all PayPal_Checkout_Payer_Details objects include a billing address
 	 *
-	 * @param  object $checkout_details
+	 * @param  object $get_checkout Paypal Checkout Details Object.
+	 *
 	 * @return array
 	 */
 	public function get_mapped_billing_address( $get_checkout ) {

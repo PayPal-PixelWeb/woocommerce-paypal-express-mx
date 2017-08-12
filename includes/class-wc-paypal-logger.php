@@ -2,17 +2,17 @@
 /**
  * Logger for WooCommerce Plugin.
  *
- * @package   WooCommerce
  * @category  Class
+ * @package   WooCommerce -> Paypal Express Checkout MX
  * @author    Kijam Lopez <info@kijam.com>
- * @copyright 2017
  * @license   Apache-2.0
  */
-require_once dirname( __FILE__ ) . '/../vendor/autoload.php';
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+require_once dirname( __FILE__ ) . '/../vendor/autoload.php';
 
 if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 	/**
@@ -83,7 +83,7 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 */
 		static public function get_instance() {
 			if ( null === self::$logger ) {
-				self::$logger = new self;
+				self::$logger = new self();
 			}
 			return self::$logger;
 		}
@@ -109,9 +109,9 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 				return;
 			}
 			if ( self::NORMAL === self::$log_level ) {
-				// if ( in_array( $level, array( \Psr\Log\LogLevel::NOTICE, \Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::DEBUG ), true ) ) {
-				// return;
-				// }
+				if ( in_array( $level, array( \Psr\Log\LogLevel::NOTICE, \Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::DEBUG ), true ) ) {
+					return;
+				}
 			}
 			// @codingStandardsIgnoreStart
 			if ( null === $dir ) {
@@ -132,8 +132,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 			@fwrite( $fp, "\n----- " . date( 'Y-m-d H:i:s' ) . " -----\n" );
 			@fwrite( $fp, 'LEVEL: ' . $level . "\n" );
 			@fwrite( $fp, 'URL: ' . ( isset( $_SERVER['HTTPS'] ) ? 'https' : 'http' ) . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n" );
+			@fwrite( $fp, 'CONTEXT: ' . print_r( $context, true ) . "\n" );
 			if ( self::$log_level == self::PARANOID ) {
-				@fwrite( $fp, 'CONTEXT: ' . print_r( $context, true ) . "\n" );
 				@fwrite( $fp, 'POST: ' . print_r( $_POST, true ) );
 				@fwrite( $fp, 'GET: ' . print_r( $_GET, true ) );
 				@fwrite( $fp, "TRACE:\n" );
