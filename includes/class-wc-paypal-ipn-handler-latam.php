@@ -1,10 +1,17 @@
 <?php
-
-use PayPal\IPN\PPIPNMessage;
+/**
+ * IPN Handler for Paypal API.
+ *
+ * @package   WooCommerce -> Paypal Express Checkout MX
+ * @author    Kijam Lopez <info@kijam.com>
+ * @license   Apache-2.0
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+use PayPal\IPN\PPIPNMessage;
 
 /**
  * PayPal API Interface
@@ -70,7 +77,11 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * Check is valid IPN.
 	 */
 	public function check_ipn() {
-		WC_Paypal_Logger::obj()->debug( 'Check IPN: _POST=>' . print_r( $_POST, true ) . ' _GET=>' . print_r( $_GET, true ) . ' php://input=>' . file_get_contents( 'php://input' ) );
+		WC_Paypal_Logger::obj()->warning( 'Check IPN', array(
+			'POST' => $_POST, // @codingStandardsIgnoreLine
+			'GET' => $_GET, // @codingStandardsIgnoreLine
+			'php://input' => file_get_contents( 'php://input' ), // @codingStandardsIgnoreLine
+		) );
 		if ( true === $this->ipn_interface->validate() ) {
 			$this->ipn_data = $this->ipn_interface->getRawData();
 			WC_Paypal_Logger::obj()->debug( 'IPN is Valid. DATA: ' . wp_json_encode( $this->ipn_data ) );
@@ -82,17 +93,13 @@ class WC_PayPal_IPN_Handler_Latam {
 			}
 			return $this->ipn_data;
 		}
-		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request', array(
-			'POST' => $_POST,
-			'GET' => $_GET,
-			'php://input' => file_get_contents( 'php://input' ),
-		) );
+		WC_Paypal_Logger::obj()->warning( 'Invalid IPN Request' );
 		return false;
 	}
 	/**
 	 * Check for a valid transaction type.
 	 *
-	 * @param string $txn_type Transaction type
+	 * @param string $txn_type Transaction type.
 	 */
 	private function validate_transaction_type( $txn_type ) {
 		$accepted_types = array( 'cart', 'instant', 'express_checkout', 'web_accept', 'masspay', 'send_money' );
@@ -114,7 +121,8 @@ class WC_PayPal_IPN_Handler_Latam {
 		if ( $order_currency !== $currency ) {
 			WC_Paypal_Logger::obj()->warning( 'Payment error: Currencies do not match (sent "' . $order_currency . '" | returned "' . $currency . '")' );
 			// Put this order on-hold for manual checking.
-			$order->update_status( 'on-hold', sprintf( __( 'Validation error: PayPal currencies do not match (code %s).', 'woocommerce-paypal-express-mx' ), $currency ) );
+			/* translators: %1$s: is the currency of payment  */
+			$order->update_status( 'on-hold', sprintf( __( 'Validation error: PayPal currencies do not match (code %1$s).', 'woocommerce-paypal-express-mx' ), $currency ) );
 			exit;
 		}
 	}
@@ -141,10 +149,11 @@ class WC_PayPal_IPN_Handler_Latam {
 	 * @param int      $amount Amount.
 	 */
 	private function validate_amount( $order, $amount ) {
-		if ( number_format( $order->get_total(), 2, '.', '' ) != number_format( $amount, 2, '.', '' ) ) {
+		if ( number_format( $order->get_total(), 2, '.', '' ) !== number_format( $amount, 2, '.', '' ) ) {
 			WC_Paypal_Logger::obj()->warning( 'Payment error: Amounts do not match (gross ' . $amount . ')' );
 			// Put this order on-hold for manual checking.
-			$order->update_status( 'on-hold', sprintf( __( 'Validation error: PayPal amounts do not match (gross %s).', 'woocommerce-paypal-express-mx' ), $amount ) );
+			/* translators: %1$s: is the amount invalid  */
+			$order->update_status( 'on-hold', sprintf( __( 'Validation error: PayPal amounts do not match (gross %1$s).', 'woocommerce-paypal-express-mx' ), $amount ) );
 			exit;
 		}
 	}
@@ -174,6 +183,10 @@ class WC_PayPal_IPN_Handler_Latam {
 		$old_wc = version_compare( WC_VERSION, '3.0', '<' );
 		$order_id = $json_order['order_id'];
 		$order = new WC_Order( $order_id );
+		$is_refunded = (bool) WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'is_refunded' );
+		if ( true === $is_refunded ) {
+			return false;
+		}
 		if ( $order ) {
 			$order_key_from_order = $old_wc ? $order->order_key : $order->get_order_key();
 		} else {
@@ -211,6 +224,7 @@ class WC_PayPal_IPN_Handler_Latam {
 					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', true );
 					$this->payment_on_hold( $order, __( 'Payment authorized. Change payment status to processing or complete to capture funds.', 'woocommerce-paypal-express-mx' ) );
 				} else {
+					/* translators: %1$s: is the pending reason  */
 					$this->payment_on_hold( $order, sprintf( __( 'Payment pending (%s).', 'woocommerce-paypal-express-mx' ), $this->ipn_data['pending_reason'] ) );
 				}
 				break;
@@ -220,30 +234,38 @@ class WC_PayPal_IPN_Handler_Latam {
 			case 'voided':
 				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
 				WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
-				$order->update_status( 'failed', sprintf( __( 'Payment %s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), wc_clean( $this->ipn_data['payment_status'] ) ) );
+				/* translators: %1$s: is the actial payment status  */
+				$order->update_status( 'failed', sprintf( __( 'Payment %1$s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), wc_clean( $this->ipn_data['payment_status'] ) ) );
 				break;
 			case 'refunded':
-				if ( $order->get_total() == ( $this->ipn_data['mc_gross'] * -1 ) ) {
+				if ( (float) $order->get_total() === (float) ( $this->ipn_data['mc_gross'] * -1 ) ) {
 					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_auth_order', false );
 					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'is_refunded', true );
-					// Mark order as refunded.
-					$order->update_status( 'refunded', sprintf( __( 'Payment %s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), strtolower( $this->ipn_data['payment_status'] ) ) );
+					/* translators: %1$s: is the actual payment status  */
+					$order->update_status( 'refunded', sprintf( __( 'Payment %1$s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), strtolower( $this->ipn_data['payment_status'] ) ) );
 					$this->send_ipn_email_notification(
-						sprintf( __( 'Payment for order %s refunded', 'woocommerce-gateway-paypal-express-checkout' ), '<a class="link" href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">' . $order->get_order_number() . '</a>' ),
+						/* translators: %1$s: is the Order Number */
+						sprintf( __( 'Payment for order $%1s refunded', 'woocommerce-gateway-paypal-express-checkout' ), '<a class="link" href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">' . $order->get_order_number() . '</a>' ),
+						/* translators: %1$s: is the Order Number, %2$s: is the refunded reason.  */
 						sprintf( __( 'Order #%1$s has been marked as refunded - PayPal reason code: %2$s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number(), $this->ipn_data['reason_code'] )
 					);
 				}
 				break;
 			case 'reversed':
-				$order->update_status( 'on-hold', sprintf( __( 'Payment %s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), wc_clean( $this->ipn_data['payment_status'] ) ) );
+				/* translators: %1$s: is the actual payment status  */
+				$order->update_status( 'on-hold', sprintf( __( 'Payment %1$s via IPN.', 'woocommerce-gateway-paypal-express-checkout' ), wc_clean( $this->ipn_data['payment_status'] ) ) );
 				$this->send_ipn_email_notification(
-					sprintf( __( 'Payment for order %s reversed', 'woocommerce-gateway-paypal-express-checkout' ), '<a class="link" href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">' . $order->get_order_number() . '</a>' ),
+					/* translators: %1$s: is the Order Number */
+					sprintf( __( 'Payment for order %1$s reversed', 'woocommerce-gateway-paypal-express-checkout' ), '<a class="link" href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">' . $order->get_order_number() . '</a>' ),
+					/* translators: %1$s: is the Order Number, %2$s: is the reversal reason.  */
 					sprintf( __( 'Order #%1$s has been marked on-hold due to a reversal - PayPal reason code: %2$s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number(), wc_clean( $this->ipn_data['reason_code'] ) )
 				);
 				break;
 			case 'canceled_reversal':
 				$this->send_ipn_email_notification(
-					sprintf( __( 'Reversal cancelled for order #%s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number() ),
+					/* translators: %1$s: is the Order Number */
+					sprintf( __( 'Reversal cancelled for order #%1$s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number() ),
+					/* translators: %1$s: is the Order Number, %2$s: is the wp-admin URL of this order.  */
 					sprintf( __( 'Order #%1$s has had a reversal cancelled. Please check the status of payment and update the order status accordingly here: %2$s', 'woocommerce-gateway-paypal-express-checkout' ), $order->get_order_number(), esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) )
 				);
 				break;

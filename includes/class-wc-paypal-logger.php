@@ -2,7 +2,6 @@
 /**
  * Logger for WooCommerce Plugin.
  *
- * @category  Class
  * @package   WooCommerce -> Paypal Express Checkout MX
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0

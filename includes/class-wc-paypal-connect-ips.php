@@ -1,6 +1,6 @@
 <?php
 /**
- * Cart Handler for WooCommerce Plugin.
+ * IPS Handler for WooCommerce Plugin.
  *
  * @package   WooCommerce -> Paypal Express Checkout MX
  * @author    Kijam Lopez <info@kijam.com>

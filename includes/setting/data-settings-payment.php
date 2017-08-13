@@ -1,12 +1,21 @@
 <?php
+/**
+ * Fields of Plugins settings.
+ *
+ * @package   WooCommerce -> Paypal Express Checkout MX
+ * @author    Kijam Lopez <info@kijam.com>
+ * @license   Apache-2.0
+ */
 
 return array(
+
 	/*
 	 'manual_field' => array(
 		'title' => __( 'Configuration Manual', 'woocommerce-paypal-express-mx' ),
 		'type' => 'html',
 		'description' => ''
-	), */
+	),
+	*/
 	'enabled' => array(
 		'title' => __( 'Enable/Disable', 'woocommerce-paypal-express-mx' ),
 		'type' => 'checkbox',
@@ -187,7 +196,9 @@ return array(
 		'default'     => 'no',
 		'description' => __( 'Require buyer to enter their confirmed address during checkout for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 	),
-	/* 'credit_enabled' => array(
+
+	/*
+	'credit_enabled' => array(
 		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Currently PayPal Credit only available for U.S. merchants.', 'woocommerce-paypal-express-mx' ),
@@ -195,15 +206,15 @@ return array(
 		'default'     => 'no',
 		'desc_tip'    => true,
 		'description' => __( 'This enables PayPal Credit, which displays a PayPal Credit button next to the Express Checkout button. PayPal Express Checkout lets you give customers access to financing through PayPal Credit® - at no additional cost to you. You get paid up front, even though customers have more time to pay. A pre-integrated payment button shows up next to the PayPal Button, and lets customers pay quickly with PayPal Credit®.', 'woocommerce-paypal-express-mx' ),
-	), */
-	/*
+	),
 	 'require_billing_address' => array(
 		'title'       => __( 'Billing Addresses', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Require Billing Address', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'no',
 		'description' => sprintf( __( 'PayPal only returns a shipping address back to the website. To make sure billing address is returned as well, please enable this functionality on your PayPal account by calling %1$sPayPal Technical Support%2$s.', 'woocommerce-paypal-express-mx' ), '<a href="https://www.paypal.com/us/selfhelp/contact/call">', '</a>' ),
-	), */
+	),
+	*/
 	'paymentaction' => array(
 		'title'       => __( 'Payment Type', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
@@ -269,7 +280,8 @@ return array(
 		'type' => 'checkbox',
 		'label' => __( 'Enable log', 'woocommerce-paypal-express-mx' ),
 		'default' => 'no',
-		'description' => sprintf( __( 'To review the log of Paypal, see the directory: %s', 'woocommerce-paypal-express-mx' ), '<code>/wp-content/plugins/woocommerce-paypal-express-mx/logs/</code>' ),
+		/* translators: %1$s: is the PATH of Log  */
+		'description' => sprintf( __( 'To review the log of Paypal, see the directory: %1$s', 'woocommerce-paypal-express-mx' ), '<code>/wp-content/plugins/woocommerce-paypal-express-mx/logs/</code>' ),
 	),
 	'style' => array(
 		'title'       => __( 'Style on Checkout', 'woocommerce-paypal-express-mx' ),
@@ -376,7 +388,9 @@ return array(
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
 	),
-	/* 'header_image_url' => array(
+
+	/*
+	'header_image_url' => array(
 		'title'       => __( 'Header Image (750×90)', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'media',
 		'description' => __( 'If you want PayPal to co-brand the checkout page with your header, enter the URL of your header image here.<br/>The image must be no larger than 750x90, GIF, PNG, or JPG format, and should be served over HTTPS.', 'woocommerce-paypal-express-mx' ),
@@ -410,5 +424,6 @@ return array(
 		'default'     => '#ffffff',
 		'desc_tip'    => true,
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
-	), */
+	),
+	*/
 );
