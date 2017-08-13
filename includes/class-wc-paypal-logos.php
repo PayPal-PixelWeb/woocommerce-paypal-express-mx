@@ -19,18 +19,24 @@ class WC_PayPal_Logos {
 	 * Instance of this class.
 	 *
 	 * @var object
+	 *
+	 * @since 1.0.0
 	 */
 	private static $instance = null;
 	/**
 	 * Instance of cart hanlder.
 	 *
 	 * @var object
+	 *
+	 * @since 1.0.0
 	 */
 	private static $cart_handler = null;
 	/**
 	 * List of PayPal Logos.
 	 *
 	 * @var array
+	 *
+	 * @since 1.0.0
 	 */
 	private static $images = array(
 		'logo' => array(
@@ -54,10 +60,14 @@ class WC_PayPal_Logos {
 	 * Settings of Plugin.
 	 *
 	 * @var array
+	 *
+	 * @since 1.0.0
 	 */
 	private $settings = null;
 	/**
 	 * Initialize the plugin.
+	 *
+	 * @since 1.0.0
 	 */
 	private function __construct() {
 		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
@@ -82,13 +92,42 @@ class WC_PayPal_Logos {
 	}
 	/**
 	 * Dummy request...
+	 *
+	 * @since 1.0.0
 	 */
 	public function wc_ppexpress_dummy() {
 		wp_send_json( new stdClass() );
 		exit;
 	}
 	/**
+	 * Paypal Widget Button.
+	 *
+	 * @since 1.0.0
+	 */
+	function widget_paypal_button() {
+		echo wp_kses_post( apply_filters( 'ppexpress_widget_paypal_button', '<div class="btn_ppexpress_mx_widget" style="width: 100%;text-align: center;"></div>' ) );
+	}
+	/**
+	 * Paypal Product Button.
+	 *
+	 * @since 1.0.0
+	 */
+	function display_paypal_button_product() {
+		echo wp_kses_post( apply_filters( 'ppexpress_display_paypal_button_product', '<div id="btn_ppexpress_mx_product" style="width: 100%;text-align: center;"></div>' ) );
+	}
+	/**
+	 * Paypal Checkout Button.
+	 *
+	 * @since 1.0.0
+	 */
+	function display_paypal_button_checkout() {
+		echo wp_kses_post( apply_filters( 'ppexpress_display_paypal_button_checkout_separator', '<div style="text-align:center;width:100%;color: #b6b6b6;">' . __( '&mdash; or &mdash;', 'woocommerce-paypal-express-mx' ) . '</div>' ) );
+		echo wp_kses_post( apply_filters( 'ppexpress_display_paypal_button_checkout', '<div id="btn_ppexpress_mx_cart" style="width: 100%;text-align: center;"></div>' ) );
+	}
+	/**
 	 * Reload totals before checkout handler when cart is loaded.
+	 *
+	 * @since 1.0.0
 	 */
 	public function wc_ajax_update_cart() {
 		if ( ! defined( 'WOOCOMMERCE_CART' ) ) {
@@ -109,6 +148,8 @@ class WC_PayPal_Logos {
 	}
 	/**
 	 * Generates the cart for express checkout on a product level.
+	 *
+	 * @since 1.0.0
 	 */
 	public function wc_ajax_generate_cart() {
 		global $post;
@@ -167,6 +208,8 @@ class WC_PayPal_Logos {
 	 * @param string $name Name of button.
 	 *
 	 * @return string URL
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_button( $name ) {
 		static $lang = false;
@@ -182,6 +225,8 @@ class WC_PayPal_Logos {
 	 * Display logo on Footer.
 	 *
 	 * @return void
+	 *
+	 * @since 1.0.0
 	 */
 	function footer_logo() {
 		echo apply_filters( 'ppexpress_footer', '<div style="width: 100%;height: 100px;background-color: #003087;"><a href="https://paypal.com/" target="_blank"><img style="margin: auto;padding-top: 23px;" src="' . self::get_button( 'paypal_accepted' ) . '" /></a></div>' ); // @codingStandardsIgnoreLine
@@ -193,12 +238,16 @@ class WC_PayPal_Logos {
 	 * @param bool|string $default Default value if Key not exists.
 	 *
 	 * @return string
+	 *
+	 * @since 1.0.0
 	 */
 	private function get_option( $key, $default = false ) {
 		return isset( $this->settings[ $key ] ) && ! empty( $this->settings[ $key ] ) ? $this->settings[ $key ] : $default ;
 	}
 	/**
 	 * Frontend scripts
+	 *
+	 * @since 1.0.0
 	 */
 	public function enqueue_scripts() {
 		if ( true !== WC_Paypal_Express_MX_Gateway::obj()->is_configured() ) {
@@ -302,6 +351,8 @@ class WC_PayPal_Logos {
 	}
 	/**
 	 * Get Unique Instance.
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_instance() {
 		if ( null === self::$instance ) {
@@ -311,6 +362,8 @@ class WC_PayPal_Logos {
 	}
 	/**
 	 * Short alias for get_instance.
+	 *
+	 * @since 1.0.0
 	 */
 	static public function obj() {
 		return self::get_instance();
@@ -322,6 +375,8 @@ class WC_PayPal_Logos {
 	 * @param string  $type Type of Logo.
 	 *
 	 * @return string URL
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_logo( $size = 's', $type = 'transparent' ) {
 		return isset( self::$images['logo'][ $type . '_' . $size ] ) ? self::$images['logo'][ $type . '_' . $size ] : '';
@@ -330,6 +385,8 @@ class WC_PayPal_Logos {
 	 * Return size list available for Paypal Logos.
 	 *
 	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_logo_sizes() {
 		return array(
@@ -342,6 +399,8 @@ class WC_PayPal_Logos {
 	 * Return type list available for Paypal Logos (White/Transparent).
 	 *
 	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	static public function get_logo_types() {
 		return array(

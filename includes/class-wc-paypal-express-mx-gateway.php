@@ -18,6 +18,8 @@ include_once( dirname( __FILE__ ) . '/class-wc-paypal-logos.php' );
 if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 	/**
 	 * WC_Paypal_Express_MX_Gateway Class.
+	 *
+	 * @since 1.0.0
 	 */
 	class WC_Paypal_Express_MX_Gateway extends WC_Payment_Gateway_Paypal {
 		/**
@@ -30,18 +32,24 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Cache for metadata
 		 *
 		 * @var array
+		 *
+		 * @since 1.0.0
 		 */
 		static private $cache_metadata  = array();
 		/**
 		 * Instance for class-wc-paypal-cart-handler-latam
 		 *
 		 * @var object
+		 *
+		 * @since 1.0.0
 		 */
 		private $cart_handler = null;
 		/**
 		 * Constructor for the gateway.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function __construct() {
 			$this->id              = 'ppexpress_mx';
@@ -94,6 +102,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param order $order WC_Order.
 		 *
 		 * @return html
+		 *
+		 * @since 1.0.0
 		 */
 		function thankyou_text( $var, $order ) {
 			$old_wc    = version_compare( WC_VERSION, '3.0', '<' );
@@ -111,6 +121,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param string $hook actual section.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		function pplatam_script_enqueue( $hook ) {
 			if ( 'woocommerce_page_wc-settings' !== $hook ) {
@@ -127,6 +139,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Register image size for Logo.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		function ppexpress_mx_image_sizes() {
 			add_theme_support( 'post-thumbnails' );
@@ -139,6 +153,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param array $sizes actual list of size for images.
 		 *
 		 * @return array
+		 *
+		 * @since 1.0.0
 		 */
 		function ppexpress_mx_sizes( $sizes ) {
 			$my_sizes = array(
@@ -150,6 +166,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check if is available.
 		 *
 		 * @return bool
+		 *
+		 * @since 1.0.0
 		 */
 		public function is_available() {
 			return true === $this->is_configured() && 'yes' === $this->get_option( 'payment_checkout_enabled' );
@@ -158,6 +176,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check if all is ok.
 		 *
 		 * @return bool
+		 *
+		 * @since 1.0.0
 		 */
 		public function is_configured() {
 			return isset( $this->settings['enabled'] ) && 'yes' === $this->settings['enabled'] && false !== WC_PayPal_Interface_Latam::get_static_interface_service();
@@ -169,6 +189,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param string $key name of nonce.
 		 *
 		 * @return bool
+		 *
+		 * @since 1.0.0
 		 */
 		private static function check_key_nonce( $key ) {
 			return isset( $_GET[ $key ] ) // Input var okay.
@@ -179,6 +201,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Checks data is correctly set when returning from PayPal Express Checkout
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function maybe_return_from_paypal() {
 			if ( isset( $_GET['wc-gateway-ppexpress-mx-clear-session'] ) ) { // @codingStandardsIgnoreLine
@@ -264,6 +288,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param array $gateways list of actual payment gateways.
 		 *
 		 * @return array
+		 *
+		 * @since 1.0.0
 		 */
 		public function add_installment_payment( $gateways ) {
 			if ( isset( $gateways['ppexpress_mx'] ) && 'yes' === $this->get_option( 'show_installment_gateway' ) ) {
@@ -290,6 +316,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check IPN
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function check_ipn_response() {
 			if ( ! class_exists( 'WC_PayPal_IPN_Handler_Latam' ) ) {
@@ -303,6 +331,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check if this request is Checkout Express
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function verify_checkout() {
 			// If there then call start_checkout() else do nothing so page loads as normal.
@@ -321,6 +351,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Check nonce of Admin Page
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function check_nonce() {
 			if ( isset( $_GET['wc_ppexpress_mx_ips_admin_nonce'] ) ) {  // @codingStandardsIgnoreLine
@@ -351,6 +383,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Get instance of this class.
 		 *
 		 * @return object
+		 *
+		 * @since 1.0.0
 		 */
 		static public function get_instance() {
 			if ( null === self::$instance ) {
@@ -362,6 +396,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Short alias for get_instance.
 		 *
 		 * @return object
+		 *
+		 * @since 1.0.0
 		 */
 		static public function obj() {
 			return self::get_instance();
@@ -370,6 +406,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Do some additonal validation before saving options.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function process_admin_options() {
 			// @codingStandardsIgnoreStart
@@ -408,6 +446,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Initialise Gateway Settings Form Fields.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function init_form_fields() {
 			include_once( dirname( __FILE__ ) . '/class-wc-paypal-connect-ips.php' );
@@ -485,6 +525,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Whether PayPal credit is supported.
 		 *
 		 * @return bool Returns true if PayPal credit is supported
+		 *
+		 * @since 1.0.0
 		 */
 		public function is_credit_supported() {
 			$base = wc_get_base_location();
@@ -495,6 +537,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Whether PayPal credit is available.
 		 *
 		 * @return bool Returns true if PayPal credit is available
+		 *
+		 * @since 1.0.0
 		 */
 		public function is_credit_available() {
 			return true === $this->is_credit_available() && 'yes' === $this->get_option( 'credit_enabled' );
@@ -506,6 +550,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param int $order_id Order ID.
 		 *
 		 * @return array Redirect.
+		 *
+		 * @since 1.0.0
 		 */
 		public function process_payment( $order_id ) {
 			$session    = PPWC()->session->get( 'paypal_mx', array() );
@@ -558,7 +604,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 *
 		 * @param int $order_id Order ID.
 		 *
-		 * @return array           Redirect.
+		 * @return array Redirect.
+		 *
+		 * @since 1.0.0
 		 */
 		public function order_processed( $order_id ) {
 			$session    = PPWC()->session->get( 'paypal_mx', array() );
@@ -639,7 +687,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 *
 		 * @param int $order_id Order ID.
 		 *
-		 * @return string           Payment form.
+		 * @return string Payment form.
+		 *
+		 * @since 1.0.0
 		 */
 		public function generate_form( $order_id ) {
 			$order = wc_get_order( $order_id );
@@ -666,6 +716,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param object $order WC_Order.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function receipt_page( $order ) {
 			echo $this->generate_form( $order ); // @codingStandardsIgnoreLine
@@ -744,6 +796,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param int $order_id Order ID..
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function void_order( $order_id ) {
 			$transaction_id = WC_Paypal_Express_MX_Gateway::get_metadata( $order_id, 'transaction_id' );
@@ -834,6 +888,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * Show MetaBox on wp-admin -> Orders
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		function show_metabox() {
 			global $theorder;
@@ -879,6 +935,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param bool   $is_price show Meta with price format.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public static function show_label_metabox( $order_id, $id, $text, $is_price = false ) {
 			$data = self::get_metadata( $order_id, $id );
@@ -897,6 +955,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param   mixed  $value Value of Metadata.
 		 *
 		 * @return  bool   Result of Database.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function set_metadata( $order_id, $key, $value ) {
 			global $wpdb;
@@ -947,6 +1007,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		 * @param   string $key Key of Metadata.
 		 *
 		 * @return  mixed  Value of metadata.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function get_metadata( $order_id, $key ) {
 			global $wpdb;
@@ -978,6 +1040,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		}
 		/**
 		 * Create table in database.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function check_database() {
 			global $wpdb;
@@ -1001,6 +1065,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 		}
 		/**
 		 * Drop table of database.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function uninstall_database() {
 			global $wpdb;

@@ -26,25 +26,33 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 
 	/**
 	 * PayPal Express Checkout main class.
+	 *
+	 * @since 1.0.0
 	 */
 	class WC_Paypal_Express_MX {
 
 		/**
-	 * Plugin version.
-	 *
-	 * @var string
-	 */
+		 * Plugin version.
+		 *
+		 * @var string
+		 *
+		 * @since 1.0.0
+		 */
 		const VERSION = '1.0.1';
 
 		/**
 		 * Instance of this class.
 		 *
 		 * @var object
+		 *
+		 * @since 1.0.0
 		 */
 		protected static $instance = null;
 
 		/**
 		 * Initialize the plugin.
+		 *
+		 * @since 1.0.0
 		 */
 		private function __construct() {
 			self::$instance = $this;
@@ -80,6 +88,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Take care of anything that needs woocommerce to be loaded.
 		 * For instance, if you need access to the $woocommerce global
+		 *
+		 * @since 1.0.0
 		 */
 		public function woocommerce_loaded() {
 			$this->gateway = WC_Paypal_Express_MX_Gateway::obj();
@@ -87,7 +97,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Return an instance of this class.
 		 *
-		 * @return object A single instance of this class.
+		 * @return object A single instance of this class
+		 *
+		 * @since 1.0.0.
 		 */
 		public static function get_instance() {
 			// If the single instance hasn't been set, set it now.
@@ -101,7 +113,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 *
 		 * @param   array $methods WooCommerce payment methods.
 		 *
-		 * @return  array          Payment methods with Paypal.
+		 * @return  array Payment methods with Paypal.
+		 *
+		 * @since 1.0.0
 		 */
 		public function add_gateway( $methods ) {
 			if ( version_compare( self::woocommerce_instance()->version, '2.3.0', '>=' ) ) {
@@ -118,11 +132,11 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Allow PayPal domains for redirect.
 		 *
-		 * @since 1.0.0
-		 *
 		 * @param array $domains Whitelisted domains for `wp_safe_redirect`.
 		 *
 		 * @return array $domains Whitelisted domains for `wp_safe_redirect`
+		 *
+		 * @since 1.0.0
 		 */
 		public function whitelist_paypal_domains_for_redirect( $domains ) {
 			$domains[] = 'www.paypal.com';
@@ -136,6 +150,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * WooCommerce fallback notice.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function woocommerce_missing_notice() {
 			/* translators: %1$s: is the URL of WooCommerce  */
@@ -146,6 +162,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * WooCommerce version fallback notice.
 		 *
 		 * @return  void
+		 *
+		 * @since 1.0.0
 		 */
 		public function woocommerce_missing_version_notice() {
 			echo '<div class="error"><p>' . esc_html( __( 'WooCommerce Gateway PayPal Express Checkout MX requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) ) . '</p></div>';
@@ -155,6 +173,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * Check Curl is Installed
 		 *
 		 * @return bool
+		 *
+		 * @since 1.0.0
 		 */
 		private static function woocommerce_missing_curl() {
 			if ( ! function_exists( 'curl_init' ) ) {
@@ -168,6 +188,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * Check OpenSSL is Installed
 		 *
 		 * @return bool
+		 *
+		 * @since 1.0.0
 		 */
 		private static function woocommerce_missing_openssl() {
 			$openssl_warning = __( 'WooCommerce Gateway PayPal Express Checkout requires OpenSSL >= 1.0.1 to be installed on your server', 'woocommerce-paypal-express-mx' );
@@ -190,6 +212,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * Whether currency has decimal restriction for PPCE to functions?
 		 *
 		 * @return bool True if it has restriction otherwise false
+		 *
+		 * @since 1.0.0
 		 */
 		public static function currency_has_decimal_restriction() {
 			return (
@@ -201,9 +225,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Checks if currency in setting supports 0 decimal places.
 		 *
-		 * @since 1.2.0
-		 *
 		 * @return bool Returns true if currency supports 0 decimal places
+		 *
+		 * @since 1.0.0
 		 */
 		public static function is_currency_supports_zero_decimal() {
 			return in_array( get_woocommerce_currency(), array( 'HUF', 'JPY', 'TWD' ), true );
@@ -212,9 +236,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Get number of digits after the decimal point.
 		 *
-		 * @since 1.2.0
-		 *
 		 * @return int Number of digits after the decimal point. Either 2 or 0
+		 *
+		 * @since 1.0.0
 		 */
 		public static function get_number_of_decimal_digits() {
 			return self::is_currency_supports_zero_decimal() ? 0 : 2;
@@ -225,6 +249,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @param array $links List of links from WordPress.
 		 *
 		 * @return array
+		 *
+		 * @since 1.0.0
 		 */
 		function add_action_links( $links ) {
 			$new_links = array(
@@ -236,6 +262,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * Backwards compatibility with version prior to 2.1.
 		 *
 		 * @return object Returns the main instance of WooCommerce class.
+		 *
+		 * @since 1.0.0
 		 */
 		public static function woocommerce_instance() {
 			if ( function_exists( 'WC' ) ) {
@@ -248,7 +276,9 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		/**
 		 * Link to setting page.
 		 *
-		 * @return  string
+		 * @return string
+		 *
+		 * @since 1.0.0
 		 */
 		public static function get_admin_link() {
 			if ( version_compare( self::woocommerce_instance()->version, '2.6', '>=' ) ) {
@@ -262,6 +292,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * Load the plugin text domain for translation.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function load_plugin_textdomain() {
 			$locale = apply_filters( 'plugin_locale', get_locale(), 'woocommerce-paypal-express-mx' );
@@ -271,6 +303,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	}
 	/**
 	 * Callback to Add Metabox to WP-Admin
+	 *
+	 * @since 1.0.0
 	 */
 	function ppexpress_mx_metabox_cb() {
 		$woocommerce = PPWC();
@@ -279,6 +313,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	}
 	/**
 	 * Add Metabox to WP-Admin
+	 *
+	 * @since 1.0.0
 	 */
 	function ppexpress_mx_metabox() {
 		add_meta_box( 'ppexpress_mx-metabox', __( 'Paypal Information', 'woocommerce-paypal-express-mx' ), 'ppexpress_mx_metabox_cb', 'shop_order', 'normal', 'high' );
@@ -288,6 +324,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	 * Install actions.
 	 *
 	 * @return void
+	 *
+	 * @since 1.0.0
 	 */
 	function ppexpress_mx_activate() {
 		include_once dirname( __FILE__ ) . '/includes/class-wc-paypal-express-mx-gateway.php';
@@ -298,6 +336,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	 * Unistall actions.
 	 *
 	 * @return void
+	 *
+	 * @since 1.0.0
 	 */
 	function ppexpress_mx_uninstall() {
 		// include_once dirname(__FILE__) . '/includes/class-wc-paypal-express-mx-gateway.php'; //...
@@ -309,6 +349,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 	add_action( 'plugins_loaded', array( 'WC_Paypal_Express_MX', 'get_instance' ), 0 );
 	/**
 	 * Initialize WooCommerce.
+	 *
+	 * @since 1.0.0
 	 */
 	function PPWC() { // @codingStandardsIgnoreLine
 		return WC_Paypal_Express_MX::woocommerce_instance();

@@ -16,6 +16,8 @@ require_once dirname( __FILE__ ) . '/../vendor/autoload.php';
 if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 	/**
 	 * Logger for WooCommerce Plugin
+	 *
+	 * @since 1.0.0
 	 */
 	class WC_Paypal_Logger extends \Psr\Log\AbstractLogger {
 
@@ -27,12 +29,16 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 * Instance attribute
 		 *
 		 * @var object
+		 *
+		 * @since 1.0.0
 		 */
 		static private $logger = null;
 		/**
 		 * Log dir attribute
 		 *
 		 * @var string
+		 *
+		 * @since 1.0.0
 		 */
 		static private $log_dir = false;
 
@@ -40,6 +46,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 * Log level attribute
 		 *
 		 * @var string
+		 *
+		 * @since 1.0.0
 		 */
 		static private $log_level = WC_Paypal_Logger::PARANOID;
 
@@ -47,6 +55,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 * Set level of the log (SILENT; NORMAL; PARANOID)
 		 *
 		 * @param   string $new_level Choice SILENT; NORMAL; PARANOID ...
+		 *
+		 * @since 1.0.0
 		 */
 		static public function set_level( $new_level ) {
 			if ( ! in_array( $new_level, array( WC_Paypal_Logger::PARANOID, WC_Paypal_Logger::NORMAL, WC_Paypal_Logger::SILENT ), true ) ) {
@@ -59,6 +69,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 * Set directory of the log
 		 *
 		 * @param   string $new_dir Directory of log.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function set_dir( $new_dir ) {
 			// @codingStandardsIgnoreStart
@@ -79,6 +91,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 
 		/**
 		 * Get unique instance of this class
+		 *
+		 * @since 1.0.0
 		 */
 		static public function get_instance() {
 			if ( null === self::$logger ) {
@@ -89,6 +103,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 
 		/**
 		 * Short alias for get_instance.
+		 *
+		 * @since 1.0.0
 		 */
 		static public function obj() {
 			return self::get_instance();
@@ -101,6 +117,8 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 		 * @param   array  $context Context log.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function log( $level, $message, array $context = array() ) {
 			static $dir = null;

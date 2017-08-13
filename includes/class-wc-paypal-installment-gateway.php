@@ -14,18 +14,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WC_Paypal_Installment_Gateway' ) ) :
 	/**
 	 * WC_Paypal_Installment_Gateway Class.
+	 *
+	 * @since 1.0.0
 	 */
 	class WC_Paypal_Installment_Gateway extends WC_Payment_Gateway {
 		/**
 		 * Payment Gateway Instance.
 		 *
 		 * @var object
+		 *
+		 * @since 1.0.0
 		 */
 		private $pp = null;
 		/**
 		 * Constructor for the gateway.
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function __construct() {
 			$this->id = 'ppexpress_installment_mx';
@@ -41,6 +47,8 @@ if ( ! class_exists( 'WC_Paypal_Installment_Gateway' ) ) :
 		 * @param int $order_id Order ID.
 		 *
 		 * @return array Redirect.
+		 *
+		 * @since 1.0.0
 		 */
 		public function process_payment( $order_id ) {
 			return $this->pp->process_payment( $order_id );
@@ -52,6 +60,8 @@ if ( ! class_exists( 'WC_Paypal_Installment_Gateway' ) ) :
 		 * @param object $order WC_Order..
 		 *
 		 * @return void
+		 *
+		 * @since 1.0.0
 		 */
 		public function receipt_page( $order ) {
 			$this->pp->receipt_page( $order );

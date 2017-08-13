@@ -5,6 +5,7 @@
  * @package   WooCommerce -> Paypal Express Checkout MX
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
+ * @since 1.0.0
  */
 
 return array(

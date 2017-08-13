@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WC_Payment_Gateway_Paypal' ) ) :
 	/**
 	 * Override of WC_Payment_Gateway for WooCommerce Plugin.
+	 *
+	 * @since 1.0.0
 	 */
 	class WC_Payment_Gateway_Paypal extends WC_Payment_Gateway {
 		/**
@@ -21,8 +23,10 @@ if ( ! class_exists( 'WC_Payment_Gateway_Paypal' ) ) :
 		 *
 		 * @param  string $key Input name.
 		 * @param  array  $data List of parameters.
-		 * @since  1.0.0
+		 *
 		 * @return string
+		 *
+		 * @since 1.0.0
 		 */
 		public function generate_html_html( $key, $data ) {
 			$field_key = $this->get_field_key( $key );
@@ -54,8 +58,10 @@ if ( ! class_exists( 'WC_Payment_Gateway_Paypal' ) ) :
 		 *
 		 * @param  string $key Input name.
 		 * @param  array  $data List of parameters.
-		 * @since  1.0.0
+		 *
 		 * @return string
+		 *
+		 * @since 1.0.0
 		 */
 		public function generate_media_html( $key, $data ) {
 			$field_key = $this->get_field_key( $key );

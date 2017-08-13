@@ -27,19 +27,25 @@ use PayPal\PayPalAPI\GetExpressCheckoutDetailsRequestType;
 use PayPal\Service\PayPalAPIInterfaceServiceService;
 
 /**
- * PayPal API Interface Hander from Cart of WooCommerce
+ * PayPal API Interface Hander from Cart of WooCommerce.
+ *
+ * @since 1.0.0
  */
 class WC_PayPal_Cart_Handler_Latam {
 	/**
 	 * Instance of this class.
 	 *
 	 * @var object
+	 *
+	 * @since 1.0.0
 	 */
 	static private $instance;
 	/**
 	 * Parse city/state of API to Real Name
 	 *
 	 * @var array
+	 *
+	 * @since 1.0.0
 	 */
 	static private $parse_state = array(
 		'CIUDAD AUTÓNOMA DE BUENOS AIRES' => 'Buenos Aires (Ciudad)',
@@ -1422,6 +1428,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @param  object $get_checkout Paypal Checkout Details Object.
 	 *
 	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	public function get_mapped_shipping_address( $get_checkout ) {
 		if ( empty( $get_checkout->GetExpressCheckoutDetailsResponseDetails->PaymentDetails[0] ) // @codingStandardsIgnoreLine
@@ -1457,6 +1465,8 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @param  object $get_checkout Paypal Checkout Details Object.
 	 *
 	 * @return array
+	 *
+	 * @since 1.0.0
 	 */
 	public function get_mapped_billing_address( $get_checkout ) {
 		if ( false === $get_checkout || empty( $get_checkout->GetExpressCheckoutDetailsResponseDetails->PayerInfo ) ) { // @codingStandardsIgnoreLine

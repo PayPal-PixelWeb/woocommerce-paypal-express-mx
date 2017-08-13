@@ -28,7 +28,7 @@
 	var defer_er = false;
 	function check_click() {
 		$( 'input[name="payment_method"]' ).change(function(){
-			if ( 'ppexpress_installment_mx' == $( 'input[name="payment_method"]' ).val() || 'ppexpress_mx' == $( 'input[name="payment_method"]' ).val() ) {
+			if ( 'ppexpress_installment_mx' == $( 'input[name="payment_method"]:checked' ).val() || 'ppexpress_mx' == $( 'input[name="payment_method"]:checked' ).val() ) {
 				$( '.pp_place_order_original' ).hide( 0 );
 				$( '.pp_place_order_replace' ).show( 0 );
 				return;
@@ -68,7 +68,7 @@
 	}
 	$( document.body ).bind( 'updated_checkout', check_click );
 	$( document.body ).bind('checkout_error', function() {
-		if ( ( 'ppexpress_installment_mx' == $( 'input[name="payment_method"]' ).val() || 'ppexpress_mx' == $( 'input[name="payment_method"]' ).val() ) && $( '#not-popup-ppexpress-mx' ).length < 1 ) {
+		if ( ( 'ppexpress_installment_mx' == $( 'input[name="payment_method"]:checked' ).val() || 'ppexpress_mx' == $( 'input[name="payment_method"]:checked' ).val() ) && $( '#not-popup-ppexpress-mx' ).length < 1 ) {
 			var pp_token = $( '#pp_latam_redirect' ).attr( 'data-token' );
 			if ( pp_token ) {
 				defer_ok( pp_token );
