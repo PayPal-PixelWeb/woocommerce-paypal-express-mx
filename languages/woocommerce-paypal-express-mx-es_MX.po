@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PayPal Express Checkout MX\n"
 "POT-Creation-Date: 2017-10-11 23:37-0400\n"
-"PO-Revision-Date: 2017-10-11 23:37-0400\n"
+"PO-Revision-Date: 2017-10-11 23:56-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_MX\n"
@@ -331,7 +331,7 @@ msgstr ""
 
 #: includes/class-wc-paypal-interface-latam.php:331
 msgid "You credentials is OK, your actual balance is: "
-msgstr ""
+msgstr "Tus credenciales son correctas, tu balance actual es:"
 
 #: includes/class-wc-paypal-interface-latam.php:332
 msgid "You Payer ID is: "
@@ -889,7 +889,7 @@ msgstr "Ingles"
 
 #: includes/setting/data-settings-payment.php:370
 msgid "Landing Page"
-msgstr "Landing page"
+msgstr "Pagina de Inicio en PayPal"
 
 #: includes/setting/data-settings-payment.php:373
 msgid "Type of PayPal page to display."
@@ -898,12 +898,12 @@ msgstr "Tipo de pagina desplegada en PayPal"
 #: includes/setting/data-settings-payment.php:377
 msgctxt "Type of PayPal page"
 msgid "Billing (Non-PayPal account)"
-msgstr ""
+msgstr "Facturación (No requiere Iniciar Sesión en PayPal)"
 
 #: includes/setting/data-settings-payment.php:378
 msgctxt "Type of PayPal page"
 msgid "Login (PayPal account login)"
-msgstr ""
+msgstr "Login (Iniciar sesion en PayPal)"
 
 #: includes/setting/data-settings-payment.php:382
 msgid "Logo Image (190×60)"

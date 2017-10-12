@@ -62,7 +62,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 			WC_Paypal_Logger::set_dir( dirname( __FILE__ ) . '/logs' );
 
 			// Load plugin text domain.
-			add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+			add_action( 'plugins_loaded', array( $this, 'load_plugin_textdomain' ) );
 
 			// Checks with WooCommerce is installed.
 			if ( class_exists( 'WC_Payment_Gateway' ) ) {
