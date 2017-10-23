@@ -17,7 +17,7 @@
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-10-10 12:19:37",
+        "time": "2016-10-10T12:19:37+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -50,17 +50,17 @@
     },
     {
         "name": "paypal/sdk-core-php",
-        "version": "v2.5.9",
-        "version_normalized": "2.5.9.0",
+        "version": "3.3.2",
+        "version_normalized": "3.3.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/paypal/sdk-core-php.git",
-            "reference": "4e6c934cc2b02a29b6c6863c42d4d3c2739b0637"
+            "reference": "6e4ebde3bc2978f80ddf96441194577f59fe5045"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/paypal/sdk-core-php/zipball/4e6c934cc2b02a29b6c6863c42d4d3c2739b0637",
-            "reference": "4e6c934cc2b02a29b6c6863c42d4d3c2739b0637",
+            "url": "https://api.github.com/repos/paypal/sdk-core-php/zipball/6e4ebde3bc2978f80ddf96441194577f59fe5045",
+            "reference": "6e4ebde3bc2978f80ddf96441194577f59fe5045",
             "shasum": ""
         },
         "require": {
@@ -70,7 +70,7 @@
         "require-dev": {
             "phpunit/phpunit": "3.7.*"
         },
-        "time": "2015-02-18 18:15:07",
+        "time": "2016-10-25T17:18:46+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -80,7 +80,7 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "Apache2"
+            "Apache-2.0"
         ],
         "authors": [
             {
@@ -98,25 +98,25 @@
     },
     {
         "name": "paypal/merchant-sdk-php",
-        "version": "v3.8.107",
-        "version_normalized": "3.8.107.0",
+        "version": "v3.12.0",
+        "version_normalized": "3.12.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/paypal/merchant-sdk-php.git",
-            "reference": "6c874a8257db3f27c99d599883493704b790141a"
+            "reference": "f21fe42ad787f98ea5d7186b19e8bec97f1852ed"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/paypal/merchant-sdk-php/zipball/6c874a8257db3f27c99d599883493704b790141a",
-            "reference": "6c874a8257db3f27c99d599883493704b790141a",
+            "url": "https://api.github.com/repos/paypal/merchant-sdk-php/zipball/f21fe42ad787f98ea5d7186b19e8bec97f1852ed",
+            "reference": "f21fe42ad787f98ea5d7186b19e8bec97f1852ed",
             "shasum": ""
         },
         "require": {
             "ext-curl": "*",
-            "paypal/sdk-core-php": "2.5.*",
+            "paypal/sdk-core-php": "3.*",
             "php": ">=5.3.0"
         },
-        "time": "2014-11-10 22:32:38",
+        "time": "2017-10-10T19:03:05+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -130,7 +130,7 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "Apache2"
+            "Apache-2.0"
         ],
         "authors": [
             {

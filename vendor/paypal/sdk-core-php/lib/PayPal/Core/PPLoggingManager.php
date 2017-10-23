@@ -6,56 +6,74 @@ namespace PayPal\Core;
  * This does an error_log for now
  * Potential frameworks to use are PEAR logger, log4php from Apache
  */
-class PPLoggingManager {
+class PPLoggingManager
+{
 
-	// Default Logging Level
-	const DEFAULT_LOGGING_LEVEL = 0;
+    // Default Logging Level
+    const DEFAULT_LOGGING_LEVEL = 0;
 
-	// Logger name
-	private $loggerName;
+    // Logger name
+    private $loggerName;
 
-	// Log enabled
-	private $isLoggingEnabled;
+    // Log enabled
+    private $isLoggingEnabled;
 
-	// Configured logging level
-	private $loggingLevel;
+    // Configured logging level
+    private $loggingLevel;
 
-	// Configured logging file
-	private $loggerFile;
+    // Configured logging file
+    private $loggerFile;
+    
+    //log message
+    private $loggerMessage;
+    public function __construct($loggerName, $config = null)
+    {
+        $this->loggerName = $loggerName;
+        $config           = PPConfigManager::getConfigWithDefaults($config);
 
-	public function __construct($loggerName, $config = null) {
-		$this->loggerName = $loggerName;
-		$config = PPConfigManager::getConfigWithDefaults($config);
+        $this->isLoggingEnabled = (array_key_exists('log.LogEnabled', $config) && $config['log.LogEnabled'] == '1');
 
-		$this->isLoggingEnabled = (array_key_exists('log.LogEnabled', $config) && $config['log.LogEnabled'] == '1');		
-		 
-		if($this->isLoggingEnabled) {
-			$this->loggerFile = ($config['log.FileName']) ? $config['log.FileName'] : ini_get('error_log');
-			$loggingLevel = strtoupper($config['log.LogLevel']);
-			$this->loggingLevel = (isset($loggingLevel) && defined(__NAMESPACE__."\\PPLoggingLevel::$loggingLevel")) ? constant(__NAMESPACE__."\\PPLoggingLevel::$loggingLevel") : PPLoggingManager::DEFAULT_LOGGING_LEVEL;
-		}
-	}
+        if ($this->isLoggingEnabled) {
+            $this->loggerFile   = ($config['log.FileName']) ? $config['log.FileName'] : ini_get('error_log');
+            $loggingLevel       = strtoupper($config['log.LogLevel']);
+            $this->loggingLevel = (isset($loggingLevel) && defined(__NAMESPACE__ . "\\PPLoggingLevel::$loggingLevel")) ? constant(__NAMESPACE__ . "\\PPLoggingLevel::$loggingLevel") : PPLoggingManager::DEFAULT_LOGGING_LEVEL;
+            register_shutdown_function(array($this,'flush'));
+        }
+    }
 
-	private function log($message, $level=PPLoggingLevel::INFO) {
-		if($this->isLoggingEnabled && ($level <= $this->loggingLevel)) {
-			error_log( $this->loggerName . ": $message\n", 3, $this->loggerFile);
-		}
-	}
+ 
+    public function flush(){
+        if($this->loggerMessage){
+            error_log($this->loggerMessage,3,$this->loggerFile);
+        }
+    } 
 
-	public function error($message) {
-		$this->log($message, PPLoggingLevel::ERROR);
-	}
 
-	public function warning($message) {
-		$this->log($message, PPLoggingLevel::WARN);
-	}
+    private function log($message, $level = PPLoggingLevel::INFO)
+    {
+        if ($this->isLoggingEnabled && ($level <= $this->loggingLevel)) {
+            $this->loggerMessage .= $this->loggerName . ": $message\n";
+        }
+    }
 
-	public function info($message) {
-		$this->log($message, PPLoggingLevel::INFO);
-	}
+    public function error($message)
+    {
+        $this->log($message, PPLoggingLevel::ERROR);
+    }
 
-	public function fine($message) {
-		$this->log($message, PPLoggingLevel::FINE);
-	}
+    public function warning($message)
+    {
+        $this->log($message, PPLoggingLevel::WARN);
+    }
+
+    public function info($message)
+    {
+        $this->log($message, PPLoggingLevel::INFO);
+    }
+
+    public function fine($message)
+    {
+        $this->log($message, PPLoggingLevel::FINE);
+    }
 
 }

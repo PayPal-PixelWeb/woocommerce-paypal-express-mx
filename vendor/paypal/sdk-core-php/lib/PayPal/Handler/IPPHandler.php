@@ -1,10 +1,15 @@
 <?php
 namespace PayPal\Handler;
-interface IPPHandler {
-	/**
-	 * 
-	 * @param PPHttpConfig $httpConfig
-	 * @param PPRequest $request 
-	 */
-	public function handle($httpConfig, $request, $options);
+
+use PayPal\Core\PPHttpConfig;
+use PayPal\Core\PPRequest;
+
+interface IPPHandler
+{
+    /**
+     *
+     * @param PPHttpConfig $httpConfig
+     * @param PPRequest    $request
+     */
+    public function handle($httpConfig, $request, $options);
 }
