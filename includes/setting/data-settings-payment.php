@@ -10,13 +10,6 @@
 
 return array(
 
-	/*
-	 'manual_field' => array(
-		'title' => __( 'Configuration Manual', 'woocommerce-paypal-express-mx' ),
-		'type' => 'html',
-		'description' => ''
-	),
-	*/
 	'enabled' => array(
 		'title' => __( 'Enable/Disable', 'woocommerce-paypal-express-mx' ),
 		'type' => 'checkbox',
@@ -427,4 +420,11 @@ return array(
 		'placeholder' => __( 'Optional', 'woocommerce-paypal-express-mx' ),
 	),
 	*/
+    
+	 'manual_field' => array(
+		'title' => __( 'Firewall', 'woocommerce-paypal-express-mx' ),
+		'type' => 'html',
+		'description' => __( 'If you have a firewall enabled, please add the following Paypal IPs to your whitelist to prevent problems of communication with the IPN:', 'woocommerce-paypal-express-mx' ).
+                            '<br /><br />173.0.80.0 - 173.0.93.255<br />64.4.248.0 - 64.4.249.255<br />66.211.169.0 - 66.211.170.255'
+	),
 );
