@@ -65,7 +65,7 @@ if ( ! class_exists( 'WC_PayPal_Connect_IPS' ) ) :
 		 * @since 1.0.0
 		 */
 		public function get_redirect_url( $env ) {
-			if ( ! in_array( $env, array( 'live', 'sandbox' ), true ) ) {
+			if ( in_array( $env, array( 'live', 'sandbox' ), true ) ) {
 				$env = 'live';
 			}
 
@@ -194,22 +194,21 @@ if ( ! class_exists( 'WC_PayPal_Connect_IPS' ) ) :
 			}
 
 			$error_msgs = array();
-			$pp_data = array(
-				'mode' => $env,
-				'acct1.UserName'  => $_GET['api_username'], // @codingStandardsIgnoreLine
-				'acct1.Password'  => $_GET['api_password'], // @codingStandardsIgnoreLine
-				'acct1.Signature' => $_GET['signature'], // @codingStandardsIgnoreLine
-			);
 			try {
 				$get_balance = new GetBalanceRequestType();
 				$get_balance->ReturnAllCurrencies = 1; // @codingStandardsIgnoreLine
 				$get_balance_req = new GetBalanceReq();
 				$get_balance_req->GetBalanceRequest = $get_balance; // @codingStandardsIgnoreLine
-				$pp_service = new PayPalAPIInterfaceServiceService($pp_data);
+				$pp_service = new PayPalAPIInterfaceServiceService(array(
+					'mode' => $env,
+					'acct1.UserName'  => $_GET['api_username'], // @codingStandardsIgnoreLine
+					'acct1.Password'  => $_GET['api_password'], // @codingStandardsIgnoreLine
+					'acct1.Signature' => $_GET['signature'], // @codingStandardsIgnoreLine
+				));
 				$pp_balance = $pp_service->GetBalance( $get_balance_req );
 				WC_Paypal_Logger::obj()->debug( 'Received Credentials OK: ', array( $pp_balance ) );
 			} catch ( Exception $ex ) {
-				WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ', array( 'DATA' => $pp_data, 'ERROR' => $ex ) );
+				WC_Paypal_Logger::obj()->warning( 'Error on maybe_received_credentials: ', array( $ex ) );
 				$error_msgs[] = array(
 					'warning' => __( 'Easy Setup was able to obtain your API credentials, but an error occurred while trying to verify that they work correctly.  Please try Easy Setup again.', 'woocommerce-paypal-express-mx' ),
 				);

@@ -57,8 +57,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		private function __construct() {
 			self::$instance = $this;
 			include_once( dirname( __FILE__ ) . '/includes/class-wc-paypal-logger.php' );
-			WC_Paypal_Logger::set_level( WC_Paypal_Logger::NORMAL ); // Normal Log.
-			/* WC_Paypal_Logger::set_level( WC_Paypal_Logger::PARANOID ); */ // Paranoid Log.
+			//WC_Paypal_Logger::set_level( WC_Paypal_Logger::NORMAL ); // Normal Log.
+			WC_Paypal_Logger::set_level( WC_Paypal_Logger::PARANOID ); // */ // Paranoid Log.
 			WC_Paypal_Logger::set_dir( dirname( __FILE__ ) . '/logs' );
 
 			// Load plugin text domain.

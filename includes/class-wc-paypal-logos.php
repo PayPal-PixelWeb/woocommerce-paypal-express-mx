@@ -49,11 +49,9 @@ class WC_PayPal_Logos {
 		),
 		'es' => array(
 			'pay_with' => 'https://www.paypalobjects.com/webstatic/mktg/logo-center/logotipo_paypal_pagos.png',
-			'paypal_accepted' => 'https://www.paypalobjects.com/webstatic/mktg/logo-center/logotipo_paypal_seguridad.png',
 		),
 		'en' => array(
 			'pay_with' => 'https://www.paypalobjects.com/digitalassets/c/website/marketing/na/us/logo-center/9_bdg_secured_by_pp_2line.png',
-			'paypal_accepted' => 'https://www.paypalobjects.com/digitalassets/c/website/marketing/na/us/logo-center/15_nowaccepting_blue_badge.jpg',
 		),
 	);
 	/**
@@ -70,6 +68,7 @@ class WC_PayPal_Logos {
 	 * @since 1.0.0
 	 */
 	private function __construct() {
+        
 		$this->settings = (array) get_option( 'woocommerce_ppexpress_mx_settings', array() );
 		if ( true === WC_Paypal_Express_MX_Gateway::obj()->is_configured() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -229,7 +228,7 @@ class WC_PayPal_Logos {
 	 * @since 1.0.0
 	 */
 	function footer_logo() {
-		echo apply_filters( 'ppexpress_footer', '<div style="width: 100%;height: 100px;background-color: #003087;"><a href="https://paypal.com/" target="_blank"><img style="margin: auto;padding-top: 23px;" src="' . self::get_button( 'paypal_accepted' ) . '" /></a></div>' ); // @codingStandardsIgnoreLine
+		echo apply_filters( 'ppexpress_footer', '<div style="width: 100%;height: 120px;background-color: #211d71;"><a href="https://paypal.com/" target="_blank"><img style="margin: auto;padding-top: 20px;width: 100%;max-width: 700px;" src="' . plugins_url( '../img/banner-big.jpg', __FILE__ ) . '" /></a></div>' ); // @codingStandardsIgnoreLine
 	}
 	/**
 	 * Get options.
@@ -303,6 +302,7 @@ class WC_PayPal_Logos {
 						'shape' => $this->get_option( 'button_type', 'pill' ),
 						'label' => 'checkout',
 					),
+					'btn_banner' => plugins_url( '../img/banner-payment-btn.jpg', __FILE__ ),
 					'att_empty'     => __( 'Please select all attributes', 'woocommerce-paypal-express-mx' ),
 					'pp_error'      => __( 'Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
 					'flow_method'   => $this->checkout_mode,

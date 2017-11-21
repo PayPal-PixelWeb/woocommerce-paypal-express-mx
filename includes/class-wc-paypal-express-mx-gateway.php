@@ -57,6 +57,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->has_fields      = false;
 			$this->title           = $this->get_option( 'title' );
 			$this->description     = $this->get_option( 'description' );
+			//$this->description     = '<center><img style="width: 279px;height: auto;max-height: 200px;" src="' . plugins_url( '../img/bnr.png', __FILE__ ) . '" /></center>';//$this->get_option( 'description' );
 			$this->method_title    = __( 'PayPal Express Checkout MX', 'woocommerce-paypal-express-mx' );
 			$this->checkout_mode   = $this->get_option( 'checkout_mode', 'redirect' );
 			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {

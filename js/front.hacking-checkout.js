@@ -1,6 +1,18 @@
 /* global pp_mx_checkout */
 ;(function( $, window, document ) {
 	'use strict';
+	if( wc_ppexpress_cart_context.btn_banner && wc_ppexpress_cart_context.btn_banner != '') {
+		function check_pp_img() {
+			$('.payment_box.payment_method_ppexpress_mx *').remove();
+			$('.payment_box.payment_method_ppexpress_mx')
+				.html('<img src="'+wc_ppexpress_cart_context.btn_banner+'" style="width:100%;max-height:86px;max-width:422px;" />')
+				.css('height', '86px')
+				.css('padding', '0')
+				.css('margin', '0');
+		}
+		$( document.body ).bind( 'updated_checkout', check_pp_img );
+		check_pp_img();
+	}
 	var is_express = parseInt( wc_ppexpress_cart_context.is_express );
 	if ( is_express || 'modal_on_checkout' != wc_ppexpress_cart_context.flow_method ) {
 		$( '#btn_ppexpress_mx_order' ).each(function() {
