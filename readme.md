@@ -13,10 +13,8 @@
 ### Contributors
 
    * [PayPal](https://github.com/paypal/merchant-sdk-php/graphs/contributors)
-   * [Leivant](http://lievant.com/)
    * [PixelWeb](http://www.pixelweb.com.mx/)
-   * [Kijam](http://www.kijam.com/)
-
+   
 ## License
 
    [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
