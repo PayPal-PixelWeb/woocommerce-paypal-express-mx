@@ -253,12 +253,13 @@ class WC_PayPal_Logos {
 			return;
 		}
 		if ( is_product() ) {
+			$env = WC_PayPal_Interface_Latam::get_env();
 			wp_enqueue_script( 'wc-ppexpress-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 			wp_enqueue_script( 'wc-ppexpress-product-js', plugins_url( 'woocommerce-paypal-express-mx/js/front.product.js' , basename( __FILE__ ) ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION, true );
 			wp_localize_script( 'wc-ppexpress-product-js', 'wc_ppexpress_product_context',
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
-					'environment'   => WC_PayPal_Interface_Latam::get_env(),
+					'environment'   => $env == 'live'?'production':$env,
 					'locale'        => $this->get_option( 'button_locale', 'es_ES' ),
 					'style'         => array(
 						'size'  => $this->get_option( 'button_size_product', 'medium' ),
@@ -283,12 +284,13 @@ class WC_PayPal_Logos {
 				)
 			);
 		} elseif ( is_checkout() ) {
+			$env = WC_PayPal_Interface_Latam::get_env();
 			wp_enqueue_script( 'wc-ppexpress-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 			wp_enqueue_script( 'wc-ppexpress-front-js', plugins_url( 'woocommerce-paypal-express-mx/js/front.hacking-checkout.js' , basename( __FILE__ ) ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION, true );
 			wp_localize_script( 'wc-ppexpress-front-js', 'wc_ppexpress_cart_context',
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
-					'environment'   => WC_PayPal_Interface_Latam::get_env(),
+					'environment'   => $env == 'live'?'production':$env,
 					'locale'        => $this->get_option( 'button_locale', 'es_ES' ),
 					'style'         => array(
 						'size'  => $this->get_option( 'button_size_cart', 'medium' ),
@@ -317,12 +319,13 @@ class WC_PayPal_Logos {
 				)
 			);
 		} else {
+			$env = WC_PayPal_Interface_Latam::get_env();
 			wp_enqueue_script( 'wc-ppexpress-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 			wp_enqueue_script( 'wc-ppexpress-front-js', plugins_url( 'woocommerce-paypal-express-mx/js/front.cart.js' , basename( __FILE__ ) ), array( 'jquery' ), WC_Paypal_Express_MX::VERSION, true );
 			wp_localize_script( 'wc-ppexpress-front-js', 'wc_ppexpress_cart_context',
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
-					'environment'   => WC_PayPal_Interface_Latam::get_env(),
+					'environment'   => $env == 'live'?'production':$env,
 					'att_empty'     => __( 'Please select all attributes', 'woocommerce-paypal-express-mx' ),
 					'pp_error'      => __( 'Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
 					'flow_method'   => $this->checkout_mode,
