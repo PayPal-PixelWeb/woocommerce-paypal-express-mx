@@ -1,4 +1,7 @@
-- Version 1.0.1:
-    * Bugfix for Production Mode in "paypal.Button.render"
-- Version 1.0.0:
-    * Initial Version
+# CHANGELOG
+
+### v1.0.1 -- (2018, Mar 16)
+- [-] Bugfix for Production Mode using "paypal.Button.render"
+
+### v1.0.0 -- (2018, Dec 5)
+- [+] Initial Version
