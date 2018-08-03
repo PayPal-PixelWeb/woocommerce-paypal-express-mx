@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PayPal Express Checkout MX\n"
-"POT-Creation-Date: 2017-10-11 23:37-0400\n"
-"PO-Revision-Date: 2017-10-11 23:56-0400\n"
+"POT-Creation-Date: 2018-08-03 04:34-0400\n"
+"PO-Revision-Date: 2018-08-03 04:35-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: es_MX\n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 2.0.3\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-WPHeader: woocommerce-paypal-express-mx.php\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -20,69 +20,29 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: includes/class-wc-paypal-cart-handler-latam.php:458
-#: includes/class-wc-paypal-cart-handler-latam.php:548
-#: includes/class-wc-paypal-express-mx-gateway.php:268
-#: includes/class-wc-paypal-express-mx-gateway.php:273
-#: includes/class-wc-paypal-express-mx-gateway.php:279
-msgid ""
-"Sorry, an error occurred while trying to retrieve your information from "
-"PayPal. Please try again."
-msgstr ""
-"Se produjo un error al intentar recuperar su información de PayPal. Vuelve a "
-"intentarlo."
-
-#: includes/class-wc-paypal-cart-handler-latam.php:465
-msgid "Billing details"
-msgstr "Detalles de Facturación"
-
-#: includes/class-wc-paypal-cart-handler-latam.php:471
-msgid "Address:"
-msgstr "Dirección:"
-
-#: includes/class-wc-paypal-cart-handler-latam.php:483
-msgid "Name:"
-msgstr "Nombre:"
-
-#: includes/class-wc-paypal-cart-handler-latam.php:496
-msgid "Email:"
-msgstr ""
-
-#: includes/class-wc-paypal-cart-handler-latam.php:509
-msgid "Tel:"
-msgstr ""
-
-#: includes/class-wc-paypal-cart-handler-latam.php:520
-msgid "Phone"
-msgstr "Telefono"
-
-#: includes/class-wc-paypal-cart-handler-latam.php:553
-msgid "Shipping details"
-msgstr "Detalles de Envió "
-
-#: includes/class-wc-paypal-cart-handler-latam.php:694
+#: includes/class-wc-paypal-cart-handler-latam.php:489
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: includes/class-wc-paypal-cart-handler-latam.php:1055
+#: includes/class-wc-paypal-cart-handler-latam.php:855
 #, php-format
 msgctxt "data sent to PayPal"
 msgid "Orders with %s"
 msgstr ""
 
-#: includes/class-wc-paypal-cart-handler-latam.php:1075
+#: includes/class-wc-paypal-cart-handler-latam.php:875
 msgid "Line Item Amount Offset"
 msgstr ""
 
-#: includes/class-wc-paypal-cart-handler-latam.php:1076
+#: includes/class-wc-paypal-cart-handler-latam.php:876
 msgid "Adjust cart calculation discrepancy"
 msgstr ""
 
-#: includes/class-wc-paypal-cart-handler-latam.php:1093
+#: includes/class-wc-paypal-cart-handler-latam.php:893
 msgid "Discount"
 msgstr "Descuento"
 
-#: includes/class-wc-paypal-cart-handler-latam.php:1094
+#: includes/class-wc-paypal-cart-handler-latam.php:894
 msgid "Discount Amount"
 msgstr "Monto de Descuento"
 
@@ -108,48 +68,60 @@ msgstr "Tu cuenta de PayPal a sido configurada correctamente."
 
 #. Plugin Name of the plugin/theme
 #. Description of the plugin/theme
-#: includes/class-wc-paypal-express-mx-gateway.php:60
-msgid "PayPal Express Checkout MX"
-msgstr ""
+#: includes/class-wc-paypal-express-mx-gateway.php:61
+#, fuzzy
+#| msgid "Enable Paypal Express Checkout"
+msgid "PayPal Express Checkout"
+msgstr "Habilitar/Deshabilitar PayPal Express Checkout"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:113
+#: includes/class-wc-paypal-express-mx-gateway.php:115
 msgid "Thank you. Your order has been received."
 msgstr "Gracias. Tu orden a sido recibida."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:113
+#: includes/class-wc-paypal-express-mx-gateway.php:115
 msgid "You Transaction ID is"
 msgstr "Tu numero de Transacción es"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:134
-#: includes/setting/data-settings-payment.php:387
+#: includes/class-wc-paypal-express-mx-gateway.php:136
+#: includes/setting/data-settings-payment.php:389
 msgid "Remove Image"
 msgstr "Eliminar Imagen"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:161
+#: includes/class-wc-paypal-express-mx-gateway.php:163
 msgid "Image Size for Logo on Paypal"
 msgstr "Tamaño de la imagen para el Logo de PayPal"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:222
+#: includes/class-wc-paypal-express-mx-gateway.php:224
 msgid "Your PayPal checkout session has expired. Please check out again."
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:238
+#: includes/class-wc-paypal-express-mx-gateway.php:240
 msgid "Sorry, you order is invalid."
 msgstr "Lo sentimos, tu pedido es invalido."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:455
+#: includes/class-wc-paypal-express-mx-gateway.php:270
+#: includes/class-wc-paypal-express-mx-gateway.php:275
+#: includes/class-wc-paypal-express-mx-gateway.php:281
+msgid ""
+"Sorry, an error occurred while trying to retrieve your information from "
+"PayPal. Please try again."
+msgstr ""
+"Se produjo un error al intentar recuperar su información de PayPal. Vuelve a "
+"intentarlo."
+
+#: includes/class-wc-paypal-express-mx-gateway.php:457
 msgid "Your country store not is supported by PayPal, please change this..."
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:461
+#: includes/class-wc-paypal-express-mx-gateway.php:463
 msgid "Setup or link an existing PayPal account"
 msgstr "Instala o conecta una cuenta de PayPal existente"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:462
+#: includes/class-wc-paypal-express-mx-gateway.php:464
 msgid "Setup or link an existing PayPal Sandbox account"
 msgstr "Instala o conecta una cuenta de Sandbox de PayPal existente"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:464
+#: includes/class-wc-paypal-express-mx-gateway.php:466
 msgid ""
 "or <a href=\"#woocommerce_ppexpress_mx_api_username\" class=\"ppexpress_mx-"
 "toggle-settings\">click here to toggle manual API credential input</a>."
@@ -158,7 +130,7 @@ msgstr ""
 "toggle-settings\">haga clic aquí para activar el ingreso manual de las "
 "credenciales del API</a>."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:465
+#: includes/class-wc-paypal-express-mx-gateway.php:467
 msgid ""
 "or <a href=\"#woocommerce_ppexpress_mx_sandbox_api_username\" class="
 "\"ppexpress_mx-toggle-sandbox-settings\">click here to toggle manual API "
@@ -168,127 +140,135 @@ msgstr ""
 "\"ppexpress_mx-toggle-sandbox-settings\">haga clic aquí para activar el "
 "ingreso manual de las credenciales del API</a>."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:476
-#: includes/class-wc-paypal-express-mx-gateway.php:499
+#: includes/class-wc-paypal-express-mx-gateway.php:478
+#: includes/class-wc-paypal-express-mx-gateway.php:501
 #, php-format
 msgid ""
 "API certificate is <b>VALID</b> and exire on: <b>%1$s</b>, <a href=\"%2$s"
 "\">click here</a> for remove"
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:487
-#: includes/class-wc-paypal-express-mx-gateway.php:510
+#: includes/class-wc-paypal-express-mx-gateway.php:489
+#: includes/class-wc-paypal-express-mx-gateway.php:512
 msgid "API certificate is <b>INVALID</b>."
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:648
+#: includes/class-wc-paypal-express-mx-gateway.php:650
 msgid ""
 "Error code 10001: Sorry, an error occurred while trying to retrieve your "
 "information from PayPal. Please try again."
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:658
+#: includes/class-wc-paypal-express-mx-gateway.php:660
 msgid ""
 "Error code 10002: Sorry, an error occurred while trying to retrieve your "
 "information from PayPal. Please try again."
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:703
+#: includes/class-wc-paypal-express-mx-gateway.php:705
 msgid ""
 "Thank you for your order, please click the button below to pay with PayPal."
 msgstr ""
 "Gracias por tu pedido, por favor haga click en el siguiente botón para pagar "
 "con PayPal."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:704
+#: includes/class-wc-paypal-express-mx-gateway.php:706
 msgid "Cancel &amp; Restore Cart"
 msgstr "Cancelar &amp; Restaurar Carrito"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:707
+#: includes/class-wc-paypal-express-mx-gateway.php:709
 msgid "There was a problem with Paypal, try later or contact our team."
 msgstr ""
 "Hemos tenido un problema con PayPal, intente mas tarde o comuníquese con "
 "nuestro equipo."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:708
+#: includes/class-wc-paypal-express-mx-gateway.php:710
 msgid "Reload Cart"
 msgstr "Recarar Carrito"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:780
-#: includes/class-wc-paypal-express-mx-gateway.php:788
+#: includes/class-wc-paypal-express-mx-gateway.php:782
+#: includes/class-wc-paypal-express-mx-gateway.php:790
 msgid "Could not capture the order on PayPal, you must do it manually."
 msgstr ""
 "No hemos podido capturar el pedido en PayPal, debe realizarlo manualmente."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:841
-#: includes/class-wc-paypal-express-mx-gateway.php:849
+#: includes/class-wc-paypal-express-mx-gateway.php:843
+#: includes/class-wc-paypal-express-mx-gateway.php:851
 msgid "Could not void the order on PayPal, you must do it manually."
 msgstr ""
 "No hemos podido eliminar el pedido en PayPal, debe realizarlo manualmente."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:845
+#: includes/class-wc-paypal-express-mx-gateway.php:847
 msgid "This order was voided from WooCommerce."
 msgstr "Este pedido fue eliminado desde WooCommerce."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:863
+#: includes/class-wc-paypal-express-mx-gateway.php:865
 msgid "Order refunded by WC, order number:"
 msgstr "Pedido devuelto por WooCommerce, numero de orden:"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:873
-#: includes/class-wc-paypal-express-mx-gateway.php:882
+#: includes/class-wc-paypal-express-mx-gateway.php:875
+#: includes/class-wc-paypal-express-mx-gateway.php:884
 msgid "Could not refund the order on PayPal, you must do it manually."
 msgstr ""
 "No hemos podido devolver el pedido en PayPal, debe realizarlo manualmente."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:877
+#: includes/class-wc-paypal-express-mx-gateway.php:879
 msgid "This order was refunded from WooCommerce."
 msgstr "Este pedido fue devuelto desde WooCommerce."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:899
+#: includes/class-wc-paypal-express-mx-gateway.php:901
 msgid "This order was not processed by PayPal."
 msgstr "Este pedido no pudo ser procesado por PayPal."
 
-#: includes/class-wc-paypal-express-mx-gateway.php:909
+#: includes/class-wc-paypal-express-mx-gateway.php:911
 msgid "Paypal Error"
 msgstr ""
 
-#: includes/class-wc-paypal-express-mx-gateway.php:912
+#: includes/class-wc-paypal-express-mx-gateway.php:914
 msgid "Transaction ID"
 msgstr "Numero de Transacción"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:914
+#: includes/class-wc-paypal-express-mx-gateway.php:916
 msgid "Capture ID"
 msgstr "Numero de Captura"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:916
+#: includes/class-wc-paypal-express-mx-gateway.php:918
 msgid "Protection eligibility"
 msgstr "Posibilidad de Proteccion"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:917
+#: includes/class-wc-paypal-express-mx-gateway.php:919
 msgid "Payment type"
 msgstr "Tipo de pago"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:918
+#: includes/class-wc-paypal-express-mx-gateway.php:920
 msgid "Payer first name"
 msgstr "Primer nombre del pagador"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:919
+#: includes/class-wc-paypal-express-mx-gateway.php:921
 msgid "Payer last name"
-msgstr "Segundo nombre del pagador"
+msgstr "Apellido del pagador"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:920
+#: includes/class-wc-paypal-express-mx-gateway.php:922
 msgid "Payer email"
 msgstr "E-Mail del pagador"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:921
+#: includes/class-wc-paypal-express-mx-gateway.php:923
 msgid "Payer status"
 msgstr "Estado del pagador"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:922
+#: includes/class-wc-paypal-express-mx-gateway.php:924
 msgid "Address status"
 msgstr "Estado de la direccion"
 
-#: includes/class-wc-paypal-express-mx-gateway.php:923
+#: includes/class-wc-paypal-express-mx-gateway.php:925
+msgid "Payment status"
+msgstr "Estado del pago"
+
+#: includes/class-wc-paypal-express-mx-gateway.php:926
+msgid "Pending reason"
+msgstr "Razón del estado Pendiente"
+
+#: includes/class-wc-paypal-express-mx-gateway.php:927
 msgid "Transaction fee"
 msgstr "Costo de Comisión"
 
@@ -347,11 +327,11 @@ msgstr ""
 msgid "Validation error: PayPal amounts do not match (gross %1$s)."
 msgstr ""
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:248
+#: includes/class-wc-paypal-ipn-handler-latam.php:256
 msgid "IPN payment completed"
 msgstr ""
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:256
+#: includes/class-wc-paypal-ipn-handler-latam.php:264
 msgid ""
 "Payment authorized. Change payment status to processing or complete to "
 "capture funds."
@@ -359,36 +339,36 @@ msgstr ""
 "Pago autorizado. Cambie el estado del pago al procesando o completado para "
 "capturar los fondos."
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:259
+#: includes/class-wc-paypal-ipn-handler-latam.php:267
 #, php-format
 msgid "Payment pending (%s)."
 msgstr "Pago pendiente (%s)."
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:269
-#: includes/class-wc-paypal-ipn-handler-latam.php:276
-#: includes/class-wc-paypal-ipn-handler-latam.php:287
+#: includes/class-wc-paypal-ipn-handler-latam.php:277
+#: includes/class-wc-paypal-ipn-handler-latam.php:284
+#: includes/class-wc-paypal-ipn-handler-latam.php:295
 #, php-format
 msgid "Payment %1$s via IPN."
 msgstr "Pago %1$s via IPN."
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:279
+#: includes/class-wc-paypal-ipn-handler-latam.php:287
 #, php-format
 msgid "Payment for order $%1s refunded"
 msgstr "El pago del pedido $%1s fue devuelto"
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:281
+#: includes/class-wc-paypal-ipn-handler-latam.php:289
 #, php-format
 msgid "Order #%1$s has been marked as refunded - PayPal reason code: %2$s"
 msgstr ""
 "El Pedido #%1$s a sido marcado como devuelto - Código de motivo en PayPal: "
 "%2$s"
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:290
+#: includes/class-wc-paypal-ipn-handler-latam.php:298
 #, php-format
 msgid "Payment for order %1$s reversed"
 msgstr "El pago del pedido %1$s fue reversado"
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:292
+#: includes/class-wc-paypal-ipn-handler-latam.php:300
 #, php-format
 msgid ""
 "Order #%1$s has been marked on-hold due to a reversal - PayPal reason code: "
@@ -397,55 +377,56 @@ msgstr ""
 "El Pedido #%1$s a sido marcado en espera por un reverso - Código de motivo "
 "en PayPal: %2$s"
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:298
+#: includes/class-wc-paypal-ipn-handler-latam.php:306
 #, php-format
 msgid "Reversal cancelled for order #%1$s"
 msgstr "Reverso cancelado para el pedido #%1$s"
 
-#: includes/class-wc-paypal-ipn-handler-latam.php:300
+#: includes/class-wc-paypal-ipn-handler-latam.php:308
 #, php-format
 msgid ""
 "Order #%1$s has had a reversal cancelled. Please check the status of payment "
 "and update the order status accordingly here: %2$s"
 msgstr ""
 
-#: includes/class-wc-paypal-logos.php:124
+#: includes/class-wc-paypal-logos.php:123
 msgid "&mdash; or &mdash;"
 msgstr "&mdash; o &mdash;"
 
-#: includes/class-wc-paypal-logos.php:276
-#: includes/class-wc-paypal-logos.php:306
-#: includes/class-wc-paypal-logos.php:326
+#: includes/class-wc-paypal-logos.php:290
+#: includes/class-wc-paypal-logos.php:337
+#: includes/class-wc-paypal-logos.php:358
 msgid "Please select all attributes"
 msgstr "Por favor selecciona todos los atributos"
 
-#: includes/class-wc-paypal-logos.php:277
-#: includes/class-wc-paypal-logos.php:307
-#: includes/class-wc-paypal-logos.php:327
+#: includes/class-wc-paypal-logos.php:291
+#: includes/class-wc-paypal-logos.php:338
+#: includes/class-wc-paypal-logos.php:359
 msgid "Error sending you cart to paypal, try later please"
 msgstr "Error enviando tu carrito a PayPal, intenta mas tarde"
 
-#: includes/class-wc-paypal-logos.php:393
-#: includes/setting/data-settings-payment.php:314
-#: includes/setting/data-settings-payment.php:327
+#: includes/class-wc-paypal-logos.php:440
+#: includes/setting/data-settings-payment.php:328
 msgid "Small"
 msgstr "Pequeño"
 
-#: includes/class-wc-paypal-logos.php:394
+#: includes/class-wc-paypal-logos.php:441
 #: includes/setting/data-settings-payment.php:315
-#: includes/setting/data-settings-payment.php:328
+#: includes/setting/data-settings-payment.php:329
 msgid "Medium"
 msgstr "Mediano"
 
-#: includes/class-wc-paypal-logos.php:395
+#: includes/class-wc-paypal-logos.php:442
+#: includes/setting/data-settings-payment.php:316
+#: includes/setting/data-settings-payment.php:330
 msgid "Large"
 msgstr "Largo"
 
-#: includes/class-wc-paypal-logos.php:407
+#: includes/class-wc-paypal-logos.php:454
 msgid "White"
 msgstr "Blanco"
 
-#: includes/class-wc-paypal-logos.php:408
+#: includes/class-wc-paypal-logos.php:455
 msgid "Transparent"
 msgstr "Transparente"
 
@@ -453,35 +434,35 @@ msgstr "Transparente"
 msgid "Select a image"
 msgstr "Selecciona una imagen"
 
-#: includes/setting/data-settings-payment.php:21
+#: includes/setting/data-settings-payment.php:14
 msgid "Enable/Disable"
 msgstr "Habilitar/Deshabilitar"
 
-#: includes/setting/data-settings-payment.php:23
+#: includes/setting/data-settings-payment.php:16
 msgid "Enable Paypal Express Checkout"
 msgstr "Habilitar/Deshabilitar PayPal Express Checkout"
 
-#: includes/setting/data-settings-payment.php:27
+#: includes/setting/data-settings-payment.php:20
 msgid "Title"
 msgstr "Título"
 
-#: includes/setting/data-settings-payment.php:29
+#: includes/setting/data-settings-payment.php:22
 msgid "This controls the title which the user sees during checkout."
 msgstr "Este modifica el titulo que vera el usuario durante el checkout."
 
-#: includes/setting/data-settings-payment.php:30
+#: includes/setting/data-settings-payment.php:23
 msgid "PayPal"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:34
+#: includes/setting/data-settings-payment.php:27
 msgid "Description"
 msgstr "Descripción"
 
-#: includes/setting/data-settings-payment.php:37
+#: includes/setting/data-settings-payment.php:30
 msgid "This controls the description which the user sees during checkout."
 msgstr "Este modifica la descripción que vera el usuario durante el checkout."
 
-#: includes/setting/data-settings-payment.php:38
+#: includes/setting/data-settings-payment.php:31
 msgid ""
 "Pay via PayPal; you can pay with your credit card if you don't have a PayPal "
 "account."
@@ -489,11 +470,11 @@ msgstr ""
 "Pago a través de PayPal; puede pagar con su tarjeta de crédito si no tiene "
 "una cuenta de PayPal."
 
-#: includes/setting/data-settings-payment.php:41
+#: includes/setting/data-settings-payment.php:34
 msgid "Environment"
 msgstr "Ambiente "
 
-#: includes/setting/data-settings-payment.php:44
+#: includes/setting/data-settings-payment.php:37
 msgid ""
 "This setting specifies whether you will process live transactions, or "
 "whether you will process simulated transactions using the PayPal Sandbox."
@@ -501,37 +482,37 @@ msgstr ""
 "Esta opcion especifica si se procesará las transacciones en vivo o si "
 "procesará con transacciones simuladas utilizando el Sandbox de PayPal."
 
-#: includes/setting/data-settings-payment.php:48
+#: includes/setting/data-settings-payment.php:41
 msgid "Live"
 msgstr "En vivo"
 
-#: includes/setting/data-settings-payment.php:49
+#: includes/setting/data-settings-payment.php:42
 msgid "Sandbox"
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:53
+#: includes/setting/data-settings-payment.php:46
 msgid "API Credentials"
 msgstr "Credenciales del API"
 
-#: includes/setting/data-settings-payment.php:58
+#: includes/setting/data-settings-payment.php:51
 msgid "API Username"
 msgstr "Usuario del API"
 
-#: includes/setting/data-settings-payment.php:60
-#: includes/setting/data-settings-payment.php:71
-#: includes/setting/data-settings-payment.php:82
-#: includes/setting/data-settings-payment.php:113
-#: includes/setting/data-settings-payment.php:124
-#: includes/setting/data-settings-payment.php:135
+#: includes/setting/data-settings-payment.php:53
+#: includes/setting/data-settings-payment.php:64
+#: includes/setting/data-settings-payment.php:75
+#: includes/setting/data-settings-payment.php:106
+#: includes/setting/data-settings-payment.php:117
+#: includes/setting/data-settings-payment.php:128
 msgid "Get your API credentials from PayPal."
 msgstr "Consigue tus credenciales de API con PayPal."
 
-#: includes/setting/data-settings-payment.php:62
-#: includes/setting/data-settings-payment.php:73
-#: includes/setting/data-settings-payment.php:84
-#: includes/setting/data-settings-payment.php:115
-#: includes/setting/data-settings-payment.php:126
-#: includes/setting/data-settings-payment.php:137
+#: includes/setting/data-settings-payment.php:55
+#: includes/setting/data-settings-payment.php:66
+#: includes/setting/data-settings-payment.php:77
+#: includes/setting/data-settings-payment.php:108
+#: includes/setting/data-settings-payment.php:119
+#: includes/setting/data-settings-payment.php:130
 #, php-format
 msgid ""
 "To get Sandbox NVP/SOAP manualy click <a href=\"%1$s\" target=\"_blank"
@@ -540,29 +521,29 @@ msgstr ""
 "Consigue tus credenciales de API con PayPal. Para obtener Sandbox NVP/SOAP "
 "manualmente has click <a href=\"%1$s\" target=\"_blank\">aquí</a>."
 
-#: includes/setting/data-settings-payment.php:69
+#: includes/setting/data-settings-payment.php:62
 msgid "API Password"
 msgstr "Contraseña del API"
 
-#: includes/setting/data-settings-payment.php:80
+#: includes/setting/data-settings-payment.php:73
 msgid "API Signature"
 msgstr "Firma del API"
 
-#: includes/setting/data-settings-payment.php:89
-#: includes/setting/data-settings-payment.php:142
+#: includes/setting/data-settings-payment.php:82
+#: includes/setting/data-settings-payment.php:135
 msgid "Optional if you provide a certificate below"
 msgstr "Es opcional, solo si tu proveedor necesita un certificado"
 
-#: includes/setting/data-settings-payment.php:92
+#: includes/setting/data-settings-payment.php:85
 msgid "API Certificate"
 msgstr "Certificado del API"
 
-#: includes/setting/data-settings-payment.php:98
+#: includes/setting/data-settings-payment.php:91
 msgid "API Subject"
 msgstr "Tema del API"
 
-#: includes/setting/data-settings-payment.php:100
-#: includes/setting/data-settings-payment.php:153
+#: includes/setting/data-settings-payment.php:93
+#: includes/setting/data-settings-payment.php:146
 msgid ""
 "If you're processing transactions on behalf of someone else's PayPal "
 "account, enter their email address or Secure Merchant Account ID (also known "
@@ -571,76 +552,76 @@ msgid ""
 "transactions for them."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:103
-#: includes/setting/data-settings-payment.php:156
-#: includes/setting/data-settings-payment.php:390
+#: includes/setting/data-settings-payment.php:96
+#: includes/setting/data-settings-payment.php:149
+#: includes/setting/data-settings-payment.php:392
 msgid "Optional"
 msgstr "Opcional"
 
-#: includes/setting/data-settings-payment.php:106
+#: includes/setting/data-settings-payment.php:99
 msgid "Sandbox API Credentials"
 msgstr "Credenciales de Sabndbox API"
 
-#: includes/setting/data-settings-payment.php:111
+#: includes/setting/data-settings-payment.php:104
 msgid "Sandbox API Username"
 msgstr "Usuario Sandbox API"
 
-#: includes/setting/data-settings-payment.php:122
+#: includes/setting/data-settings-payment.php:115
 msgid "Sandbox API Password"
 msgstr "Contraseña Sandbox API"
 
-#: includes/setting/data-settings-payment.php:133
+#: includes/setting/data-settings-payment.php:126
 msgid "Sandbox API Signature"
 msgstr "Firma Sandbox API"
 
-#: includes/setting/data-settings-payment.php:145
+#: includes/setting/data-settings-payment.php:138
 msgid "Sandbox API Certificate"
 msgstr "Certificado Sandbox API"
 
-#: includes/setting/data-settings-payment.php:151
+#: includes/setting/data-settings-payment.php:144
 msgid "Sandbox API Subject"
 msgstr "Tema Sandbox API"
 
-#: includes/setting/data-settings-payment.php:159
+#: includes/setting/data-settings-payment.php:152
 msgid "Features enabled"
 msgstr "Características Habilitadas "
 
-#: includes/setting/data-settings-payment.php:163
+#: includes/setting/data-settings-payment.php:156
 msgid "Checkout on cart page"
 msgstr "Checkout en carrito"
 
-#: includes/setting/data-settings-payment.php:165
+#: includes/setting/data-settings-payment.php:158
 msgid "Enable PayPal checkout on the cart page"
 msgstr "Habilita PayPal Checkout en la página de carrito"
 
-#: includes/setting/data-settings-payment.php:166
+#: includes/setting/data-settings-payment.php:159
 msgid "This shows or hides the PayPal checkout button on the cart page."
 msgstr ""
 "Esto muestra u oculta el botón de pago de PayPal en la página del carro."
 
-#: includes/setting/data-settings-payment.php:171
-#: includes/setting/data-settings-payment.php:173
+#: includes/setting/data-settings-payment.php:164
+#: includes/setting/data-settings-payment.php:166
 msgid "Checkout on Product"
 msgstr "Checkout en producto"
 
-#: includes/setting/data-settings-payment.php:176
+#: includes/setting/data-settings-payment.php:169
 msgid "Enable Express checkout on Product view."
 msgstr "Habilita la opción de Express Checkout en la pagina de productos."
 
-#: includes/setting/data-settings-payment.php:179
-#: includes/setting/data-settings-payment.php:181
+#: includes/setting/data-settings-payment.php:172
+#: includes/setting/data-settings-payment.php:174
 msgid "Checkout on List Payments Gateways"
 msgstr "Checkout en lista de procesadores de pagos"
 
-#: includes/setting/data-settings-payment.php:184
+#: includes/setting/data-settings-payment.php:177
 msgid "Enable Paypal on List Payments Gateways"
 msgstr "Habilita PayPal en la lista de procesadores de pagos"
 
-#: includes/setting/data-settings-payment.php:187
+#: includes/setting/data-settings-payment.php:180
 msgid "Invoice Prefix"
 msgstr "Prefijo de Factura"
 
-#: includes/setting/data-settings-payment.php:189
+#: includes/setting/data-settings-payment.php:182
 msgid ""
 "Please enter a prefix for your invoice numbers. If you use your PayPal "
 "account for multiple stores ensure this prefix is unique as PayPal will not "
@@ -650,58 +631,72 @@ msgstr ""
 "PayPal para varias tiendas, asegúrese de que este prefijo es único, ya que "
 "PayPal no le permitirá realizar pedidos con el mismo número de factura."
 
-#: includes/setting/data-settings-payment.php:194
-#: includes/setting/data-settings-payment.php:196
-msgid "Require confirmed address by Paypal for Selling Protection Program"
-msgstr ""
-"Requerimiento de confirmación de domicilio para vender el programa "
-"proteccion al vendedor"
+#: includes/setting/data-settings-payment.php:204
+#, fuzzy
+#| msgid "Enable Paypal Express Checkout"
+msgid "Enable PayPal Credit"
+msgstr "Habilitar/Deshabilitar PayPal Express Checkout"
 
-#: includes/setting/data-settings-payment.php:198
+#: includes/setting/data-settings-payment.php:206
+msgid "Currently PayPal Credit only available for U.S. merchants."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:210
 msgid ""
-"Require buyer to enter their confirmed address during checkout for Selling "
-"Protection Program"
+"This enables PayPal Credit, which displays a PayPal Credit button next to "
+"the Express Checkout button. PayPal Express Checkout lets you give customers "
+"access to financing through PayPal Credit® - at no additional cost to you. "
+"You get paid up front, even though customers have more time to pay. A pre-"
+"integrated payment button shows up next to the PayPal Button, and lets "
+"customers pay quickly with PayPal Credit®."
 msgstr ""
-"Se requiere que el comprador ingrese su domicilio confirmado durante el "
-"Checkout para aplicar el programa de Protección al Vendedor"
 
-#: includes/setting/data-settings-payment.php:220
+#: includes/setting/data-settings-payment.php:213
+#: includes/setting/data-settings-payment.php:215
+msgid "Show branding icons"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:218
+msgid "This enables branding icons on payment button."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:221
 msgid "Payment Type"
 msgstr "Tipo de pago"
 
-#: includes/setting/data-settings-payment.php:223
+#: includes/setting/data-settings-payment.php:224
 msgid ""
 "Choose whether you wish to capture funds immediately or authorize payment "
 "only."
 msgstr ""
 "Elija si desea capturar fondos inmediatamente o autorizar el pago solamente."
 
-#: includes/setting/data-settings-payment.php:227
+#: includes/setting/data-settings-payment.php:228
 msgid "Direct sale"
 msgstr "Venta directa"
 
-#: includes/setting/data-settings-payment.php:228
+#: includes/setting/data-settings-payment.php:229
 msgid "Authorize and Capture"
 msgstr "Autorizado y Capturado"
 
-#: includes/setting/data-settings-payment.php:232
-#: includes/setting/data-settings-payment.php:234
+#: includes/setting/data-settings-payment.php:233
+#: includes/setting/data-settings-payment.php:235
 msgid "Allow Note on checkout"
 msgstr "Permite nota en Checkout"
 
-#: includes/setting/data-settings-payment.php:236
+#: includes/setting/data-settings-payment.php:237
 msgid ""
 "Customer may enter a note to the merchant on the PayPal page during checkout"
 msgstr ""
 "Es probable que el cliente tenga que mandar una nota al vendedor en la "
 "página de PayPal durante el checkout"
 
-#: includes/setting/data-settings-payment.php:239
-#: includes/setting/data-settings-payment.php:241
+#: includes/setting/data-settings-payment.php:240
+#: includes/setting/data-settings-payment.php:242
 msgid "Show installment gateway on checkout"
 msgstr "Enseñar Meses Sin Intereses en Checkout"
 
-#: includes/setting/data-settings-payment.php:243
+#: includes/setting/data-settings-payment.php:244
 msgid ""
 "This option add a new gateway payment on checkout for \"Paypal Checkout with "
 "Installment\"."
@@ -709,24 +704,24 @@ msgstr ""
 "Esta opción añade un nuevo procesador de pago en el Checkout para \"PayPal "
 "Checkout con Meses Sin Intereses\"."
 
-#: includes/setting/data-settings-payment.php:246
+#: includes/setting/data-settings-payment.php:247
 msgid "Title of Installment Gateway"
 msgstr "Título de procesador de pago."
 
-#: includes/setting/data-settings-payment.php:248
+#: includes/setting/data-settings-payment.php:249
 msgid ""
 "This controls the title which the user sees during checkout for Installment."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:249
+#: includes/setting/data-settings-payment.php:250
 msgid "PayPal with Installment"
 msgstr "PayPal con Meses Sin Intereses"
 
-#: includes/setting/data-settings-payment.php:253
+#: includes/setting/data-settings-payment.php:254
 msgid "Description of Installment Gateway"
 msgstr "Descripción de Meses Sin Intereses"
 
-#: includes/setting/data-settings-payment.php:256
+#: includes/setting/data-settings-payment.php:257
 msgid ""
 "This controls the description which the user sees during checkout for "
 "Installment."
@@ -734,28 +729,15 @@ msgstr ""
 "Esta opción cambia la descripción que vera el usuario durante el checkout de "
 "Meses sin Intereses"
 
-#: includes/setting/data-settings-payment.php:257
+#: includes/setting/data-settings-payment.php:258
 msgid "Pay via PayPal with Installment."
 msgstr "Pagado via PayPal con Meses sin Intereses"
 
-#: includes/setting/data-settings-payment.php:260
-#: includes/setting/data-settings-payment.php:262
-msgid "Require Phone Number"
-msgstr "Requiere número telefonico"
-
-#: includes/setting/data-settings-payment.php:264
-msgid ""
-"Require buyer to enter their telephone number during checkout if none is "
-"provided by PayPal"
-msgstr ""
-"Se requiere que el comprador ingrese su número telefónico de lo contrario "
-"PayPal lo proporcionará"
-
-#: includes/setting/data-settings-payment.php:267
+#: includes/setting/data-settings-payment.php:268
 msgid "Checkout Mode"
 msgstr "Modo de Checkout"
 
-#: includes/setting/data-settings-payment.php:270
+#: includes/setting/data-settings-payment.php:271
 msgid ""
 "Indicate if customers will pay in a modal window or the page will be "
 "redirected to paypal."
@@ -763,157 +745,173 @@ msgstr ""
 "Indique si los clientes pagarán en una ventana modal o la página será "
 "redirigida a paypal."
 
-#: includes/setting/data-settings-payment.php:274
+#: includes/setting/data-settings-payment.php:275
 msgid "Modal Windows with confirmation page on Checkout"
 msgstr "Modo de Windows con confirmación de página en Checkout"
 
-#: includes/setting/data-settings-payment.php:275
+#: includes/setting/data-settings-payment.php:276
 msgid "Modal Windows without confirmation page on Checkout"
 msgstr "Modo de Windows sin confirmación de página en Checkout"
 
-#: includes/setting/data-settings-payment.php:276
+#: includes/setting/data-settings-payment.php:277
 msgid "Redirect"
 msgstr "Redirección"
 
-#: includes/setting/data-settings-payment.php:280
+#: includes/setting/data-settings-payment.php:281
 msgid "Debug"
 msgstr "Depurar"
 
-#: includes/setting/data-settings-payment.php:282
+#: includes/setting/data-settings-payment.php:283
 msgid "Enable log"
 msgstr "Habilitar Registro"
 
-#: includes/setting/data-settings-payment.php:285
+#: includes/setting/data-settings-payment.php:286
 #, php-format
 msgid "To review the log of Paypal, see the directory: %1$s"
 msgstr "Para revisar el registro de PayPal, visite el directorio: %1$s"
 
-#: includes/setting/data-settings-payment.php:288
+#: includes/setting/data-settings-payment.php:289
 msgid "Style on Checkout"
 msgstr "Estilo en Checkout"
 
-#: includes/setting/data-settings-payment.php:292
+#: includes/setting/data-settings-payment.php:293
 msgid "Brand Name"
 msgstr "Nombre de marca"
 
-#: includes/setting/data-settings-payment.php:294
+#: includes/setting/data-settings-payment.php:295
 msgid ""
 "A label that overrides the business name in the PayPal account on the PayPal "
 "hosted checkout pages."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:299
-#: includes/setting/data-settings-payment.php:301
-#: includes/setting/data-settings-payment.php:303
+#: includes/setting/data-settings-payment.php:300
+#: includes/setting/data-settings-payment.php:302
+#: includes/setting/data-settings-payment.php:304
 msgid "Show Paypal Logo on Footer Page"
 msgstr "Enseñar logo de paypal en pie de página"
 
-#: includes/setting/data-settings-payment.php:307
-msgid "Button Size on Cart"
+#: includes/setting/data-settings-payment.php:308
+#, fuzzy
+#| msgid "Button Size on Cart"
+msgid "Button Size on Checkout"
 msgstr "Tamaño de botón en carrito"
 
-#: includes/setting/data-settings-payment.php:310
+#: includes/setting/data-settings-payment.php:311
 msgid ""
 "PayPal offers different sizes of the \"PayPal Checkout\" buttons, allowing "
 "you to select a size that best fits your site's theme. This setting will "
 "allow you to choose which size button(s) appear on your cart page."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:316
-#: includes/setting/data-settings-payment.php:329
+#: includes/setting/data-settings-payment.php:317
+#: includes/setting/data-settings-payment.php:331
 msgid "Responsive"
 msgstr "Responsivo"
 
-#: includes/setting/data-settings-payment.php:320
-msgid "Button Size on Product"
+#: includes/setting/data-settings-payment.php:321
+#, fuzzy
+#| msgid "Button Size on Product"
+msgid "Button Size on Product or Cart"
 msgstr "Tamaño de botón en producto"
 
-#: includes/setting/data-settings-payment.php:323
+#: includes/setting/data-settings-payment.php:324
 msgid ""
 "PayPal offers different sizes of the \"PayPal Checkout\" buttons, allowing "
 "you to select a size that best fits your site's theme. This setting will "
 "allow you to choose which size button(s) appear on your product page."
 msgstr ""
 
-#: includes/setting/data-settings-payment.php:333
+#: includes/setting/data-settings-payment.php:335
 msgid "Button Type"
 msgstr "Tipo de Botón"
 
-#: includes/setting/data-settings-payment.php:336
+#: includes/setting/data-settings-payment.php:338
 msgid "Choose whether is square or oval."
 msgstr "Elija si es cuadrado u ovalado."
 
-#: includes/setting/data-settings-payment.php:340
+#: includes/setting/data-settings-payment.php:342
 msgid "Squere"
 msgstr "Cuadrado"
 
-#: includes/setting/data-settings-payment.php:341
+#: includes/setting/data-settings-payment.php:343
 msgid "Oval"
 msgstr "Ovalado"
 
-#: includes/setting/data-settings-payment.php:345
+#: includes/setting/data-settings-payment.php:347
 msgid "Button Color"
 msgstr "Color de Botón"
 
-#: includes/setting/data-settings-payment.php:348
+#: includes/setting/data-settings-payment.php:350
 msgid "Choose whether is blue, gold or gray."
 msgstr "Elija si es azul, oro o plata."
 
-#: includes/setting/data-settings-payment.php:352
+#: includes/setting/data-settings-payment.php:354
 msgid "Blue"
 msgstr "Azul"
 
-#: includes/setting/data-settings-payment.php:353
+#: includes/setting/data-settings-payment.php:355
 msgid "Gold"
 msgstr "Oro"
 
-#: includes/setting/data-settings-payment.php:354
+#: includes/setting/data-settings-payment.php:356
 msgid "Silver"
 msgstr "Plata"
 
-#: includes/setting/data-settings-payment.php:358
+#: includes/setting/data-settings-payment.php:360
 msgid "Button Lang"
 msgstr "Lenguaje de botón"
 
-#: includes/setting/data-settings-payment.php:361
+#: includes/setting/data-settings-payment.php:363
 msgid "Choose whether Spanish and English."
 msgstr "Elija si es español o inglés."
 
-#: includes/setting/data-settings-payment.php:365
-msgid "Spanish"
-msgstr "Español"
+#: includes/setting/data-settings-payment.php:367
+msgid "Automatic"
+msgstr ""
 
-#: includes/setting/data-settings-payment.php:366
-msgid "English"
-msgstr "Ingles"
+#: includes/setting/data-settings-payment.php:368
+#, fuzzy
+#| msgid "Button Lang"
+msgid "Store Lang"
+msgstr "Lenguaje de botón"
 
-#: includes/setting/data-settings-payment.php:370
+#: includes/setting/data-settings-payment.php:372
 msgid "Landing Page"
 msgstr "Pagina de Inicio en PayPal"
 
-#: includes/setting/data-settings-payment.php:373
+#: includes/setting/data-settings-payment.php:375
 msgid "Type of PayPal page to display."
 msgstr "Tipo de pagina desplegada en PayPal"
 
-#: includes/setting/data-settings-payment.php:377
+#: includes/setting/data-settings-payment.php:379
 msgctxt "Type of PayPal page"
 msgid "Billing (Non-PayPal account)"
 msgstr "Facturación (No requiere Iniciar Sesión en PayPal)"
 
-#: includes/setting/data-settings-payment.php:378
+#: includes/setting/data-settings-payment.php:380
 msgctxt "Type of PayPal page"
 msgid "Login (PayPal account login)"
 msgstr "Login (Iniciar sesion en PayPal)"
 
-#: includes/setting/data-settings-payment.php:382
+#: includes/setting/data-settings-payment.php:384
 msgid "Logo Image (190×60)"
 msgstr "Logo (190x60)"
 
-#: includes/setting/data-settings-payment.php:384
+#: includes/setting/data-settings-payment.php:386
 msgid ""
 "If you want PayPal to co-brand the checkout page with your logo, enter the "
 "URL of your logo image here.<br/>The image must be no larger than 190x60, "
 "GIF, PNG, or JPG format, and should be served over HTTPS."
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:434
+msgid "Firewall"
+msgstr ""
+
+#: includes/setting/data-settings-payment.php:436
+msgid ""
+"If you have a firewall enabled, please add the following Paypal IPs to your "
+"whitelist to prevent problems of communication with the IPN:"
 msgstr ""
 
 #: woocommerce-paypal-express-mx.php:75
@@ -935,8 +933,8 @@ msgstr ""
 
 #: woocommerce-paypal-express-mx.php:169
 msgid ""
-"WooCommerce Gateway PayPal Express Checkout MX requires WooCommerce version "
-"2.5 or greater"
+"WooCommerce Gateway PayPal Express Checkout requires WooCommerce version 2.5 "
+"or greater"
 msgstr ""
 
 #: woocommerce-paypal-express-mx.php:181
@@ -967,3 +965,46 @@ msgstr ""
 #. Author of the plugin/theme
 msgid "PayPal, Leivant, PixelWeb, Kijam"
 msgstr ""
+
+#~ msgid "Billing details"
+#~ msgstr "Detalles de Facturación"
+
+#~ msgid "Address:"
+#~ msgstr "Dirección:"
+
+#~ msgid "Name:"
+#~ msgstr "Nombre:"
+
+#~ msgid "Phone"
+#~ msgstr "Telefono"
+
+#~ msgid "Shipping details"
+#~ msgstr "Detalles de Envió "
+
+#~ msgid "Require confirmed address by Paypal for Selling Protection Program"
+#~ msgstr ""
+#~ "Requerimiento de confirmación de domicilio para vender el programa "
+#~ "proteccion al vendedor"
+
+#~ msgid ""
+#~ "Require buyer to enter their confirmed address during checkout for "
+#~ "Selling Protection Program"
+#~ msgstr ""
+#~ "Se requiere que el comprador ingrese su domicilio confirmado durante el "
+#~ "Checkout para aplicar el programa de Protección al Vendedor"
+
+#~ msgid "Require Phone Number"
+#~ msgstr "Requiere número telefonico"
+
+#~ msgid ""
+#~ "Require buyer to enter their telephone number during checkout if none is "
+#~ "provided by PayPal"
+#~ msgstr ""
+#~ "Se requiere que el comprador ingrese su número telefónico de lo contrario "
+#~ "PayPal lo proporcionará"
+
+#~ msgid "Spanish"
+#~ msgstr "Español"
+
+#~ msgid "English"
+#~ msgstr "Ingles"
