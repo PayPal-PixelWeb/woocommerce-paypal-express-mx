@@ -12,10 +12,9 @@
 					var id = 'pp_widget_' + parseInt( Math.random() * 1000 );
 					$( this ).attr( 'id', id );
 				}
-				paypal.Button.render({
+				var data = {
 					env: wc_ppexpress_cart_context.environment,
-					locale: wc_ppexpress_cart_context.locale,
-					style: is_widget ? wc_ppexpress_cart_context.style_widget : wc_ppexpress_cart_context.style,
+					style: is_widget ? wc_ppexpress_cart_context.style_widget : wc_ppexpress_cart_context.style_products,
 					payment: function() {
 						// Make a call to your server to set up the payment
 						var result = paypal.request.post( wc_ppexpress_cart_context.ppexpress_update_cart_url )
@@ -34,7 +33,32 @@
 					onCancel: function(data, actions) {
 						return actions.redirect();
 					}
-				}, $( this ).attr( 'id' ) );
+				};
+                var is_credit = data.style.credit;
+                var is_branding = data.style.branding;
+                if (wc_ppexpress_cart_context.locale != 'auto') {
+                    data.locale = wc_ppexpress_cart_context.locale;
+                }
+                if (is_branding) {
+                    if (data.style.layout != 'vertical') {
+                        data.style.fundingicons = true;
+                    }
+                    data.style.branding = true;
+                } else {
+                    delete data.style.branding;
+                }
+                if (is_credit) {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD, paypal.FUNDING.CREDIT],
+                        disallowed: []
+                    };
+                } else {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD],
+                        disallowed: [paypal.FUNDING.CREDIT]
+                    };
+                }
+                paypal.Button.render( data , $( this ).attr( 'id' ) );
 			}
 		});
 	}

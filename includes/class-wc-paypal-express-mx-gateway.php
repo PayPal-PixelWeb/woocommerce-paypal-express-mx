@@ -2,7 +2,7 @@
 /**
  * Payment gateway for WooCommerce Plugin.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  */
@@ -58,7 +58,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$this->title           = $this->get_option( 'title' );
 			$this->description     = $this->get_option( 'description' );
 			//$this->description     = '<center><img style="width: 279px;height: auto;max-height: 200px;" src="' . plugins_url( '../img/bnr.png', __FILE__ ) . '" /></center>';//$this->get_option( 'description' );
-			$this->method_title    = __( 'PayPal Express Checkout MX', 'woocommerce-paypal-express-mx' );
+			$this->method_title    = __( 'PayPal Express Checkout', 'woocommerce-paypal-express-mx' );
 			$this->checkout_mode   = $this->get_option( 'checkout_mode', 'redirect' );
 			if ( ! class_exists( 'WC_PayPal_Cart_Handler_Latam' ) ) {
 				include_once( dirname( __FILE__ ) . '/class-wc-paypal-cart-handler-latam.php' );
@@ -111,6 +111,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			$order_id  = $old_wc ? $order->id : $order->get_id();
 			$transaction_id = $this->get_metadata( $order_id, 'transaction_id' );
 			if ( false !== $transaction_id && strlen( $transaction_id ) > 0 ) {
+                PPWC()->session->set( 'paypal_mx', array() );
 				return '<center><img width="130" src="' . plugins_url( '../img/pp-success.svg', __FILE__ ) . '" /><br /><b>' . __( 'Thank you. Your order has been received.', 'woocommerce-paypal-express-mx' ) . '<br />' . __( 'You Transaction ID is', 'woocommerce-paypal-express-mx' ) . ': ' . $transaction_id . '</b></center>';
 			}
 			return $var;
@@ -921,6 +922,8 @@ if ( ! class_exists( 'WC_Paypal_Express_MX_Gateway' ) ) :
 			self::show_label_metabox( $order_id, 'ipn_payer_email', __( 'Payer email', 'woocommerce-paypal-express-mx' ) );
 			self::show_label_metabox( $order_id, 'ipn_payer_status', __( 'Payer status', 'woocommerce-paypal-express-mx' ) );
 			self::show_label_metabox( $order_id, 'ipn_address_status', __( 'Address status', 'woocommerce-paypal-express-mx' ) );
+			self::show_label_metabox( $order_id, 'ipn_payment_status', __( 'Payment status', 'woocommerce-paypal-express-mx' ) );
+			self::show_label_metabox( $order_id, 'ipn_pending_reason', __( 'Pending reason', 'woocommerce-paypal-express-mx' ) );
 			self::show_label_metabox( $order_id, 'ipn_mc_fee', __( 'Transaction fee', 'woocommerce-paypal-express-mx' ), true );
 			?>
 			</table>

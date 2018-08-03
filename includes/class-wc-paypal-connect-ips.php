@@ -2,7 +2,7 @@
 /**
  * IPS Handler for WooCommerce Plugin.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  */
@@ -65,7 +65,7 @@ if ( ! class_exists( 'WC_PayPal_Connect_IPS' ) ) :
 		 * @since 1.0.0
 		 */
 		public function get_redirect_url( $env ) {
-			if ( in_array( $env, array( 'live', 'sandbox' ), true ) ) {
+			if ( in_array( $env, array( 'live'/*, 'sandbox'*/ ), true ) ) {
 				$env = 'live';
 			}
 

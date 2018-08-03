@@ -2,7 +2,7 @@
 /**
  * Fields of Plugins settings.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  * @since 1.0.0
@@ -53,7 +53,7 @@ return array(
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
 			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+			'https://www.paypal.com/businessprofile/mytools/apiaccess/firstparty'
 		),
 		'default'     => '',
 		'desc_tip'    => false,
@@ -64,7 +64,7 @@ return array(
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
 			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+			'https://www.paypal.com/businessprofile/mytools/apiaccess/firstparty'
 		),
 		'default'     => '',
 		'desc_tip'    => false,
@@ -75,7 +75,7 @@ return array(
 		'description' => __( 'Get your API credentials from PayPal.', 'woocommerce-paypal-express-mx' ) . ' ' . sprintf(
 			/* translators: %1$s: is URL of manual-get Sandbox API Credential.  */
 					__( 'To get Sandbox NVP/SOAP manualy click <a href="%1$s" target="_blank">here</a>', 'woocommerce-paypal-express-mx' ),
-			'https://www.sandbox.paypal.com/businessprofile/mytools/apiaccess/firstparty'
+			'https://www.paypal.com/businessprofile/mytools/apiaccess/firstparty'
 		),
 		'default'     => '',
 		'desc_tip'    => false,
@@ -183,6 +183,7 @@ return array(
 		'default'     => 'WC-',
 		'desc_tip'    => true,
 	),
+	/*
 	'require_confirmed_address' => array(
 		'title'       => __( 'Require confirmed address by Paypal for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
@@ -191,16 +192,6 @@ return array(
 		'description' => __( 'Require buyer to enter their confirmed address during checkout for Selling Protection Program', 'woocommerce-paypal-express-mx' ),
 	),
 
-	/*
-	'credit_enabled' => array(
-		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
-		'type'        => 'checkbox',
-		'label'       => __( 'Currently PayPal Credit only available for U.S. merchants.', 'woocommerce-paypal-express-mx' ),
-		'disabled'    => ! $this->is_credit_supported(),
-		'default'     => 'no',
-		'desc_tip'    => true,
-		'description' => __( 'This enables PayPal Credit, which displays a PayPal Credit button next to the Express Checkout button. PayPal Express Checkout lets you give customers access to financing through PayPal Credit® - at no additional cost to you. You get paid up front, even though customers have more time to pay. A pre-integrated payment button shows up next to the PayPal Button, and lets customers pay quickly with PayPal Credit®.', 'woocommerce-paypal-express-mx' ),
-	),
 	 'require_billing_address' => array(
 		'title'       => __( 'Billing Addresses', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
@@ -209,6 +200,23 @@ return array(
 		'description' => sprintf( __( 'PayPal only returns a shipping address back to the website. To make sure billing address is returned as well, please enable this functionality on your PayPal account by calling %1$sPayPal Technical Support%2$s.', 'woocommerce-paypal-express-mx' ), '<a href="https://www.paypal.com/us/selfhelp/contact/call">', '</a>' ),
 	),
 	*/
+	'credit_enabled' => array(
+		'title'       => __( 'Enable PayPal Credit', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Currently PayPal Credit only available for U.S. merchants.', 'woocommerce-paypal-express-mx' ),
+		//'disabled'    => ! $this->is_credit_supported(),
+		'default'     => 'no',
+		'desc_tip'    => true,
+		'description' => __( 'This enables PayPal Credit, which displays a PayPal Credit button next to the Express Checkout button. PayPal Express Checkout lets you give customers access to financing through PayPal Credit® - at no additional cost to you. You get paid up front, even though customers have more time to pay. A pre-integrated payment button shows up next to the PayPal Button, and lets customers pay quickly with PayPal Credit®.', 'woocommerce-paypal-express-mx' ),
+	),
+	'btn_branding_enabled' => array(
+		'title'       => __( 'Show branding icons', 'woocommerce-paypal-express-mx' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Show branding icons', 'woocommerce-paypal-express-mx' ),
+		'default'     => 'no',
+		'desc_tip'    => true,
+		'description' => __( 'This enables branding icons on payment button.', 'woocommerce-paypal-express-mx' ),
+	),
 	'paymentaction' => array(
 		'title'       => __( 'Payment Type', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
@@ -249,13 +257,13 @@ return array(
 		'description' => __( 'This controls the description which the user sees during checkout for Installment.', 'woocommerce-paypal-express-mx' ),
 		'default'     => __( 'Pay via PayPal with Installment.', 'woocommerce-paypal-express-mx' ),
 	),
-	'require_phone_number' => array(
+	/* 'require_phone_number' => array(
 		'title'       => __( 'Require Phone Number', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'checkbox',
 		'label'       => __( 'Require Phone Number', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'no',
 		'description' => __( 'Require buyer to enter their telephone number during checkout if none is provided by PayPal', 'woocommerce-paypal-express-mx' ),
-	),
+	), */
 	'checkout_mode' => array(
 		'title'       => __( 'Checkout Mode', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
@@ -264,9 +272,9 @@ return array(
 		'default'     => 'live',
 		'desc_tip'    => true,
 		'options'     => array(
-			'modal'              => __( 'Modal Windows with confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
-			'modal_on_checkout'  => __( 'Modal Windows without confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
-			'redirect'           => __( 'Redirect', 'woocommerce-paypal-express-mx' ),
+			'modal'             => __( 'Modal Windows with confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
+			'modal_on_checkout' => __( 'Modal Windows without confirmation page on Checkout', 'woocommerce-paypal-express-mx' ),
+			'redirect'          => __( 'Redirect', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'debug' => array(
@@ -297,20 +305,20 @@ return array(
 		'desc_tip'    => true,
 	),
 	'button_size_cart' => array(
-		'title'       => __( 'Button Size on Cart', 'woocommerce-paypal-express-mx' ),
+		'title'       => __( 'Button Size on Checkout', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your cart page.', 'woocommerce-paypal-express-mx' ),
 		'default'     => 'medium',
 		'desc_tip'    => true,
 		'options'     => array(
-			'small'  => __( 'Small', 'woocommerce-paypal-express-mx' ),
 			'medium' => __( 'Medium', 'woocommerce-paypal-express-mx' ),
+			'large' => __( 'Large', 'woocommerce-paypal-express-mx' ),
 			'responsive'  => __( 'Responsive', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'button_size_product' => array(
-		'title'       => __( 'Button Size on Product', 'woocommerce-paypal-express-mx' ),
+		'title'       => __( 'Button Size on Product or Cart', 'woocommerce-paypal-express-mx' ),
 		'type'        => 'select',
 		'class'       => 'wc-enhanced-select',
 		'description' => __( 'PayPal offers different sizes of the "PayPal Checkout" buttons, allowing you to select a size that best fits your site\'s theme. This setting will allow you to choose which size button(s) appear on your product page.', 'woocommerce-paypal-express-mx' ),
@@ -319,6 +327,7 @@ return array(
 		'options'     => array(
 			'small'       => __( 'Small', 'woocommerce-paypal-express-mx' ),
 			'medium'      => __( 'Medium', 'woocommerce-paypal-express-mx' ),
+			'large'       => __( 'Large', 'woocommerce-paypal-express-mx' ),
 			'responsive'  => __( 'Responsive', 'woocommerce-paypal-express-mx' ),
 		),
 	),
@@ -355,8 +364,8 @@ return array(
 		'default'     => 'blue',
 		'desc_tip'    => true,
 		'options'     => array(
-			'es_ES'    => __( 'Spanish', 'woocommerce-paypal-express-mx' ),
-			'en_US'    => __( 'English', 'woocommerce-paypal-express-mx' ),
+			'auto'    => __( 'Automatic', 'woocommerce-paypal-express-mx' ),
+			'store'    => __( 'Store Lang', 'woocommerce-paypal-express-mx' ),
 		),
 	),
 	'landing_page' => array(

@@ -2,7 +2,7 @@
 /**
  * Logo for WooCommerce Plugin.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  */
@@ -163,11 +163,10 @@ class WC_PayPal_Logos {
 		 * adding the product to the cart taken account if it is a
 		 * simple or variable product.
 		 */
-		if ( is_product() ) {
+        if ( is_product() || isset($_POST['porduct_id']) && (int)$_POST['porduct_id'] > 0 ) {
+            $product = wc_get_product( is_product()?$post->ID:(int)$_POST['porduct_id'] );
 			PPWC()->cart->empty_cart();
-			$product = wc_get_product( $post->ID );
 			$qty     = ! isset( $_POST['qty'] ) ? 1 : absint( $_POST['qty'] ); // @codingStandardsIgnoreLine
-
 			if ( $product->is_type( 'variable' ) ) {
 				if ( ! isset( $_POST['attributes'] ) || ! is_array( $_POST['attributes'] ) ) { // @codingStandardsIgnoreLine
 					$_POST['attributes'] = array();
@@ -260,18 +259,33 @@ class WC_PayPal_Logos {
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
 					'environment'   => $env == 'live'?'production':$env,
-					'locale'        => $this->get_option( 'button_locale', 'es_ES' ),
-					'style'         => array(
+					'locale'        => $this->get_option( 'button_locale', 'auto' ),
+					'style_products'         => array(
 						'size'  => $this->get_option( 'button_size_product', 'medium' ),
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
+					),
+					'style_checkout'         => array(
+						'size'  => $this->get_option( 'button_size_product', 'medium' ),
+						'color' => $this->get_option( 'button_color', 'gold' ),
+						'shape' => $this->get_option( 'button_type', 'pill' ),
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'vertical',
+                        'label' => 'pay',
 					),
 					'style_widget'         => array(
 						'size'  => 'small',
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
 					),
 					'att_empty'     => __( 'Please select all attributes', 'woocommerce-paypal-express-mx' ),
 					'pp_error'      => __( 'Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
@@ -291,18 +305,33 @@ class WC_PayPal_Logos {
 				array(
 					'payer_id'      => WC_PayPal_Interface_Latam::get_payer_id(),
 					'environment'   => $env == 'live'?'production':$env,
-					'locale'        => $this->get_option( 'button_locale', 'es_ES' ),
-					'style'         => array(
-						'size'  => $this->get_option( 'button_size_cart', 'medium' ),
+					'locale'        => $this->get_option( 'button_locale', 'auto' ),
+					'style_products'         => array(
+						'size'  => $this->get_option( 'button_size_product', 'medium' ),
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
+					),
+					'style_checkout'         => array(
+						'size'  => $this->get_option( 'button_size_product', 'medium' ),
+						'color' => $this->get_option( 'button_color', 'gold' ),
+						'shape' => $this->get_option( 'button_type', 'pill' ),
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'vertical',
+                        'label' => 'pay',
 					),
 					'style_widget'         => array(
 						'size'  => 'small',
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
 					),
 					'btn_banner' => plugins_url( '../img/banner-payment-btn.jpg', __FILE__ ),
 					'att_empty'     => __( 'Please select all attributes', 'woocommerce-paypal-express-mx' ),
@@ -329,18 +358,33 @@ class WC_PayPal_Logos {
 					'att_empty'     => __( 'Please select all attributes', 'woocommerce-paypal-express-mx' ),
 					'pp_error'      => __( 'Error sending you cart to paypal, try later please', 'woocommerce-paypal-express-mx' ),
 					'flow_method'   => $this->checkout_mode,
-					'locale'        => $this->get_option( 'button_locale', 'es_ES' ),
-					'style'         => array(
-						'size'  => $this->get_option( 'button_size_cart', 'medium' ),
+					'locale'        => $this->get_option( 'button_locale', 'auto' ),
+					'style_products'         => array(
+						'size'  => $this->get_option( 'button_size_product', 'medium' ),
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
+					),
+					'style_checkout'         => array(
+						'size'  => $this->get_option( 'button_size_product', 'medium' ),
+						'color' => $this->get_option( 'button_color', 'gold' ),
+						'shape' => $this->get_option( 'button_type', 'pill' ),
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'vertical',
+                        'label' => 'pay',
 					),
 					'style_widget'         => array(
 						'size'  => 'small',
 						'color' => $this->get_option( 'button_color', 'gold' ),
 						'shape' => $this->get_option( 'button_type', 'pill' ),
-						'label' => 'checkout',
+                        'branding' => (bool)$this->get_option('btn_branding_enabled'),
+                        'credit' => (bool)$this->get_option('credit_enabled'),
+                        'layout' => 'horizontal',
+                        'label' => 'checkout',
 					),
 					'start_flow'    => esc_url( add_query_arg( array(
 						'ppexpress_mx' => 'true',

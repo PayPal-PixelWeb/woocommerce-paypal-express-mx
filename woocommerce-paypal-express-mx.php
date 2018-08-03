@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: PayPal Express Checkout MX
+ * Plugin Name: PayPal Express Checkout
  * Plugin URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
- * Description: PayPal Express Checkout MX
+ * Description: PayPal Express Checkout
  * Author: PayPal, Leivant, PixelWeb, Kijam
  * Author URI: https://github.com/PayPal-PixelWeb/woocommerce-paypal-express-mx
- * Version: 1.0.1
+ * Version: 1.0.2
  * License: Apache-2.0
  * Text Domain: woocommerce-paypal-express-mx
  * Domain Path: /languages/
@@ -38,7 +38,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 *
 		 * @since 1.0.0
 		 */
-		const VERSION = '1.0.1';
+		const VERSION = '1.0.2';
 
 		/**
 		 * Instance of this class.
@@ -166,7 +166,7 @@ if ( ! class_exists( 'WC_Paypal_Express_MX' ) ) :
 		 * @since 1.0.0
 		 */
 		public function woocommerce_missing_version_notice() {
-			echo '<div class="error"><p>' . esc_html( __( 'WooCommerce Gateway PayPal Express Checkout MX requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) ) . '</p></div>';
+			echo '<div class="error"><p>' . esc_html( __( 'WooCommerce Gateway PayPal Express Checkout requires WooCommerce version 2.5 or greater', 'woocommerce-paypal-express-mx' ) ) . '</p></div>';
 		}
 
 		/**

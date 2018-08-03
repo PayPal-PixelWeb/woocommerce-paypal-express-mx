@@ -18,10 +18,9 @@
 		$( '#btn_ppexpress_mx_order' ).each(function() {
 			if ( ! $( this ).hasClass( 'addedEventPP' ) ) {
 				$( this ).addClass( 'addedEventPP' );
-				paypal.Button.render({
+				var data = {
 					env: wc_ppexpress_cart_context.environment,
-					locale: wc_ppexpress_cart_context.locale,
-					style: wc_ppexpress_cart_context.style,
+					style: wc_ppexpress_cart_context.style_checkout,
 					payment: function() {
 						return $( '#btn_ppexpress_mx_order' ).attr( 'data-token' );
 					},
@@ -31,7 +30,32 @@
 					onCancel: function(data, actions) {
 						return actions.redirect();
 					}
-				}, $( this ).attr( 'id' ) );
+				};
+                var is_credit = data.style.credit;
+                var is_branding = data.style.branding;
+                if (wc_ppexpress_cart_context.locale != 'auto') {
+                    data.locale = wc_ppexpress_cart_context.locale;
+                }
+                if (is_branding) {
+                    if (data.style.layout != 'vertical') {
+                        data.style.fundingicons = true;
+                    }
+                    data.style.branding = true;
+                } else {
+                    delete data.style.branding;
+                }
+                if (is_credit) {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD, paypal.FUNDING.CREDIT],
+                        disallowed: []
+                    };
+                } else {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD],
+                        disallowed: [paypal.FUNDING.CREDIT]
+                    };
+                }
+                paypal.Button.render( data, $( this ).attr( 'id' ) );
 			}
 		});
 		return;
@@ -54,10 +78,9 @@
 				$( this ).addClass( 'pp_place_order_original' );
 				$( this ).parent().append( '<div id="btn_ppexpress_mx_checkout" class="pp_place_order_replace" style="width: 100%;text-align: center;"></div>' );
 				$( 'input[name="payment_method"]' ).trigger( 'change' );
-				paypal.Button.render({
+				var data = {
 					env: wc_ppexpress_cart_context.environment,
-					locale: wc_ppexpress_cart_context.locale,
-					style: wc_ppexpress_cart_context.style,
+					style: wc_ppexpress_cart_context.style_checkout,
 					payment: function(ok, err) {
 						var defer = new paypal.Promise(function(resolve, reject) {
 							defer_ok = resolve;
@@ -74,7 +97,32 @@
 					onCancel: function(data, actions) {
 						return actions.redirect();
 					}
-				}, 'btn_ppexpress_mx_checkout' );
+				};
+                var is_credit = data.style.credit;
+                var is_branding = data.style.branding;
+                if (wc_ppexpress_cart_context.locale != 'auto') {
+                    data.locale = wc_ppexpress_cart_context.locale;
+                }
+                if (is_branding) {
+                    if (data.style.layout != 'vertical') {
+                        data.style.fundingicons = true;
+                    }
+                    data.style.branding = true;
+                } else {
+                    delete data.style.branding;
+                }
+                if (is_credit) {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD, paypal.FUNDING.CREDIT],
+                        disallowed: []
+                    };
+                } else {
+                    data.funding = {
+                        allowed: [paypal.FUNDING.CARD],
+                        disallowed: [paypal.FUNDING.CREDIT]
+                    };
+                }
+                paypal.Button.render( data, 'btn_ppexpress_mx_checkout' );
 			}
 		});
 	}

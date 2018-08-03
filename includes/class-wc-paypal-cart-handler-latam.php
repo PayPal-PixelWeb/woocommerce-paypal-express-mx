@@ -2,7 +2,7 @@
 /**
  * Cart Handler for WooCommerce Plugin.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  */
@@ -369,18 +369,11 @@ class WC_PayPal_Cart_Handler_Latam {
 				&& isset( $session['start_from'] )
 				&& 'cart' === $session['start_from'] ) {
 				add_action( 'woocommerce_checkout_init', array( $this, 'checkout_init' ) );
-				add_filter( 'woocommerce_default_address_fields', array( $this, 'filter_default_address_fields' ) );
-				add_filter( 'woocommerce_billing_fields', array( $this, 'filter_billing_fields' ) );
-				add_action( 'woocommerce_checkout_process', array( $this, 'copy_checkout_details_to_post' ) );
-
 				add_action( 'woocommerce_cart_emptied', array( $this, 'maybe_clear_session_data' ) );
-
-				add_action( 'woocommerce_available_payment_gateways', array( $this, 'maybe_disable_other_gateways' ) );
-				add_action( 'woocommerce_review_order_after_submit', array( $this, 'maybe_render_cancel_link' ) );
-
-				add_action( 'woocommerce_cart_shipping_packages', array( $this, 'maybe_add_shipping_information' ) );
 			}
 		}
+        add_action( 'woocommerce_available_payment_gateways', array( $this, 'maybe_disable_other_gateways' ) );
+        add_action( 'woocommerce_review_order_after_submit', array( $this, 'maybe_render_cancel_link' ) );
 	}
 	/**
 	 * Get instance of this class.
@@ -433,198 +426,12 @@ class WC_PayPal_Cart_Handler_Latam {
 	 * @since 1.0.0
 	 */
 	function checkout_init( $checkout ) {
-		// Since we've removed the billing and shipping checkout fields, we should also remove the
-		// billing and shipping portion of the checkout form.
-		remove_action( 'woocommerce_checkout_billing', array( $checkout, 'checkout_form_billing' ) );
-		remove_action( 'woocommerce_checkout_shipping', array( $checkout, 'checkout_form_shipping' ) );
-
-		add_action( 'woocommerce_checkout_billing', array( $this, 'paypal_billing_details' ) );
-		add_action( 'woocommerce_checkout_shipping', array( $this, 'paypal_shipping_details' ) );
-	}
-	/**
-	 * Show billing information obtained from PayPal. This replaces the billing fields
-	 * that the customer would ordinarily fill in. Should only happen if we have an active
-	 * session (e.g. if the customer started checkout with PayPal from their cart.)
-	 *
-	 * Is hooked to woocommerce_checkout_billing action by checkout_init
-	 *
-	 * @since 1.0.0
-	 */
-	public function paypal_billing_details() {
-		$session    = PPWC()->session->get( 'paypal_mx', array() );
-		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token'];  // @codingStandardsIgnoreLine
-		$checkout_details = $this->get_checkout( $token );
-		if ( false === $checkout_details ) {
-			wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
-			wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
-			exit;
-		}
-		$billing = $this->get_mapped_billing_address( $checkout_details );
-		?>
-		<div class="woocommerce-billing-fields__field-wrapper" id="not-popup-ppexpress-mx"></div>
-		<h3><?php echo esc_html( __( 'Billing details', 'woocommerce-paypal-express-mx' ) ); ?></h3>
-		<ul>
-			<?php if ( ! empty( $billing['address_1'] ) ) : ?>
-				<li>
-					<strong>
-						<?php
-							echo esc_html( __( 'Address:', 'woocommerce-paypal-express-mx' ) );
-						?>
-					</strong>
-				</br>
-				<?php
-					echo PPWC()->countries->get_formatted_address( $billing ); // @codingStandardsIgnoreLine
-				?>
-				</li>
-			<?php else : ?>
-				<li>
-					<strong>
-						<?php
-							echo esc_html( __( 'Name:', 'woocommerce-paypal-express-mx' ) );
-						?>
-					</strong>
-					<?php
-						echo esc_html( $billing ['first_name'] . ' ' . $billing ['last_name'] );
-					?>
-				</li>
-			<?php endif; ?>
-
-			<?php if ( ! empty( $billing ['email'] ) ) : ?>
-				<li>
-					<strong>
-						<?php
-							echo esc_html( __( 'Email:', 'woocommerce-paypal-express-mx' ) );
-						?>
-					</strong>
-					<?php
-						echo esc_html( $billing ['email'] );
-					?>
-				</li>
-			<?php endif; ?>
-
-			<?php if ( ! empty( $billing ['phone'] ) ) : ?>
-				<li>
-					<strong>
-						<?php
-							echo esc_html( __( 'Tel:', 'woocommerce-paypal-express-mx' ) );
-						?>
-					</strong>
-					<?php
-						echo esc_html( $billing ['phone'] );
-					?>
-				</li>
-			<?php elseif ( 'yes' === $this->get_option( 'require_phone_number' ) ) : ?>
-				<li>
-					<?php
-						woocommerce_form_field( 'billing_phone', array(
-							'label' => __( 'Phone', 'woocommerce-paypal-express-mx' ),
-							'required' => true,
-							'validate' => array( 'phone' ),
-						) );
-					?>
-				</li>
-			<?php endif; ?>
-		</ul>
-		<?php
-	}
-	/**
-	 * Show shipping information obtained from PayPal. This replaces the shipping fields
-	 * that the customer would ordinarily fill in. Should only happen if we have an active
-	 * session (e.g. if the customer started checkout with PayPal from their cart.)
-	 *
-	 * Is hooked to woocommerce_checkout_shipping action by checkout_init
-	 *
-	 * @since 1.0.0
-	 */
-	public function paypal_shipping_details() {
-		if ( method_exists( PPWC()->cart, 'needs_shipping' ) && ! PPWC()->cart->needs_shipping() ) {
-			return;
-		}
-
-		$session          = PPWC()->session->get( 'paypal_mx' );
-		$token = isset( $_GET['token'] ) ? $_GET['token'] : $session['get_express_token']; // @codingStandardsIgnoreLine
-		$checkout_details = $this->get_checkout( $token );
-		if ( false === $checkout_details ) {
-			wc_add_notice( __( 'Sorry, an error occurred while trying to retrieve your information from PayPal. Please try again.', 'woocommerce-paypal-express-mx' ), 'error' );
-			wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
-			exit;
-		}
-		?>
-		<h3><?php __( 'Shipping details', 'woocommerce-paypal-express-mx' ); ?></h3>
-		<?php
-		echo PPWC()->countries->get_formatted_address( $this->get_mapped_shipping_address( $checkout_details ) ); // @codingStandardsIgnoreLine
-	}
-	/**
-	 * This function filter the packages adding shipping information from PayPal on the checkout page
-	 * after the user is authenticated by PayPal.
-	 *
-	 * @param array $packages list of packages.
-	 *
-	 * @return array
-	 *
-	 * @since 1.0.0
-	 */
-	public function maybe_add_shipping_information( $packages ) {
-		$checkout_details = $this->get_checkout( wc_clean( $_GET['token'] ) ); // @codingStandardsIgnoreLine
-		if ( true !== $checkout_details ) {
-			$destination = $this->get_mapped_shipping_address( $checkout_details );
-			$packages[0]['destination']['country']   = $destination['country'];
-			$packages[0]['destination']['state']     = $destination['state'];
-			$packages[0]['destination']['postcode']  = $destination['postcode'];
-			$packages[0]['destination']['city']      = $destination['city'];
-			$packages[0]['destination']['address']   = $destination['address_1'];
-			$packages[0]['destination']['address_2'] = $destination['address_2'];
-		}
-		return $packages;
-	}
-
-	/**
-	 * If the cart doesn't need shipping at all, don't require the address fields
-	 * This is one of two places we need to filter fields.
-	 * See also filter_billing_fields below.
-	 *
-	 * @param array $fields list of fields to check.
-	 *
-	 * @return array
-	 *
-	 * @since 1.0.0
-	 */
-	public function filter_default_address_fields( $fields ) {
-		$session    = PPWC()->session->get( 'paypal_mx', array() );
-		if ( ! empty( $_GET['token'] ) // @codingStandardsIgnoreLine
-			&& ! empty( $_GET['PayerID'] ) // @codingStandardsIgnoreLine
-			&& isset( $session['start_from'] ) ) {
-			$not_required_fields = array( 'address_1', 'city', 'state', 'postcode', 'country' );
-			foreach ( $not_required_fields as $not_required_field ) {
-				if ( array_key_exists( $not_required_field, $fields ) ) {
-					$fields[ $not_required_field ]['required'] = false;
-					$fields[ $not_required_field ]['validate'] = array();
-				}
-			}
-		}
-
-		return $fields;
-
-	}
-
-	/**
-	 * When an active session is present, gets (from PayPal) the buyer details
-	 * and replaces the appropriate checkout fields in $_POST
-	 *
-	 * Hooked to woocommerce_checkout_process
-	 *
-	 * @since 1.0.0
-	 */
-	public function copy_checkout_details_to_post() {
-
+        
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
 
 		// Make sure the selected payment method is ppexpress_mx.
 		if ( ! is_array( $session )
 			|| ! isset( $session['start_from'] )
-			|| 'cart' !== $session['start_from']
-			|| ! isset( $_POST['payment_method'] ) // @codingStandardsIgnoreLine
-			|| ( 'ppexpress_mx' !== $_POST['payment_method'] && 'ppexpress_installment_mx' !== $_POST['payment_method'] ) // @codingStandardsIgnoreLine
 		) {
 			return;
 		}
@@ -632,29 +439,17 @@ class WC_PayPal_Cart_Handler_Latam {
 
 		$checkout_details = $this->get_checkout( $token );
 		if ( false !== $checkout_details ) {
-			$shipping_details = $this->get_mapped_shipping_address( $checkout_details );
-			foreach ( $shipping_details as $key => $value ) {
-				$_POST[ 'shipping_' . $key ] = $value;
-			}
-
 			$billing_details = $this->get_mapped_billing_address( $checkout_details );
-			// If the billing address is empty, copy address from shipping.
-			if ( empty( $billing_details['address_1'] ) ) {
-				$copyable_keys = array( 'address_1', 'address_2', 'city', 'state', 'postcode', 'country' );
-				foreach ( $copyable_keys as $copyable_key ) {
-					if ( array_key_exists( $copyable_key, $shipping_details ) ) {
-						$billing_details[ $copyable_key ] = $shipping_details[ $copyable_key ];
-					}
-				}
-			}
 			foreach ( $billing_details as $key => $value ) {
 				if ( 'phone' === $key && empty( $value ) && isset( $_POST['billing_phone'] ) ) { // @codingStandardsIgnoreLine
 					continue;
 				}
 				$_POST[ 'billing_' . $key ] = $value;
+				$_POST[ 'shipping_' . $key ] = $value;
 			}
 		}
 	}
+
 	/**
 	 * Maybe disable this or other gateways.
 	 *
@@ -667,7 +462,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	public function maybe_disable_other_gateways( $gateways ) {
 		$session    = PPWC()->session->get( 'paypal_mx', array() );
 		// Unset all other gateways after checking out from cart.
-		if ( isset( $session['start_from'] ) && 'cart' === $session['start_from'] && $session['expire_in'] > time() ) {
+		if ( isset( $session['start_from'] ) && ('cart' === $session['start_from'] || 'product' === $session['start_from']) && $session['expire_in'] > time() ) {
 			foreach ( $gateways as $id => $gateway ) {
 				if ( 'ppexpress_mx' !== $id && 'ppexpress_installment_mx' !== $id ) {
 					unset( $gateways[ $id ] );
@@ -708,12 +503,12 @@ class WC_PayPal_Cart_Handler_Latam {
 	 *
 	 * @since 1.0.0
 	 */
-	public function filter_billing_fields( $billing_fields ) {
+	/* public function filter_billing_fields( $billing_fields ) {
 		if ( array_key_exists( 'billing_phone', $billing_fields ) ) {
 			$billing_fields['billing_phone']['required'] = 'yes' === $this->get_option( 'require_phone_number' );
 		};
 		return $billing_fields;
-	}
+	} */
 	/**
 	 * Start checkout.
 	 *
@@ -817,8 +612,6 @@ class WC_PayPal_Cart_Handler_Latam {
 					'order_id'  => $order_id,
 					'order_key' => $order_key,
 				) );
-			}
-			if ( 'checkout' === $args['start_from'] && 'yes' !== $this->get_option( 'require_confirmed_address' ) ) {
 				$address = new AddressType();
 				$address->Name            = $details['shipping_address']['name']; // @codingStandardsIgnoreLine
 				$address->Street1         = $details['shipping_address']['address1']; // @codingStandardsIgnoreLine
@@ -829,15 +622,17 @@ class WC_PayPal_Cart_Handler_Latam {
 				$address->PostalCode      = $details['shipping_address']['zip']; // @codingStandardsIgnoreLine
 				$address->Phone           = $details['shipping_address']['phone']; // @codingStandardsIgnoreLine
 				$payment_details->ShipToAddress = $address; // @codingStandardsIgnoreLine
-				$set_express_details->AddressOverride = 1; // @codingStandardsIgnoreLine
+                /*
+                 * Determines where or not PayPal displays shipping address fields on the PayPal pages. For digital goods, this field is required, and you must set it to 1. It is one of the following values:
+                    0 ? PayPal displays the shipping address on the PayPal pages.
+                    1 ? PayPal does not display shipping address fields whatsoever.
+                    2 ? If you do not pass the shipping address, PayPal obtains it from the buyer's account profile.
+                 */
+                $set_express_details->NoShipping = 0; // @codingStandardsIgnoreLine
 			} else {
-				/*
-				 * Indicates whether or not you require the buyer's shipping address on file with PayPal be a confirmed address. For digital goods, this field is required, and you must set it to 0. It is one of the following values:
-					0 ? You do not require the buyer's shipping address be a confirmed address.
-					1 ? You require the buyer's shipping address be a confirmed address.
-				 */
-				$set_express_details->ReqConfirmShipping = 'yes' === $this->get_option( 'require_confirmed_address' ) ? 1 : 0; // @codingStandardsIgnoreLine
-			}
+                $set_express_details->NoShipping = 1; // @codingStandardsIgnoreLine
+            }
+            $set_express_details->AddressOverride = 1; // @codingStandardsIgnoreLine
 			$payment_details->OrderTotal       = $order_total; // @codingStandardsIgnoreLine
 			$payment_details->PaymentAction    = $this->get_option( 'paymentaction' ); // @codingStandardsIgnoreLine
 			$payment_details->ItemTotal        = $item_total; // @codingStandardsIgnoreLine
@@ -852,13 +647,6 @@ class WC_PayPal_Cart_Handler_Latam {
 				$set_express_details->LandingPage = $this->get_option( 'landing_page' ); // @codingStandardsIgnoreLine
 			}
 
-			/*
-			 * Determines where or not PayPal displays shipping address fields on the PayPal pages. For digital goods, this field is required, and you must set it to 1. It is one of the following values:
-				0 ? PayPal displays the shipping address on the PayPal pages.
-				1 ? PayPal does not display shipping address fields whatsoever.
-				2 ? If you do not pass the shipping address, PayPal obtains it from the buyer's account profile.
-			 */
-			$set_express_details->NoShipping = 0; // @codingStandardsIgnoreLine
 			$set_express_request_type = new SetExpressCheckoutRequestType();
 			$set_express_request_type->SetExpressCheckoutRequestDetails = $set_express_details; // @codingStandardsIgnoreLine
 			$set_express_request = new SetExpressCheckoutReq();
@@ -931,17 +719,16 @@ class WC_PayPal_Cart_Handler_Latam {
 		$pp_service = WC_PayPal_Interface_Latam::get_static_interface_service();
 		try {
 			/* wrap API method calls on the service object with a try catch */
+				WC_Paypal_Logger::obj()->debug( 'DATA for get_checkout: '.print_r($request, true));
 			$response = $pp_service->GetExpressCheckoutDetails( $request );
 			if ( in_array( $response->Ack, array( 'Success', 'SuccessWithWarning' ), true ) ) { // @codingStandardsIgnoreLine
-				WC_Paypal_Logger::obj()->debug( 'Result on get_checkout', array( $response ) );
-				WC_Paypal_Logger::obj()->debug( 'DATA for get_checkout', array( $request ) );
+				WC_Paypal_Logger::obj()->debug( 'Result on get_checkout: '.print_r($response, true));
 				return $response;
 			} else {
 				throw new Exception( print_r( $response, true ) ); // @codingStandardsIgnoreLine
 			}
 		} catch ( Exception $e ) {
 			WC_Paypal_Logger::obj()->warning( 'Error on get_checkout: ' . $e->getMessage() );
-			WC_Paypal_Logger::obj()->warning( 'DATA for get_checkout', array( $request ) );
 			return false;
 		}
 	}
@@ -963,6 +750,7 @@ class WC_PayPal_Cart_Handler_Latam {
 	 */
 	public function do_checkout( $order_id, $payer_id, $token, $custom = false, $invoice = false ) {
 		$details = $this->_get_details_from_order( $order_id );
+        $session = PPWC()->session->get( 'paypal_mx', array() );
 		$notify_url = str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'wc_gateway_ipn_paypal_latam', home_url( '/' ) ) );
 		$order_total = new BasicAmountType();
 		$order_total->currencyID = get_woocommerce_currency(); // @codingStandardsIgnoreLine
@@ -970,6 +758,18 @@ class WC_PayPal_Cart_Handler_Latam {
 		$payment = new PaymentDetailsType();
 		$payment->OrderTotal = $order_total; // @codingStandardsIgnoreLine
 		$payment->NotifyURL  = $notify_url; // @codingStandardsIgnoreLine
+        if ( 'checkout' !== $session['start_from'] && isset( $details['shipping_address'] ) ) {
+            $address = new AddressType();
+            $address->Name            = $details['shipping_address']['name']; // @codingStandardsIgnoreLine
+            $address->Street1         = $details['shipping_address']['address1']; // @codingStandardsIgnoreLine
+            $address->Street2         = $details['shipping_address']['address2']; // @codingStandardsIgnoreLine
+            $address->CityName        = $details['shipping_address']['city']; // @codingStandardsIgnoreLine
+            $address->StateOrProvince = $details['shipping_address']['state']; // @codingStandardsIgnoreLine
+            $address->Country         = $details['shipping_address']['country']; // @codingStandardsIgnoreLine
+            $address->PostalCode      = $details['shipping_address']['zip']; // @codingStandardsIgnoreLine
+            $address->Phone           = $details['shipping_address']['phone']; // @codingStandardsIgnoreLine
+            $payment->ShipToAddress   = $address; // @codingStandardsIgnoreLine
+        }
 		if ( false !== $custom ) {
 			$payment->Custom  = $custom; // @codingStandardsIgnoreLine
 		}

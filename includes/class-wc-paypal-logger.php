@@ -151,18 +151,20 @@ if ( ! class_exists( 'WC_Paypal_Logger' ) ) :
 			@fwrite( $fp, 'URL: ' . ( isset( $_SERVER['HTTPS'] ) ? 'https' : 'http' ) . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n" );
 			@fwrite( $fp, 'CONTEXT: ' . print_r( $context, true ) . "\n" );
 			if ( self::$log_level == self::PARANOID ) {
-				@fwrite( $fp, 'POST: ' . print_r( $_POST, true ) );
-				@fwrite( $fp, 'GET: ' . print_r( $_GET, true ) );
-				@fwrite( $fp, "TRACE:\n" );
-				$e = new Exception();
-				$trace = explode( "\n", $e->getTraceAsString() );
-				$trace = array_reverse( $trace );
-				array_shift( $trace ); // remove {main}
-				array_pop( $trace ); // remove call to this method
-				$length = count( $trace );
-				for ( $i = 0 ; $i < $length ; $i++ ) {
-					@fwrite( $fp, ($i + 1) . ')' . substr( $trace[ $i ], strpos( $trace[ $i ], ' ' ) ) . "\n" );
-				}
+                @fwrite( $fp, 'POST: ' . print_r( $_POST, true ) );
+                @fwrite( $fp, 'GET: ' . print_r( $_GET, true ) );
+				if ( ! in_array( $level, array( \Psr\Log\LogLevel::NOTICE, \Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::DEBUG ), true ) ) {
+                    @fwrite( $fp, "TRACE:\n" );
+                    $e = new Exception();
+                    $trace = explode( "\n", $e->getTraceAsString() );
+                    $trace = array_reverse( $trace );
+                    array_shift( $trace ); // remove {main}
+                    array_pop( $trace ); // remove call to this method
+                    $length = count( $trace );
+                    for ( $i = 0 ; $i < $length ; $i++ ) {
+                        @fwrite( $fp, ($i + 1) . ')' . substr( $trace[ $i ], strpos( $trace[ $i ], ' ' ) ) . "\n" );
+                    }
+                }
 			}
 			@fwrite( $fp, "MESSAGE:\n" . print_r( $message, true ) . "\n" );
 			@fclose( $fp );

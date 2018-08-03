@@ -2,7 +2,7 @@
 /**
  * IPS Handler for WooCommerce Plugin.
  *
- * @package   WooCommerce -> Paypal Express Checkout MX
+ * @package   WooCommerce -> Paypal Express Checkout
  * @author    Kijam Lopez <info@kijam.com>
  * @license   Apache-2.0
  */

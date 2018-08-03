@@ -227,13 +227,21 @@ if ( ! class_exists( 'WC_PayPal_IPN_Handler_Latam' ) ) :
 				WC_Paypal_Logger::obj()->warning( 'Error: Order Keys do not match.' );
 				exit;
 			}
-			$check_metadata = array( 'mc_fee', 'txn_id', 'parent_txn_id', 'pending_reason', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
+            if (!isset($this->ipn_data['pending_reason'])) {
+                $this->ipn_data['pending_reason'] = '';
+            }
+			$check_metadata = array( 'mc_fee', 'txn_id', 'parent_txn_id', 'payment_status', 'pending_reason', 'payment_date', 'payer_status', 'address_status', 'protection_eligibility', 'payment_type', 'first_name', 'last_name', 'payer_email' );
 			foreach ( $check_metadata as $meta_key ) {
-				if ( isset( $this->ipn_data[ $meta_key ] ) && ! empty( $this->ipn_data[ $meta_key ] ) ) {
-					$meta_value = wc_clean( $this->ipn_data[ $meta_key ] );
-					WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'ipn_' . $meta_key, $meta_value );
-				}
+                if (isset($this->ipn_data[$meta_key])) {
+                    $meta_value = wc_clean( $this->ipn_data[ $meta_key ] );
+                    if ( ! empty($meta_value) || 'pending_reason' === $meta_key ) {
+                        WC_Paypal_Express_MX_Gateway::set_metadata( $order_id, 'ipn_' . $meta_key, $meta_value );
+                    }
+                }
 			}
+            
+            $this->ipn_data['payment_status'] = strtolower($this->ipn_data['payment_status']);
+            $this->ipn_data['pending_reason'] = strtolower($this->ipn_data['pending_reason']);
 			$this->validate_currency( $order, $this->ipn_data['mc_currency'] );
 			switch ( $this->ipn_data['payment_status'] ) {
 				case 'completed':
