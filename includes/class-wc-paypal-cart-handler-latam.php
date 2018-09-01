@@ -591,6 +591,7 @@ class WC_PayPal_Cart_Handler_Latam {
 				$set_express_details->cpplogoimage = false !== stristr( $logo_image_url, 'http://' ) ? str_ireplace( 'http://', 'https://images.weserv.nl/?url=' , $logo_image_url ) : $logo_image_url;
 			}
 			$payment_details = new PaymentDetailsType();
+			$payment_details->ButtonSource = 'WooSPBLatam_Cart';
 			foreach ( $details['items'] as $idx => $item ) {
 				$item_details = new PaymentDetailsItemType();
 
@@ -756,6 +757,7 @@ class WC_PayPal_Cart_Handler_Latam {
 		$order_total->currencyID = get_woocommerce_currency(); // @codingStandardsIgnoreLine
 		$order_total->value = $details['order_total'];
 		$payment = new PaymentDetailsType();
+		$payment->ButtonSource = 'WooSPBLatam_Cart';
 		$payment->OrderTotal = $order_total; // @codingStandardsIgnoreLine
 		$payment->NotifyURL  = $notify_url; // @codingStandardsIgnoreLine
         if ( 'checkout' !== $session['start_from'] && isset( $details['shipping_address'] ) ) {
@@ -777,6 +779,7 @@ class WC_PayPal_Cart_Handler_Latam {
 			$payment->InvoiceID  = $invoice; // @codingStandardsIgnoreLine
 		}
 		$request_type = new DoExpressCheckoutPaymentRequestDetailsType();
+		$request_type->ButtonSource = 'WooSPBLatam_Cart';
 		$request_type->PayerID = $payer_id; // @codingStandardsIgnoreLine
 		$request_type->Token = $token; // @codingStandardsIgnoreLine
 		$request_type->PaymentAction = $this->get_option( 'paymentaction' ); // @codingStandardsIgnoreLine
